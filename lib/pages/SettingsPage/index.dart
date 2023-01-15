@@ -63,11 +63,19 @@ class SettingsPage extends StatelessWidget {
               title: "Account",
               children: [
                 ListTile(
-                  title: const Text("username"),
+                  title: const Text("@my_username"),
+                  subtitle: const Text(
+                    "Username",
+                    style: TextStyle(fontSize: 12),
+                  ),
                   onTap: () {},
                 ),
                 ListTile(
-                  title: const Text("about"),
+                  title: const Text("eehehehehehe"),
+                  subtitle: const Text(
+                    "Bio",
+                    style: TextStyle(fontSize: 12),
+                  ),
                   onTap: () {},
                 )
               ],
