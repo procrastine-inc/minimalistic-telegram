@@ -58,7 +58,135 @@ class SettingsPage extends StatelessWidget {
           ],
         ),
         body: ListView(
-          children: const [],
+          children: [
+            SettingsCardBlock(
+              title: "Account",
+              children: [
+                ListTile(
+                  title: const Text("username"),
+                  onTap: () {},
+                ),
+                ListTile(
+                  title: const Text("about"),
+                  onTap: () {},
+                )
+              ],
+            ),
+            const SizedBox(
+              height: 14,
+            ),
+            SettingsCardBlock(
+              title: "Settings",
+              children: [
+                ListTile(
+                  visualDensity: VisualDensity.compact,
+                  leading: const Icon(Icons.notifications_outlined),
+                  title: const Text("Notifications and Sounds"),
+                  onTap: () {},
+                ),
+                ListTile(
+                  visualDensity: VisualDensity.compact,
+                  leading: const Icon(Icons.lock_outline),
+                  title: const Text("Privacy and Security"),
+                  onTap: () {},
+                ),
+                ListTile(
+                  visualDensity: VisualDensity.compact,
+                  leading: const Icon(Icons.pie_chart_outline),
+                  title: const Text("Data and Storage"),
+                  onTap: () {},
+                ),
+                ListTile(
+                  visualDensity: VisualDensity.compact,
+                  leading: const Icon(Icons.chat_bubble_outline),
+                  title: const Text("Chat Settings"),
+                  onTap: () {},
+                ),
+                ListTile(
+                  visualDensity: VisualDensity.compact,
+                  leading: const Icon(Icons.sticky_note_2),
+                  title: const Text("Stickers and Emoji"),
+                  onTap: () {},
+                ),
+                ListTile(
+                  visualDensity: VisualDensity.compact,
+                  leading: const Icon(Icons.folder_outlined),
+                  title: const Text("Chat Folders"),
+                  onTap: () {},
+                ),
+                ListTile(
+                  visualDensity: VisualDensity.compact,
+                  leading: const Icon(Icons.devices),
+                  title: const Text("Devices"),
+                  onTap: () {},
+                ),
+                ListTile(
+                  visualDensity: VisualDensity.compact,
+                  leading: const Icon(Icons.language_outlined),
+                  title: const Text("Language"),
+                  onTap: () {},
+                ),
+              ],
+            ),
+            const SizedBox(
+              height: 14,
+            ),
+            SettingsCardBlock(
+              title: "Help",
+              children: [
+                ListTile(
+                  visualDensity: VisualDensity.compact,
+                  leading: const Icon(Icons.help_outline_outlined),
+                  title: const Text("Telegram FAQ"),
+                  onTap: () {},
+                ),
+                ListTile(
+                  visualDensity: VisualDensity.compact,
+                  leading: const Icon(Icons.verified_user_outlined),
+                  title: const Text("Privacy Policy"),
+                  onTap: () {},
+                )
+              ],
+            )
+          ],
         ));
+  }
+}
+
+class SettingsCardBlock extends StatelessWidget {
+  const SettingsCardBlock({
+    Key? key,
+    required this.title,
+    required this.children,
+  }) : super(key: key);
+
+  final String title;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    var theme = Theme.of(context);
+
+    return SafeArea(
+      child: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(0),
+        ),
+        margin: const EdgeInsets.all(0),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 8, 5),
+            child: Text(
+              title,
+              style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: theme.primaryColor),
+            ),
+          ),
+          ...children,
+        ]),
+      ),
+    );
   }
 }
