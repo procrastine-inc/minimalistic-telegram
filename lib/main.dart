@@ -72,7 +72,6 @@ class _MyHomePageState extends State<MyHomePage> {
     // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        leading: const Icon(Icons.menu),
         titleSpacing: 18,
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
@@ -85,7 +84,80 @@ class _MyHomePageState extends State<MyHomePage> {
         onPressed: _incrementCounter,
         tooltip: 'Increment',
         child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      ),
+      drawer: const NavigationDrawer(),
     );
   }
+}
+
+class NavigationDrawer extends StatelessWidget {
+  const NavigationDrawer({super.key});
+
+  @override
+  Widget build(BuildContext context) => Drawer(
+          child: SingleChildScrollView(
+              child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          buildHeader(context),
+          buildMenuItems(context),
+        ],
+      )));
+
+  Widget buildHeader(BuildContext context) => Container(
+        padding: EdgeInsets.only(
+          top: MediaQuery.of(context).padding.top,
+        ),
+      );
+
+  Widget buildMenuItems(BuildContext context) => Column(
+        children: [
+          ListTile(
+            leading: const Icon(Icons.group_outlined),
+            title: const Text("New group"),
+            onTap: () {},
+          ),
+          ListTile(
+            leading: const Icon(Icons.lock_outline),
+            title: const Text("New secret chat"),
+            onTap: () {},
+          ),
+          ListTile(
+            leading: const Icon(Icons.cancel_presentation_sharp),
+            title: const Text("New channel"),
+            onTap: () {},
+          ),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.person_outline),
+            title: const Text("Contacts"),
+            onTap: () {},
+          ),
+          ListTile(
+            leading: const Icon(Icons.download_outlined),
+            title: const Text("Downloads"),
+            onTap: () {},
+          ),
+          ListTile(
+            leading: const Icon(Icons.location_on_outlined),
+            title: const Text("People around"),
+            onTap: () {},
+          ),
+          ListTile(
+            leading: const Icon(Icons.phone_outlined),
+            title: const Text("Calls"),
+            onTap: () {},
+          ),
+          ListTile(
+            leading: const Icon(Icons.bookmark_outline),
+            title: const Text("Featured"),
+            onTap: () {},
+          ),
+          ListTile(
+            leading: const Icon(Icons.settings),
+            title: const Text("Settings"),
+            onTap: () {},
+          ),
+        ],
+      );
 }
