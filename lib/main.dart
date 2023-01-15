@@ -93,9 +93,35 @@ class NavigationDrawer extends StatelessWidget {
         ],
       )));
 
-  Widget buildHeader(BuildContext context) => SafeArea(
-        child: Container(),
-      );
+  Widget buildHeader(BuildContext context) {
+    var theme = Theme.of(context);
+
+    return SafeArea(
+      child: Container(
+          color: theme.primaryColor,
+          child: Column(
+            children: [
+              Text(
+                "username",
+                style: TextStyle(color: theme.colorScheme.onPrimary),
+              ),
+              ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.all(0.0),
+                  shape: const CircleBorder(),
+                  backgroundColor: theme.primaryColorDark,
+                  elevation: 0,
+                ),
+                child: Icon(
+                  Icons.bookmark_outline,
+                  color: theme.colorScheme.onPrimary,
+                ),
+              ),
+            ],
+          )),
+    );
+  }
 
   Widget buildMenuItems(BuildContext context) => Column(
         children: [
