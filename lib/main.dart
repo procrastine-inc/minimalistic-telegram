@@ -71,8 +71,8 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {},
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+        tooltip: 'New chat',
+        child: const Icon(Icons.edit_outlined),
       ),
       drawer: const NavigationDrawer(),
     );
@@ -93,10 +93,8 @@ class NavigationDrawer extends StatelessWidget {
         ],
       )));
 
-  Widget buildHeader(BuildContext context) => Container(
-        padding: EdgeInsets.only(
-          top: MediaQuery.of(context).padding.top,
-        ),
+  Widget buildHeader(BuildContext context) => SafeArea(
+        child: Container(),
       );
 
   Widget buildMenuItems(BuildContext context) => Column(
