@@ -12,7 +12,7 @@ class ChatBlock extends StatelessWidget {
     return ListTile(
       leading: const ChatAvatar(),
       title: const ChatTopRow(),
-      subtitle: const ChatMessage(),
+      subtitle: const ChatMessagePreview(),
       // tileColor: theme.colorScheme.background,
       onTap: () {
         Navigator.push(context, CupertinoPageRoute(builder: (context) {
@@ -101,8 +101,8 @@ class ChatTimeAndStatus extends StatelessWidget {
   }
 }
 
-class ChatMessage extends StatelessWidget {
-  const ChatMessage({super.key});
+class ChatMessagePreview extends StatelessWidget {
+  const ChatMessagePreview({super.key});
 
   @override
   Widget build(BuildContext context) {
