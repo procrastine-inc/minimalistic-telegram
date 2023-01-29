@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:minimalistic_telegram/pages/ChatBasePage.dart';
 
 class ChatBlock extends StatelessWidget {
   const ChatBlock({super.key});
@@ -13,7 +14,11 @@ class ChatBlock extends StatelessWidget {
       title: const ChatTopRow(),
       subtitle: const ChatMessage(),
       // tileColor: theme.colorScheme.background,
-      onTap: () {},
+      onTap: () {
+        Navigator.push(context, CupertinoPageRoute(builder: (context) {
+          return ChatBasePage();
+        }));
+      },
       onLongPress: () {},
     );
   }
