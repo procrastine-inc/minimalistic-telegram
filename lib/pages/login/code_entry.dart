@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:minimalistic_telegram/services/telegram_serice.dart';
+import 'package:minimalistic_telegram/services/telegram_service.dart';
 import 'package:provider/provider.dart';
 
 import 'package:tdlib/td_api.dart' show TdError;
