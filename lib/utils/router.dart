@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:minimalistic_telegram/pages/homepage/homepage.dart';
 import 'package:minimalistic_telegram/pages/login/code_entry.dart';
 import 'package:minimalistic_telegram/pages/login/login.dart';
 import './const.dart';
@@ -21,6 +22,10 @@ class Router {
               color: Colors.white,
             ),
           ),
+        );
+      case homeRoute:
+        return MaterialPageRoute(
+          builder: (_) => const MyHomePage(title: 'Minigram'),
         );
       default:
         return MaterialPageRoute(
