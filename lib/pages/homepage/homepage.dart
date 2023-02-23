@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:tdlib/td_api.dart' as TdApi;
 import '../../components/ChatsList/index.dart';
 import '../../services/telegram_service.dart';
 import '../SettingsPage/index.dart';
@@ -24,6 +25,13 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  // Map<int, TdApi.Chat>? mainChatsList;
+  @override
+  void initState() {
+    super.initState();
+    context.read<TelegramService>().getMainChatList(100);
+  }
+
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -32,6 +40,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
+
     return Scaffold(
       appBar: AppBar(
         titleSpacing: 18,
@@ -43,9 +52,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: ChatsList(),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          context.read<TelegramService>().getMainChatList(10);
-        },
+        onPressed: () {},
         tooltip: 'New chat',
         child: const Icon(Icons.edit_outlined),
       ),

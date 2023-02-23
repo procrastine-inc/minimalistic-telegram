@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:minimalistic_telegram/pages/ChatBasePage.dart';
 
 class ChatBlock extends StatelessWidget {
-  const ChatBlock({super.key});
+  String username;
+
+  ChatBlock({super.key, required this.username});
 
   @override
   Widget build(BuildContext context) {
@@ -11,7 +13,7 @@ class ChatBlock extends StatelessWidget {
 
     return ListTile(
       leading: const ChatAvatar(),
-      title: const ChatTopRow(),
+      title: ChatTopRow(username: username),
       subtitle: const ChatMessagePreview(),
       // tileColor: theme.colorScheme.background,
       onTap: () {
@@ -38,15 +40,17 @@ class ChatAvatar extends StatelessWidget {
 }
 
 class ChatTopRow extends StatelessWidget {
-  const ChatTopRow({super.key});
+  String username;
+
+  ChatTopRow({super.key, required this.username});
 
   @override
   Widget build(BuildContext context) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.baseline,
       textBaseline: TextBaseline.alphabetic,
-      children: const [
-        Expanded(child: ChatUsername()),
+      children: [
+        Expanded(child: ChatUsername(username: username)),
         ChatTimeAndStatus(),
       ],
     );
@@ -54,7 +58,8 @@ class ChatTopRow extends StatelessWidget {
 }
 
 class ChatUsername extends StatelessWidget {
-  const ChatUsername({super.key});
+  String username;
+  ChatUsername({super.key, required this.username});
 
   final isCommunity = true;
   final isBot = false;
@@ -73,7 +78,7 @@ class ChatUsername extends StatelessWidget {
             Icons.car_crash, // could not find bot logo
             size: 20,
           ),
-        const Text("Victoria"),
+        Text(username),
         const Icon(
           CupertinoIcons.volume_off,
           size: 20,

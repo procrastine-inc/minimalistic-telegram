@@ -29,7 +29,7 @@ class TelegramService extends ChangeNotifier {
   late Directory appExtDir;
   String lastRouteName;
   late bool haveFullMainChatList = false;
-  var mainChatsList = SplayTreeSet();
+  var mainChatsList = SplayTreeSet<OrderedChat>();
   Map<int, Chat> chats = {};
 
   final ReceivePort _receivePort = ReceivePort();
@@ -349,7 +349,7 @@ class TelegramService extends ChangeNotifier {
     }
   }
 
-  Future getMainChatList(int limit) async {
+  Future<Map<int, Chat>> getMainChatList(int limit) async {
     // _mainChatsListLock.synchronized(() async {
     if (!haveFullMainChatList && limit > mainChatsList.length) {
       // send LoadChats request if there are some unknown chats and have not enough known chats
