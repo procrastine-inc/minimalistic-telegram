@@ -1,12 +1,15 @@
 import 'dart:async';
+import 'dart:collection';
 import 'dart:io';
 import 'dart:isolate';
 import 'dart:math' show Random;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:minimalistic_telegram/models/ordered_chat.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:synchronized/synchronized.dart';
 
 import 'package:tdlib/tdlib.dart';
 import 'package:tdlib/td_api.dart';
@@ -25,6 +28,9 @@ class TelegramService extends ChangeNotifier {
   late Directory appDocDir;
   late Directory appExtDir;
   String lastRouteName;
+  late bool haveFullMainChatList = false;
+  var mainChatsList = SplayTreeSet();
+  Map<int, Chat> chats = {};
 
   final ReceivePort _receivePort = ReceivePort();
   late Isolate _isolate;
@@ -112,11 +118,11 @@ class TelegramService extends ChangeNotifier {
   }
 
   void _onEvent(TdObject event) async {
-    /*try {
-      print('res =>>>> ${event.toJson()}');
-    } catch (NoSuchMethodError) {
-      print('res =>>>> ${event.getConstructor()}');
-    }*/
+    // try {
+    //   print('res =>>>> ${event.toJson()}');
+    // } catch (NoSuchMethodError) {
+    //   print('res =>>>> ${event.getConstructor()}');
+    // }
     switch (event.getConstructor()) {
       case UpdateAuthorizationState.CONSTRUCTOR:
         await _authorizationController(
@@ -124,9 +130,87 @@ class TelegramService extends ChangeNotifier {
           isOffline: true,
         );
         break;
+      case UpdateNewChat.CONSTRUCTOR:
+        _updateNewChatController((event as UpdateNewChat).chat);
+        break;
+      case UpdateChatPosition.CONSTRUCTOR:
+        _updateChatPositionController(event as UpdateChatPosition);
+        break;
       default:
         return;
     }
+  }
+
+  void _updateChatPositionController(UpdateChatPosition event) {
+    UpdateChatPosition updateChat = event;
+    if (updateChat.position.list.getConstructor() != ChatListMain.CONSTRUCTOR) {
+      return;
+    }
+
+    var chat = chats[updateChat.chatId];
+    if (chat == null) {
+      return;
+    }
+    // synchronized(chat, () {
+    int i;
+    for (i = 0; i < chat.positions.length; i++) {
+      if (chat.positions[i].list.getConstructor() == ChatListMain.CONSTRUCTOR) {
+        break;
+      }
+    }
+    var newPositions = List<ChatPosition>.filled(
+      chat.positions.length +
+          (updateChat.position.order == 0 ? 0 : 1) -
+          (i < chat.positions.length ? 1 : 0),
+      const ChatPosition(order: 0, list: ChatList(), isPinned: false),
+    );
+    int pos = 0;
+    if (updateChat.position.order != 0) {
+      newPositions[pos++] = updateChat.position;
+    }
+    for (int j = 0; j < chat.positions.length; j++) {
+      if (j != i) {
+        newPositions[pos++] = chat.positions[j];
+      }
+    }
+    assert(pos == newPositions.length);
+
+    setChatPositions(chat, newPositions);
+    // });
+  }
+
+  void _updateNewChatController(Chat chat) {
+    chats[chat.id] = chat;
+    List<ChatPosition> positions = List.from(chat.positions);
+
+    chat = chat.copyWith(positions: []);
+
+    setChatPositions(chat, positions);
+  }
+
+  void setChatPositions(Chat chat, List<ChatPosition> positions) {
+    // synchronized (mainChatList) {
+    // synchronized (chat) {
+    for (var position in positions) {
+      if (position.list.getConstructor() == ChatListMain.CONSTRUCTOR) {
+        bool isRemoved = mainChatsList
+            .remove(OrderedChat(chatId: chat.id, position: position));
+        // assert(isRemoved);
+      }
+    }
+
+    chat = chat.copyWith(positions: positions);
+
+    for (var position in positions) {
+      if (position.list.getConstructor() == ChatListMain.CONSTRUCTOR) {
+        bool isAdded =
+            mainChatsList.add(OrderedChat(chatId: chat.id, position: position));
+        assert(isAdded);
+      }
+    }
+
+    // }
+    // }
   }
 
   Future _authorizationController(
@@ -263,5 +347,47 @@ class TelegramService extends ChangeNotifier {
     if (result != null && result is TdError) {
       onError(result);
     }
+  }
+
+  Future getMainChatList(int limit) async {
+    // _mainChatsListLock.synchronized(() async {
+    if (!haveFullMainChatList && limit > mainChatsList.length) {
+      // send LoadChats request if there are some unknown chats and have not enough known chats
+      final result = await send(LoadChats(
+          chatList: const ChatListMain(), limit: limit - mainChatsList.length));
+
+      switch (result?.getConstructor()) {
+        case TdError.CONSTRUCTOR:
+          if ((result as TdError).code == 404) {
+            // synchronized(mainChatList, () {
+            haveFullMainChatList = true;
+            // });
+          } else {
+            print("Receive an error for LoadChats:\n${result.toJson()}");
+          }
+          break;
+        case Ok.CONSTRUCTOR:
+          getMainChatList(limit);
+          break;
+        default:
+          print("Receive wrong response from TDLib:\n$result");
+      }
+      return chats;
+    }
+
+    final iter = mainChatsList.iterator;
+
+    print('First $limit chat(s) out of ${mainChatsList.length} known chat(s):');
+
+    for (var i = 0; i < limit && i < mainChatsList.length; i++) {
+      iter.moveNext();
+
+      final chatId = iter.current.chatId;
+      final chat = chats[chatId];
+      // synchronized(chat, () {
+      print('$chatId: ${chat?.title}');
+      // });
+    }
+    return chats;
   }
 }

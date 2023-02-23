@@ -1,7 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
+import 'package:provider/provider.dart';
 import '../../components/ChatsList/index.dart';
+import '../../services/telegram_service.dart';
 import '../SettingsPage/index.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -42,7 +43,9 @@ class _MyHomePageState extends State<MyHomePage> {
         child: ChatsList(),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          context.read<TelegramService>().getMainChatList(10);
+        },
         tooltip: 'New chat',
         child: const Icon(Icons.edit_outlined),
       ),
