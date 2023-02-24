@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:minimalistic_telegram/controllers/tdlib_controller.dart';
 import 'package:minimalistic_telegram/services/locator.dart';
 import 'package:minimalistic_telegram/services/telegram_service.dart';
+import 'package:minimalistic_telegram/stores/application_store.dart';
 import 'package:minimalistic_telegram/utils/const.dart';
 import 'package:minimalistic_telegram/utils/router.dart' as util_router;
 import 'package:provider/provider.dart';
@@ -11,13 +13,17 @@ void main() async {
   await dotenv.load();
   WidgetsFlutterBinding.ensureInitialized();
   Provider.debugCheckInvalidValueType = null;
-  await TdPlugin.initialize();
+  // await TdPlugin.initialize();
   setupLocator();
   runApp(
     MultiProvider(
       providers: [
-        Provider<TelegramService>(
-          create: (_) => TelegramService(lastRouteName: initRoute),
+        Provider<TdLibController>(
+          create: (_) => TdLibController(),
+          lazy: false,
+        ),
+        Provider<ApplicationStore>(
+          create: (_) => ApplicationStore(),
           lazy: false,
         ),
       ],
@@ -28,8 +34,11 @@ void main() async {
 
 class MyNewApp extends StatelessWidget {
   const MyNewApp({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
+    // var controller = TdLibController();
+    // controller.initClient();
     return MaterialApp(
       navigatorKey: locator<NavigationService>().navigatorKey,
       title: 'Flutter Demo',

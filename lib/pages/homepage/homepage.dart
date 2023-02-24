@@ -29,7 +29,6 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    context.read<TelegramService>().getMainChatList(100);
   }
 
   @override

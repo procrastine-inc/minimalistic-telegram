@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:minimalistic_telegram/services/telegram_service.dart';
 import 'package:provider/provider.dart';
 
 import 'package:tdlib/td_api.dart' show TdError;
@@ -86,10 +85,11 @@ class _CodeEntryScreenState extends State<CodeEntryScreen> {
     setState(() {
       _loadingStep = true;
     });
-    context.read<TelegramService>().checkAuthenticationCode(
-          value,
-          onError: _handelError,
-        );
+    // TODO: put me back when I'm ready in separate module
+    // context.read<TelegramService>().checkAuthenticationCode(
+    //       value,
+    //       onError: _handelError,
+    //     );
   }
 
   void _handelError(TdError error) async {

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:minimalistic_telegram/services/telegram_service.dart';
 
 import 'package:provider/provider.dart';
 import 'package:country_pickers/country.dart';
@@ -133,12 +132,13 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() {
       _loadingStep = true;
     });
-    context.read<TelegramService>().setAuthenticationPhoneNumber(
-          (_selectedCountry != null)
-              ? '+${_selectedCountry!.phoneCode}$value'
-              : value,
-          onError: _handelError,
-        );
+    // TODO: put me back when I'm ready in separate module
+    // context.read<TelegramService>().setAuthenticationPhoneNumber(
+    //       (_selectedCountry != null)
+    //           ? '+${_selectedCountry!.phoneCode}$value'
+    //           : value,
+    //       onError: _handelError,
+    //     );
   }
 
   void _handelError(TdError error) async {

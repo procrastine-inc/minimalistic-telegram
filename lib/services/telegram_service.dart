@@ -1,3 +1,6 @@
+/* TODO: delete this file after splitting logic
+   into other modules
+*/
 import 'dart:async';
 import 'dart:collection';
 import 'dart:io';
@@ -38,7 +41,7 @@ class TelegramService extends ChangeNotifier {
   TelegramService({this.lastRouteName = initRoute}) {
     _eventController = StreamController();
     _eventController.stream.listen(_onEvent);
-    initClient();
+    // initClient();
   }
 
   /// Creates a new instance of TDLib.

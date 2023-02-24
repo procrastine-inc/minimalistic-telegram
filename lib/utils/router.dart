@@ -16,13 +16,7 @@ class Router {
           builder: (_) => const LoginScreen(),
         );
       case initRoute:
-        return MaterialPageRoute(
-          builder: (_) => Scaffold(
-            body: Container(
-              color: Colors.white,
-            ),
-          ),
-        );
+
       case homeRoute:
         return MaterialPageRoute(
           builder: (_) => const MyHomePage(title: 'Minigram'),
