@@ -11,8 +11,8 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:synchronized/synchronized.dart';
 
-import 'package:tdlib/tdlib.dart';
-import 'package:tdlib/td_api.dart';
+import 'package:tdlib/tdlib.dart' as td_lib;
+import 'package:tdlib/td_api.dart' as td_api;
 
 import './locator.dart';
 import '../utils/const.dart';
@@ -21,8 +21,8 @@ int _random() => Random().nextInt(10000000);
 
 class TelegramService extends ChangeNotifier {
   late int _client;
-  late StreamController<TdObject> _eventController;
-  late StreamSubscription<TdObject> _eventReceiver;
+  late StreamController<td_api.TdObject> _eventController;
+  late StreamSubscription<td_api.TdObject> _eventReceiver;
   Map results = <int, Completer>{};
   Map callbackResults = <int, Future<void>>{};
   late Directory appDocDir;
@@ -30,7 +30,7 @@ class TelegramService extends ChangeNotifier {
   String lastRouteName;
   late bool haveFullMainChatList = false;
   var mainChatsList = SplayTreeSet<OrderedChat>();
-  Map<int, Chat> chats = {};
+  Map<int, td_api.Chat> chats = {};
 
   final ReceivePort _receivePort = ReceivePort();
   late Isolate _isolate;
@@ -46,7 +46,7 @@ class TelegramService extends ChangeNotifier {
   /// Pointer 0 mean No client instance.
 
   void initClient() async {
-    _client = tdCreate();
+    _client = td_lib.tdCreate();
 
     // ignore: unused_local_variable
     bool storagePermission = await Permission.storage
@@ -64,19 +64,19 @@ class TelegramService extends ChangeNotifier {
     appExtDir = await getTemporaryDirectory();
 
     //execute(SetLogStream(logStream: LogStreamEmpty()));
-    execute(const SetLogVerbosityLevel(newVerbosityLevel: 1));
-    tdSend(_client, const GetCurrentState());
+    execute(const td_api.SetLogVerbosityLevel(newVerbosityLevel: 1));
+    td_lib.tdSend(_client, const td_api.GetCurrentState());
     _isolate = await Isolate.spawn(_receive, _receivePort.sendPort,
         debugName: "isolated receive");
     _receivePort.listen(_receiver);
   }
 
   static _receive(sendPortToMain) async {
-    TdNativePlugin.registerWith();
-    await TdPlugin.initialize();
+    td_lib.TdNativePlugin.registerWith();
+    await td_lib.TdPlugin.initialize();
     //var x = _rawClient.td_json_client_create();
     while (true) {
-      final s = TdPlugin.instance.tdReceive();
+      final s = td_lib.TdPlugin.instance.tdReceive();
       if (s != null) {
         sendPortToMain.send(s);
       }
@@ -84,11 +84,11 @@ class TelegramService extends ChangeNotifier {
   }
 
   void _receiver(dynamic newEvent) async {
-    final event = convertToObject(newEvent);
+    final event = td_api.convertToObject(newEvent);
     if (event == null) {
       return;
     }
-    if (event is Updates) {
+    if (event is td_api.Updates) {
       for (var event in event.updates) {
         _eventController.add(event);
       }
@@ -117,33 +117,34 @@ class TelegramService extends ChangeNotifier {
     _isolate.kill(priority: Isolate.immediate);
   }
 
-  void _onEvent(TdObject event) async {
+  void _onEvent(td_api.TdObject event) async {
     // try {
     //   print('res =>>>> ${event.toJson()}');
     // } catch (NoSuchMethodError) {
     //   print('res =>>>> ${event.getConstructor()}');
     // }
     switch (event.getConstructor()) {
-      case UpdateAuthorizationState.CONSTRUCTOR:
+      case td_api.UpdateAuthorizationState.CONSTRUCTOR:
         await _authorizationController(
-          (event as UpdateAuthorizationState).authorizationState,
+          (event as td_api.UpdateAuthorizationState).authorizationState,
           isOffline: true,
         );
         break;
-      case UpdateNewChat.CONSTRUCTOR:
-        _updateNewChatController((event as UpdateNewChat).chat);
+      case td_api.UpdateNewChat.CONSTRUCTOR:
+        _updateNewChatController((event as td_api.UpdateNewChat).chat);
         break;
-      case UpdateChatPosition.CONSTRUCTOR:
-        _updateChatPositionController(event as UpdateChatPosition);
+      case td_api.UpdateChatPosition.CONSTRUCTOR:
+        _updateChatPositionController(event as td_api.UpdateChatPosition);
         break;
       default:
         return;
     }
   }
 
-  void _updateChatPositionController(UpdateChatPosition event) {
-    UpdateChatPosition updateChat = event;
-    if (updateChat.position.list.getConstructor() != ChatListMain.CONSTRUCTOR) {
+  void _updateChatPositionController(td_api.UpdateChatPosition event) {
+    td_api.UpdateChatPosition updateChat = event;
+    if (updateChat.position.list.getConstructor() !=
+        td_api.ChatListMain.CONSTRUCTOR) {
       return;
     }
 
@@ -154,15 +155,17 @@ class TelegramService extends ChangeNotifier {
     // synchronized(chat, () {
     int i;
     for (i = 0; i < chat.positions.length; i++) {
-      if (chat.positions[i].list.getConstructor() == ChatListMain.CONSTRUCTOR) {
+      if (chat.positions[i].list.getConstructor() ==
+          td_api.ChatListMain.CONSTRUCTOR) {
         break;
       }
     }
-    var newPositions = List<ChatPosition>.filled(
+    var newPositions = List<td_api.ChatPosition>.filled(
       chat.positions.length +
           (updateChat.position.order == 0 ? 0 : 1) -
           (i < chat.positions.length ? 1 : 0),
-      const ChatPosition(order: 0, list: ChatList(), isPinned: false),
+      const td_api.ChatPosition(
+          order: 0, list: td_api.ChatList(), isPinned: false),
     );
     int pos = 0;
     if (updateChat.position.order != 0) {
@@ -179,20 +182,21 @@ class TelegramService extends ChangeNotifier {
     // });
   }
 
-  void _updateNewChatController(Chat chat) {
+  void _updateNewChatController(td_api.Chat chat) {
     chats[chat.id] = chat;
-    List<ChatPosition> positions = List.from(chat.positions);
+    List<td_api.ChatPosition> positions = List.from(chat.positions);
 
     chat = chat.copyWith(positions: []);
 
     setChatPositions(chat, positions);
   }
 
-  void setChatPositions(Chat chat, List<ChatPosition> positions) {
+  void setChatPositions(td_api.Chat chat, List<td_api.ChatPosition> positions) {
     // synchronized (mainChatList) {
     // synchronized (chat) {
     for (var position in positions) {
-      if (position.list.getConstructor() == ChatListMain.CONSTRUCTOR) {
+      if (position.list.getConstructor() == td_api.ChatListMain.CONSTRUCTOR) {
+        // TODO: check what's going on here
         bool isRemoved = mainChatsList
             .remove(OrderedChat(chatId: chat.id, position: position));
         // assert(isRemoved);
@@ -202,7 +206,7 @@ class TelegramService extends ChangeNotifier {
     chat = chat.copyWith(positions: positions);
 
     for (var position in positions) {
-      if (position.list.getConstructor() == ChatListMain.CONSTRUCTOR) {
+      if (position.list.getConstructor() == td_api.ChatListMain.CONSTRUCTOR) {
         bool isAdded =
             mainChatsList.add(OrderedChat(chatId: chat.id, position: position));
         assert(isAdded);
@@ -214,17 +218,17 @@ class TelegramService extends ChangeNotifier {
   }
 
   Future _authorizationController(
-    AuthorizationState authState, {
+    td_api.AuthorizationState authState, {
     bool isOffline = false,
   }) async {
     String route;
     int apiId = int.parse(dotenv.env['API_ID']!);
     String apiHash = dotenv.env['API_HASH']!;
     switch (authState.getConstructor()) {
-      case AuthorizationStateWaitTdlibParameters.CONSTRUCTOR:
+      case td_api.AuthorizationStateWaitTdlibParameters.CONSTRUCTOR:
         await send(
-          SetTdlibParameters(
-            parameters: TdlibParameters(
+          td_api.SetTdlibParameters(
+            parameters: td_api.TdlibParameters(
               useTestDc: false,
               useSecretChats: false,
               useMessageDatabase: true,
@@ -244,36 +248,37 @@ class TelegramService extends ChangeNotifier {
           ),
         );
         return;
-      case AuthorizationStateWaitEncryptionKey.CONSTRUCTOR:
-        if ((authState as AuthorizationStateWaitEncryptionKey).isEncrypted) {
+      case td_api.AuthorizationStateWaitEncryptionKey.CONSTRUCTOR:
+        if ((authState as td_api.AuthorizationStateWaitEncryptionKey)
+            .isEncrypted) {
           await send(
-            const CheckDatabaseEncryptionKey(
+            const td_api.CheckDatabaseEncryptionKey(
               encryptionKey: 'mostrandomencryption',
             ),
           );
         } else {
           await send(
-            const SetDatabaseEncryptionKey(
+            const td_api.SetDatabaseEncryptionKey(
               newEncryptionKey: 'mostrandomencryption',
             ),
           );
         }
         return;
-      case AuthorizationStateWaitPhoneNumber.CONSTRUCTOR:
-      case AuthorizationStateClosed.CONSTRUCTOR:
+      case td_api.AuthorizationStateWaitPhoneNumber.CONSTRUCTOR:
+      case td_api.AuthorizationStateClosed.CONSTRUCTOR:
         route = loginRoute;
         break;
-      case AuthorizationStateReady.CONSTRUCTOR:
+      case td_api.AuthorizationStateReady.CONSTRUCTOR:
         route = homeRoute;
         break;
-      case AuthorizationStateWaitCode.CONSTRUCTOR:
+      case td_api.AuthorizationStateWaitCode.CONSTRUCTOR:
         route = otpRoute;
         break;
-      case AuthorizationStateWaitOtherDeviceConfirmation.CONSTRUCTOR:
-      case AuthorizationStateWaitRegistration.CONSTRUCTOR:
-      case AuthorizationStateWaitPassword.CONSTRUCTOR:
-      case AuthorizationStateLoggingOut.CONSTRUCTOR:
-      case AuthorizationStateClosing.CONSTRUCTOR:
+      case td_api.AuthorizationStateWaitOtherDeviceConfirmation.CONSTRUCTOR:
+      case td_api.AuthorizationStateWaitRegistration.CONSTRUCTOR:
+      case td_api.AuthorizationStateWaitPassword.CONSTRUCTOR:
+      case td_api.AuthorizationStateLoggingOut.CONSTRUCTOR:
+      case td_api.AuthorizationStateClosing.CONSTRUCTOR:
         return;
       default:
         return;
@@ -285,43 +290,44 @@ class TelegramService extends ChangeNotifier {
   }
 
   void destroyClient() async {
-    tdSend(_client, const Close());
+    td_lib.tdSend(_client, const td_api.Close());
   }
 
   /// Sends request to the TDLib client. May be called from any thread.
-  Future<TdObject?> send(event, {Future<void>? callback}) async {
+  Future<td_api.TdObject?> send(event, {Future<void>? callback}) async {
     // ignore: missing_return
     final rndId = _random();
     if (callback != null) {
       callbackResults[rndId] = callback;
       try {
-        tdSend(_client, event, rndId);
+        td_lib.tdSend(_client, event, rndId);
       } catch (e) {
         if (kDebugMode) {
           print(e);
         }
       }
     } else {
-      final completer = Completer<TdObject>();
+      final completer = Completer<td_api.TdObject>();
       results[rndId] = completer;
-      tdSend(_client, event, rndId);
+      td_lib.tdSend(_client, event, rndId);
       return completer.future;
     }
+    return null;
   }
 
   /// Synchronously executes TDLib request. May be called from any thread.
   /// Only a few requests can be executed synchronously.
   /// Returned pointer will be deallocated by TDLib during next call to clientReceive or clientExecute in the same thread, so it can't be used after that.
-  TdObject execute(TdFunction event) => tdExecute(event)!;
+  td_api.TdObject execute(td_api.TdFunction event) => td_lib.tdExecute(event)!;
 
   Future setAuthenticationPhoneNumber(
     String phoneNumber, {
-    required void Function(TdError) onError,
+    required void Function(td_api.TdError) onError,
   }) async {
     final result = await send(
-      SetAuthenticationPhoneNumber(
+      td_api.SetAuthenticationPhoneNumber(
         phoneNumber: phoneNumber,
-        settings: const PhoneNumberAuthenticationSettings(
+        settings: const td_api.PhoneNumberAuthenticationSettings(
           allowFlashCall: false,
           isCurrentPhoneNumber: false,
           allowSmsRetrieverApi: false,
@@ -330,35 +336,36 @@ class TelegramService extends ChangeNotifier {
         ),
       ),
     );
-    if (result != null && result is TdError) {
+    if (result != null && result is td_api.TdError) {
       onError(result);
     }
   }
 
   Future checkAuthenticationCode(
     String code, {
-    required void Function(TdError) onError,
+    required void Function(td_api.TdError) onError,
   }) async {
     final result = await send(
-      CheckAuthenticationCode(
+      td_api.CheckAuthenticationCode(
         code: code,
       ),
     );
-    if (result != null && result is TdError) {
+    if (result != null && result is td_api.TdError) {
       onError(result);
     }
   }
 
-  Future<Map<int, Chat>> getMainChatList(int limit) async {
+  Future<Map<int, td_api.Chat>> getMainChatList(int limit) async {
     // _mainChatsListLock.synchronized(() async {
     if (!haveFullMainChatList && limit > mainChatsList.length) {
       // send LoadChats request if there are some unknown chats and have not enough known chats
-      final result = await send(LoadChats(
-          chatList: const ChatListMain(), limit: limit - mainChatsList.length));
+      final result = await send(td_api.LoadChats(
+          chatList: const td_api.ChatListMain(),
+          limit: limit - mainChatsList.length));
 
       switch (result?.getConstructor()) {
-        case TdError.CONSTRUCTOR:
-          if ((result as TdError).code == 404) {
+        case td_api.TdError.CONSTRUCTOR:
+          if ((result as td_api.TdError).code == 404) {
             // synchronized(mainChatList, () {
             haveFullMainChatList = true;
             // });
@@ -366,7 +373,7 @@ class TelegramService extends ChangeNotifier {
             print("Receive an error for LoadChats:\n${result.toJson()}");
           }
           break;
-        case Ok.CONSTRUCTOR:
+        case td_api.Ok.CONSTRUCTOR:
           getMainChatList(limit);
           break;
         default:
