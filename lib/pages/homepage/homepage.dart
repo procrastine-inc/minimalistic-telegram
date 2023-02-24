@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:minimalistic_telegram/stores/application_store.dart';
 import 'package:provider/provider.dart';
 import 'package:tdlib/td_api.dart' as TdApi;
 import '../../components/ChatsList/index.dart';
@@ -26,9 +27,17 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   // Map<int, TdApi.Chat>? mainChatsList;
+  late String authState;
   @override
   void initState() {
     super.initState();
+    authState = '';
+    var appStore = context.read<ApplicationStore>();
+    appStore.on('AnyTypeShouldFixThisToBeBasedOnTypesOnly', onAuthStateChange);
+  }
+
+  void onAuthStateChange(event) {
+    print('state should change now');
   }
 
   @override

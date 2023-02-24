@@ -13,7 +13,7 @@ void main() async {
   await dotenv.load();
   WidgetsFlutterBinding.ensureInitialized();
   Provider.debugCheckInvalidValueType = null;
-  // await TdPlugin.initialize();
+  await TdPlugin.initialize();
   setupLocator();
   runApp(
     MultiProvider(
@@ -32,13 +32,30 @@ void main() async {
   );
 }
 
-class MyNewApp extends StatelessWidget {
+class MyNewApp extends StatefulWidget {
   const MyNewApp({Key? key}) : super(key: key);
 
   @override
+  State<StatefulWidget> createState() => _MyNewAppState();
+}
+
+class _MyNewAppState extends State<MyNewApp> {
+  @override
+  void initState() {
+    super.initState();
+    TdLibController().initClient();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    var controller = TdLibController();
+    controller.stop();
+    controller.destroyClient();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // var controller = TdLibController();
-    // controller.initClient();
     return MaterialApp(
       navigatorKey: locator<NavigationService>().navigatorKey,
       title: 'Flutter Demo',

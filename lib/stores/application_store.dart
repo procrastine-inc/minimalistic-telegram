@@ -5,7 +5,7 @@ import '../controllers/tdlib_controller.dart';
 
 // TODO: make it singleTon
 class ApplicationStore extends EventEmitter {
-  constructor() {
+  ApplicationStore() {
     reset();
 
     addTdLibListener();
@@ -15,23 +15,24 @@ class ApplicationStore extends EventEmitter {
   void reset() {}
 
   void addTdLibListener() {
-    TdLibController().on('update', onUpdate);
+    TdLibController().on('event', onUpdate);
     // TdLibController().on('clientUpdate', onClientUpdate);
   }
 
   void addStatistics() {}
   //FIXME: update typings here
-  onUpdate(event) async {
+  onUpdate(td_api.TdObject event) async {
     switch (event.getConstructor()) {
-      case td_api.UpdateAuthorizationState:
-        await handleAuthorizationStateUpdate(event);
+      case td_api.UpdateAuthorizationState.CONSTRUCTOR:
+        await handleAuthorizationStateUpdate(
+            (event as td_api.UpdateAuthorizationState).authorizationState);
         emit('AnyTypeShouldFixThisToBeBasedOnTypesOnly', event);
         break;
       default:
     }
   }
 
-  handleAuthorizationStateUpdate(td_api.UpdateAuthorizationState event) async {
+  handleAuthorizationStateUpdate(event) async {
     switch (event.getConstructor()) {
       case td_api.AuthorizationStateWaitTdlibParameters.CONSTRUCTOR:
         await TdLibController().sendTdLibParameters();
@@ -40,13 +41,13 @@ class ApplicationStore extends EventEmitter {
         if ((event as td_api.AuthorizationStateWaitEncryptionKey).isEncrypted) {
           await TdLibController().send(
             const td_api.CheckDatabaseEncryptionKey(
-              encryptionKey: 'mostrandomencryption',
+              encryptionKey: 'mostrandomencryption', // TODO: wtf, fix this
             ),
           );
         } else {
           await TdLibController().send(
             const td_api.SetDatabaseEncryptionKey(
-              newEncryptionKey: 'mostrandomencryption',
+              newEncryptionKey: 'mostrandomencryption', // TODO: wtf, fix this
             ),
           );
         }
