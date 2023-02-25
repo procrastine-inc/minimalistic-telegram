@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:minimalistic_telegram/stores/event_emitter.dart';
 import 'package:tdlib/td_api.dart' as td_api;
 
@@ -33,6 +35,7 @@ class ApplicationStore extends EventEmitter {
   }
 
   handleAuthorizationStateUpdate(event) async {
+    print(event);
     switch (event.getConstructor()) {
       case td_api.AuthorizationStateWaitTdlibParameters.CONSTRUCTOR:
         await TdLibController().sendTdLibParameters();
