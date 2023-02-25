@@ -1,29 +1,63 @@
-import 'dart:math';
+import 'dart:collection';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:minimalistic_telegram/components/ChatBlock/index.dart';
+import 'package:minimalistic_telegram/stores/chat_store.dart';
 import 'package:provider/provider.dart';
+import 'package:tdlib/td_api.dart' as td_api;
 
-class ChatsList extends StatelessWidget {
+import '../../models/ordered_chat.dart';
+
+class ChatsList extends StatefulWidget {
   const ChatsList({super.key});
 
   @override
+  State<ChatsList> createState() => _ChatsListState();
+}
+
+class _ChatsListState extends State<ChatsList> {
+  var chatList = SplayTreeSet<OrderedChat>();
+
+  @override
+  void initState() {
+    super.initState();
+    var chatStore = context.read<ChatStore>();
+    chatList = chatStore.chatList;
+    chatStore.getChatList(100);
+
+    chatStore.on(td_api.UpdateNewChat.CONSTRUCTOR, onChatListUpdate);
+    chatStore.on(td_api.UpdateChatAction.CONSTRUCTOR, onChatListUpdate);
+    chatStore.on(td_api.UpdateChatLastMessage.CONSTRUCTOR, onChatListUpdate);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    var chatStore = context.read<ChatStore>();
+
+    chatStore.off(td_api.UpdateNewChat.CONSTRUCTOR, onChatListUpdate);
+    chatStore.off(td_api.UpdateChatAction.CONSTRUCTOR, onChatListUpdate);
+    chatStore.off(td_api.UpdateChatLastMessage.CONSTRUCTOR, onChatListUpdate);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // var mainChatsList = context.read<TelegramService>().mainChatsList;
-    // var allChats = context.read<TelegramService>().chats;
+    var chatStore = context.read<ChatStore>();
 
-    return ListView(children: const [
-      ListTile(
-        title: Text('Im woking'),
-      )
-    ]
+    return ListView(
+        children: chatList
+            .map((element) => ChatBlock(
+                  username: chatStore.items[element.chatId]?.title ?? '',
+                ))
+            .toList());
+  }
 
-        // mainChatsList
-        //     .map((element) => ChatBlock(
-        //           username: allChats[element.chatId]?.title ?? '',
-        //         ))
-        //     .toList()
-
-        );
+  void onChatListUpdate(_) {
+    // var chatStore = context.read<ChatStore>();
+    setState(() {
+      // TODO: probably not needed, but we'll see
+      // chatList = chatStore.chatList;
+    });
   }
 }

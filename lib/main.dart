@@ -3,6 +3,8 @@ import 'package:minimalistic_telegram/controllers/tdlib_controller.dart';
 import 'package:minimalistic_telegram/services/locator.dart';
 import 'package:minimalistic_telegram/services/telegram_service.dart';
 import 'package:minimalistic_telegram/stores/application_store.dart';
+import 'package:minimalistic_telegram/stores/chat_store.dart';
+import 'package:minimalistic_telegram/stores/filter_store.dart';
 import 'package:minimalistic_telegram/utils/const.dart';
 import 'package:minimalistic_telegram/utils/router.dart' as util_router;
 import 'package:provider/provider.dart';
@@ -24,6 +26,14 @@ void main() async {
         ),
         Provider<ApplicationStore>(
           create: (_) => ApplicationStore(),
+          lazy: false,
+        ),
+        Provider<ChatStore>(
+          create: (_) => ChatStore(),
+          lazy: false,
+        ),
+        Provider<FilterStore>(
+          create: (_) => FilterStore(),
           lazy: false,
         ),
       ],

@@ -1,7 +1,9 @@
 import 'dart:collection';
+import 'dart:developer';
 
 import 'package:minimalistic_telegram/models/ordered_chat.dart';
 import 'package:minimalistic_telegram/stores/event_emitter.dart';
+import 'package:palestine_console/palestine_console.dart';
 import 'package:tdlib/td_api.dart' as td_api;
 
 import '../controllers/tdlib_controller.dart';
@@ -63,9 +65,16 @@ class ChatStore extends EventEmitter {
 
       case td_api.UpdateNewChat.CONSTRUCTOR:
         _updateNewChatController((event as td_api.UpdateNewChat).chat);
+        emit(td_api.UpdateNewChat.CONSTRUCTOR, event);
         break;
       case td_api.UpdateChatPosition.CONSTRUCTOR:
         _updateChatPositionController(event as td_api.UpdateChatPosition);
+        emit(td_api.UpdateChatPosition.CONSTRUCTOR, event);
+        break;
+
+      case td_api.UpdateChatLastMessage.CONSTRUCTOR:
+        _updateChatLastMessageController(event as td_api.UpdateChatLastMessage);
+        emit(td_api.UpdateChatLastMessage.CONSTRUCTOR, event);
         break;
 
       default:
@@ -98,10 +107,7 @@ class ChatStore extends EventEmitter {
     // synchronized (chat) {
     for (var position in positions) {
       if (position.list.getConstructor() == td_api.ChatListMain.CONSTRUCTOR) {
-        // TODO: check what's going on here
-        bool isRemoved =
-            chatList.remove(OrderedChat(chatId: chat.id, position: position));
-        // assert(isRemoved);
+        chatList.removeWhere(((element) => element.chatId == chat.id));
       }
     }
 
@@ -200,5 +206,14 @@ class ChatStore extends EventEmitter {
       // });
     }
     return items;
+  }
+
+  void _updateChatLastMessageController(td_api.UpdateChatLastMessage event) {
+    // TODO: add actual lastMessage update to the MessageStore
+    var chat = items[event.chatId];
+    if (chat == null) {
+      return;
+    }
+    setChatPositions(chat, event.positions);
   }
 }

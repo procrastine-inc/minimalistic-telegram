@@ -23,10 +23,10 @@ class ApplicationStore extends EventEmitter {
 
   void addStatistics() {}
   //FIXME: update typings here
-  onUpdate(td_api.TdObject event) async {
+  onUpdate(td_api.TdObject event) {
     switch (event.getConstructor()) {
       case td_api.UpdateAuthorizationState.CONSTRUCTOR:
-        await handleAuthorizationStateUpdate(
+        handleAuthorizationStateUpdate(
             (event as td_api.UpdateAuthorizationState).authorizationState);
         emit('AnyTypeShouldFixThisToBeBasedOnTypesOnly', event);
         break;
@@ -34,21 +34,21 @@ class ApplicationStore extends EventEmitter {
     }
   }
 
-  handleAuthorizationStateUpdate(event) async {
+  handleAuthorizationStateUpdate(event) {
     print(event);
     switch (event.getConstructor()) {
       case td_api.AuthorizationStateWaitTdlibParameters.CONSTRUCTOR:
-        await TdLibController().sendTdLibParameters();
+        TdLibController().sendTdLibParameters();
         return;
       case td_api.AuthorizationStateWaitEncryptionKey.CONSTRUCTOR:
         if ((event as td_api.AuthorizationStateWaitEncryptionKey).isEncrypted) {
-          await TdLibController().send(
+          TdLibController().send(
             const td_api.CheckDatabaseEncryptionKey(
               encryptionKey: 'mostrandomencryption', // TODO: wtf, fix this
             ),
           );
         } else {
-          await TdLibController().send(
+          TdLibController().send(
             const td_api.SetDatabaseEncryptionKey(
               newEncryptionKey: 'mostrandomencryption', // TODO: wtf, fix this
             ),

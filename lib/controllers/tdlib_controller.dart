@@ -8,6 +8,7 @@ import 'dart:math' show Random;
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:minimalistic_telegram/stores/event_emitter.dart';
+import 'package:palestine_console/palestine_console.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:synchronized/synchronized.dart';
@@ -121,9 +122,9 @@ class TdLibController extends EventEmitter<td_api.TdObject> {
 
   void _onEvent(td_api.TdObject event) async {
     // try {
-    //   print('res =>>>> ${event.toJson()}');
+    //   Print.cyan('res =>>>> ${event.toJson()}');
     // } catch (NoSuchMethodError) {
-    //   print('res =>>>> ${event.getConstructor()}');
+    //   Print.cyan('res =>>>> ${event.getConstructor()}');
     // }
     emit('event', event);
   }

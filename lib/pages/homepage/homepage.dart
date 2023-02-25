@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:minimalistic_telegram/stores/application_store.dart';
+import 'package:palestine_console/palestine_console.dart';
 import 'package:provider/provider.dart';
-import 'package:tdlib/td_api.dart' as TdApi;
+import 'package:tdlib/td_api.dart' as td_api;
 import '../../components/ChatsList/index.dart';
 import '../../services/telegram_service.dart';
 import '../SettingsPage/index.dart';
@@ -27,7 +28,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   // Map<int, TdApi.Chat>? mainChatsList;
-  late String authState;
+  String authState = '';
   @override
   void initState() {
     super.initState();
@@ -36,7 +37,20 @@ class _MyHomePageState extends State<MyHomePage> {
     appStore.on('AnyTypeShouldFixThisToBeBasedOnTypesOnly', onAuthStateChange);
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    var appStore = context.read<ApplicationStore>();
+    authState = '';
+    appStore.off('AnyTypeShouldFixThisToBeBasedOnTypesOnly', onAuthStateChange);
+  }
+
   void onAuthStateChange(event) {
+    setState(() {
+      // TODO: this is debug. remove it or change somehow.
+      authState = (event).authorizationState.getConstructor();
+    });
+
     print('state should change now');
   }
 
@@ -54,10 +68,12 @@ class _MyHomePageState extends State<MyHomePage> {
         titleSpacing: 18,
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+        title: Text(authState),
       ),
-      body: const Center(
-        child: ChatsList(),
+      body: Center(
+        child: authState == td_api.AuthorizationStateReady.CONSTRUCTOR
+            ? const ChatsList()
+            : null,
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {},
