@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart' show GlobalKey, NavigatorState;
 
-const String initRoute = '/';
+const String initRoute = '/splash';
 const String loginRoute = '/login';
 const String otpRoute = '/code_entry';
 const String homeRoute = '/';

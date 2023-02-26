@@ -30,7 +30,7 @@ class FilterStore extends EventEmitter {
       case td_api.UpdateAuthorizationState.CONSTRUCTOR:
         await handleAuthorizationStateUpdate(
             (event as td_api.UpdateAuthorizationState).authorizationState);
-        emit('AnyTypeShouldFixThisToBeBasedOnTypesOnly', event);
+        emit(td_api.UpdateAuthorizationState.CONSTRUCTOR, event);
         break;
       case td_api.UpdateChatFilters.CONSTRUCTOR:
         filters = (event as td_api.UpdateChatFilters).chatFilters;

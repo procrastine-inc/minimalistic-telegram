@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:minimalistic_telegram/pages/homepage/homepage.dart';
 import 'package:minimalistic_telegram/pages/login/code_entry.dart';
 import 'package:minimalistic_telegram/pages/login/login.dart';
+import 'package:minimalistic_telegram/pages/splash.dart';
 import './const.dart';
 
 class Router {
@@ -16,7 +17,9 @@ class Router {
           builder: (_) => const LoginScreen(),
         );
       case initRoute:
-
+        return MaterialPageRoute(
+          builder: (_) => const Splash(),
+        );
       case homeRoute:
         return MaterialPageRoute(
           builder: (_) => const MyHomePage(title: 'Minigram'),

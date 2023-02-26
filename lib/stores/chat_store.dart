@@ -60,7 +60,7 @@ class ChatStore extends EventEmitter {
       case td_api.UpdateAuthorizationState.CONSTRUCTOR:
         await handleAuthorizationStateUpdate(
             (event as td_api.UpdateAuthorizationState).authorizationState);
-        emit('AnyTypeShouldFixThisToBeBasedOnTypesOnly', event);
+        emit(td_api.UpdateAuthorizationState.CONSTRUCTOR, event);
         break;
 
       case td_api.UpdateNewChat.CONSTRUCTOR:

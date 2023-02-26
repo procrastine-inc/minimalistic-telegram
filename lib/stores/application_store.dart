@@ -28,14 +28,15 @@ class ApplicationStore extends EventEmitter {
       case td_api.UpdateAuthorizationState.CONSTRUCTOR:
         handleAuthorizationStateUpdate(
             (event as td_api.UpdateAuthorizationState).authorizationState);
-        emit('AnyTypeShouldFixThisToBeBasedOnTypesOnly', event);
+        emit(td_api.UpdateAuthorizationState.CONSTRUCTOR, event);
+
         break;
       default:
     }
   }
 
   handleAuthorizationStateUpdate(event) {
-    print(event);
+    // print(event.toJSON());
     switch (event.getConstructor()) {
       case td_api.AuthorizationStateWaitTdlibParameters.CONSTRUCTOR:
         TdLibController().sendTdLibParameters();
@@ -54,13 +55,13 @@ class ApplicationStore extends EventEmitter {
             ),
           );
         }
+        // emit(td_api.UpdateAuthorizationState.CONSTRUCTOR, event);
         return;
       case td_api.AuthorizationStateWaitPhoneNumber.CONSTRUCTOR:
       case td_api.AuthorizationStateClosed.CONSTRUCTOR:
-        break;
       case td_api.AuthorizationStateReady.CONSTRUCTOR:
-        break;
       case td_api.AuthorizationStateWaitCode.CONSTRUCTOR:
+        // emit(td_api.UpdateAuthorizationState.CONSTRUCTOR, event);
         break;
       case td_api.AuthorizationStateWaitOtherDeviceConfirmation.CONSTRUCTOR:
       case td_api.AuthorizationStateWaitRegistration.CONSTRUCTOR:
@@ -70,6 +71,41 @@ class ApplicationStore extends EventEmitter {
         return;
       default:
         return;
+    }
+  }
+
+  Future setAuthenticationPhoneNumber(
+    String phoneNumber, {
+    required void Function(td_api.TdError) onError,
+  }) async {
+    final result = await TdLibController().send(
+      td_api.SetAuthenticationPhoneNumber(
+        phoneNumber: phoneNumber,
+        settings: const td_api.PhoneNumberAuthenticationSettings(
+          allowFlashCall: false,
+          isCurrentPhoneNumber: false,
+          allowSmsRetrieverApi: false,
+          allowMissedCall: true,
+          authenticationTokens: [],
+        ),
+      ),
+    );
+    if (result != null && result is td_api.TdError) {
+      onError(result);
+    }
+  }
+
+  Future checkAuthenticationCode(
+    String code, {
+    required void Function(td_api.TdError) onError,
+  }) async {
+    final result = await TdLibController().send(
+      td_api.CheckAuthenticationCode(
+        code: code,
+      ),
+    );
+    if (result != null && result is td_api.TdError) {
+      onError(result);
     }
   }
 

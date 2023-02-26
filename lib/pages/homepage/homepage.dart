@@ -5,7 +5,6 @@ import 'package:palestine_console/palestine_console.dart';
 import 'package:provider/provider.dart';
 import 'package:tdlib/td_api.dart' as td_api;
 import '../../components/ChatsList/index.dart';
-import '../../services/telegram_service.dart';
 import '../SettingsPage/index.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -34,7 +33,7 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     authState = '';
     var appStore = context.read<ApplicationStore>();
-    appStore.on('AnyTypeShouldFixThisToBeBasedOnTypesOnly', onAuthStateChange);
+    appStore.on(td_api.UpdateAuthorizationState.CONSTRUCTOR, onAuthStateChange);
   }
 
   @override
@@ -42,16 +41,16 @@ class _MyHomePageState extends State<MyHomePage> {
     super.dispose();
     var appStore = context.read<ApplicationStore>();
     authState = '';
-    appStore.off('AnyTypeShouldFixThisToBeBasedOnTypesOnly', onAuthStateChange);
+    appStore.off(
+        td_api.UpdateAuthorizationState.CONSTRUCTOR, onAuthStateChange);
   }
 
   void onAuthStateChange(event) {
     setState(() {
       // TODO: this is debug. remove it or change somehow.
-      authState = (event).authorizationState.getConstructor();
+      authState = (event)?.authorizationState?.getConstructor() ?? '';
+      Print.green(authState);
     });
-
-    print('state should change now');
   }
 
   @override
@@ -70,10 +69,8 @@ class _MyHomePageState extends State<MyHomePage> {
         // the App.build method, and use it to set our appbar title.
         title: Text(authState),
       ),
-      body: Center(
-        child: authState == td_api.AuthorizationStateReady.CONSTRUCTOR
-            ? const ChatsList()
-            : null,
+      body: const Center(
+        child: ChatsList(),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {},
