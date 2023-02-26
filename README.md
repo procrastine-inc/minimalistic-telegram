@@ -4,6 +4,20 @@ Minimalistic and multiplatform Telegram client.
 
 ## Getting Started
 
+1. Create a `.env` file in root.
+2. Fill in following:
+
+    ```md
+    API_ID=
+    API_HASH=
+    ```
+
+3. Request keys from whoever has them and put them in.
+4. Install dependencies.
+5. Create android emulator(or connect your phone)
+6. Build app as usuial for development.
+
+
 This project is a starting point for a Flutter application.
 
 A few resources to get you started if this is your first Flutter project:
