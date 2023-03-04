@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -13,12 +14,14 @@ class ChatBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // debugger();
     return ListTile(
       leading: ChatAvatar(
         photo: chat.photo,
       ),
       title: ChatTopRow(title: chat.title),
-      subtitle: const ChatMessagePreview(),
+      subtitle: ChatMessagePreview(
+          message: chat.lastMessage, draftMessage: chat.draftMessage),
       // tileColor: theme.colorScheme.background,
       onTap: () {
         Navigator.push(context, CupertinoPageRoute(builder: (context) {
@@ -36,7 +39,6 @@ class ChatAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Print.black(photo?.small.local.path ?? '');
     return CircleAvatar(
       radius: 22,
       backgroundImage: photo?.minithumbnail?.data != null
@@ -122,10 +124,30 @@ class ChatTimeAndStatus extends StatelessWidget {
 }
 
 class ChatMessagePreview extends StatelessWidget {
-  const ChatMessagePreview({super.key});
+  final td_api.Message? message;
+
+  final td_api.DraftMessage? draftMessage;
+
+  const ChatMessagePreview(
+      {super.key, required this.message, required this.draftMessage});
 
   @override
   Widget build(BuildContext context) {
-    return const Text("Hello!");
+    var messageContent = message?.content;
+    switch (messageContent?.getConstructor() ?? '') {
+      case td_api.MessageText.CONSTRUCTOR:
+        return Text(
+          (messageContent as td_api.MessageText)
+              .text
+              .text
+              .replaceAll(RegExp(r'[\r\n]+'), ' '),
+          overflow: TextOverflow.ellipsis,
+        );
+      default:
+        return const Text(
+          "Unsupported.",
+          overflow: TextOverflow.ellipsis,
+        );
+    }
   }
 }
