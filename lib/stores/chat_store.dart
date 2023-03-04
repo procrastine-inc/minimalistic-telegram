@@ -223,13 +223,11 @@ class ChatStore extends EventEmitter {
   }
 
   void _updateChatDraftMessageController(td_api.UpdateChatDraftMessage event) {
-    _printChats();
     var chat = items[event.chatId];
     if (chat == null) {
       return;
     }
     setChatPositions(chat, event.positions);
-    _printChats();
   }
 
   void _printChats() {

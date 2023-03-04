@@ -1,19 +1,23 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:minimalistic_telegram/pages/ChatBasePage.dart';
+import 'package:palestine_console/palestine_console.dart';
+import 'package:tdlib/td_api.dart' as td_api;
 
 class ChatBlock extends StatelessWidget {
-  String username;
+  final td_api.Chat chat;
 
-  ChatBlock({super.key, required this.username});
+  const ChatBlock({super.key, required this.chat});
 
   @override
   Widget build(BuildContext context) {
-    var theme = Theme.of(context);
-
     return ListTile(
-      leading: const ChatAvatar(),
-      title: ChatTopRow(username: username),
+      leading: ChatAvatar(
+        photo: chat.photo,
+      ),
+      title: ChatTopRow(title: chat.title),
       subtitle: const ChatMessagePreview(),
       // tileColor: theme.colorScheme.background,
       onTap: () {
@@ -27,22 +31,25 @@ class ChatBlock extends StatelessWidget {
 }
 
 class ChatAvatar extends StatelessWidget {
-  const ChatAvatar({super.key});
+  final td_api.ChatPhotoInfo? photo;
+  const ChatAvatar({super.key, required this.photo});
 
   @override
   Widget build(BuildContext context) {
-    return const CircleAvatar(
+    Print.black(photo?.small.local.path ?? '');
+    return CircleAvatar(
       radius: 22,
-      backgroundImage: NetworkImage(
-          'https://flutter.github.io/assets-for-api-docs/assets/widgets/owl.jpg'),
+      backgroundImage: photo?.minithumbnail?.data != null
+          ? MemoryImage(base64Decode(photo!.minithumbnail!.data))
+          : null,
     );
   }
 }
 
 class ChatTopRow extends StatelessWidget {
-  String username;
+  final String title;
 
-  ChatTopRow({super.key, required this.username});
+  const ChatTopRow({super.key, required this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -50,16 +57,16 @@ class ChatTopRow extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.baseline,
       textBaseline: TextBaseline.alphabetic,
       children: [
-        Expanded(child: ChatUsername(username: username)),
+        Expanded(child: ChatTitle(title: title)),
         const ChatTimeAndStatus(),
       ],
     );
   }
 }
 
-class ChatUsername extends StatelessWidget {
-  String username;
-  ChatUsername({super.key, required this.username});
+class ChatTitle extends StatelessWidget {
+  final String title;
+  const ChatTitle({super.key, required this.title});
 
   final isCommunity = true;
   final isBot = false;
@@ -80,7 +87,7 @@ class ChatUsername extends StatelessWidget {
           ),
         Flexible(
             child: Text(
-          username,
+          title,
           overflow: TextOverflow.ellipsis,
           softWrap: false,
         )),
