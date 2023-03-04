@@ -75,7 +75,7 @@ class ChatUsername extends StatelessWidget {
           ),
         if (isBot)
           const Icon(
-            Icons.car_crash, // could not find bot logo
+            Icons.smart_toy_outlined,
             size: 20,
           ),
         Flexible(
