@@ -18,7 +18,7 @@ class ChatBlock extends StatelessWidget {
       // tileColor: theme.colorScheme.background,
       onTap: () {
         Navigator.push(context, CupertinoPageRoute(builder: (context) {
-          return ChatBasePage();
+          return const ChatBasePage();
         }));
       },
       onLongPress: () {},
@@ -51,7 +51,7 @@ class ChatTopRow extends StatelessWidget {
       textBaseline: TextBaseline.alphabetic,
       children: [
         Expanded(child: ChatUsername(username: username)),
-        ChatTimeAndStatus(),
+        const ChatTimeAndStatus(),
       ],
     );
   }
@@ -78,10 +78,18 @@ class ChatUsername extends StatelessWidget {
             Icons.car_crash, // could not find bot logo
             size: 20,
           ),
-        Text(username),
+        Flexible(
+            child: Text(
+          username,
+          overflow: TextOverflow.ellipsis,
+          softWrap: false,
+        )),
         const Icon(
           CupertinoIcons.volume_off,
-          size: 20,
+          size: 14,
+        ),
+        const SizedBox(
+          width: 40,
         ),
       ],
     );
