@@ -29,6 +29,7 @@ class _ChatsListState extends State<ChatsList> {
     chatStore.on(td_api.UpdateNewChat.CONSTRUCTOR, onChatListUpdate);
     chatStore.on(td_api.UpdateChatAction.CONSTRUCTOR, onChatListUpdate);
     chatStore.on(td_api.UpdateChatLastMessage.CONSTRUCTOR, onChatListUpdate);
+    chatStore.on(td_api.UpdateChatDraftMessage.CONSTRUCTOR, onChatListUpdate);
   }
 
   @override

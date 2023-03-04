@@ -76,6 +76,11 @@ class ChatStore extends EventEmitter {
         _updateChatLastMessageController(event as td_api.UpdateChatLastMessage);
         emit(td_api.UpdateChatLastMessage.CONSTRUCTOR, event);
         break;
+      case td_api.UpdateChatDraftMessage.CONSTRUCTOR:
+        _updateChatDraftMessageController(
+            event as td_api.UpdateChatDraftMessage);
+        emit(td_api.UpdateChatDraftMessage.CONSTRUCTOR, event);
+        break;
 
       default:
     }
@@ -215,5 +220,23 @@ class ChatStore extends EventEmitter {
       return;
     }
     setChatPositions(chat, event.positions);
+  }
+
+  void _updateChatDraftMessageController(td_api.UpdateChatDraftMessage event) {
+    _printChats();
+    var chat = items[event.chatId];
+    if (chat == null) {
+      return;
+    }
+    setChatPositions(chat, event.positions);
+    _printChats();
+  }
+
+  void _printChats() {
+    Print.blue('Current Chats list:');
+    for (var chat in chatList) {
+      Print.green(items[chat.chatId]?.title ?? '');
+    }
+    Print.blue('Finished printing chats');
   }
 }
