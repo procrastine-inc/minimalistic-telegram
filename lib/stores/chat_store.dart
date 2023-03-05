@@ -146,29 +146,29 @@ class ChatStore extends EventEmitter {
     for (i = 0; i < chat.positions.length; i++) {
       if (chat.positions[i].list.getConstructor() !=
           td_api.ChatListMain.CONSTRUCTOR) {
-        break;
+        return;
       }
-
-      var newPositions = List<td_api.ChatPosition>.filled(
-        chat.positions.length +
-            (updateChat.position.order == 0 ? 0 : 1) -
-            (i < chat.positions.length ? 1 : 0),
-        const td_api.ChatPosition(
-            order: 0, list: td_api.ChatList(), isPinned: false),
-      );
-      int pos = 0;
-      if (updateChat.position.order != 0) {
-        newPositions[pos++] = updateChat.position;
-      }
-      for (int j = 0; j < chat.positions.length; j++) {
-        if (j != i) {
-          newPositions[pos++] = chat.positions[j];
-        }
-      }
-      assert(pos == newPositions.length);
-
-      setChatPositions(chat, newPositions);
     }
+
+    var newPositions = List<td_api.ChatPosition>.filled(
+      chat.positions.length +
+          (updateChat.position.order == 0 ? 0 : 1) -
+          (i < chat.positions.length ? 1 : 0),
+      const td_api.ChatPosition(
+          order: 0, list: td_api.ChatList(), isPinned: false),
+    );
+    int pos = 0;
+    if (updateChat.position.order != 0) {
+      newPositions[pos++] = updateChat.position;
+    }
+    for (int j = 0; j < chat.positions.length; j++) {
+      if (j != i) {
+        newPositions[pos++] = chat.positions[j];
+      }
+    }
+    assert(pos == newPositions.length);
+
+    setChatPositions(chat, newPositions);
   }
 
   Future<Map<int, td_api.Chat>> getChatList(int limit) async {
