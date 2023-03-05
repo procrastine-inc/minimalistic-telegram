@@ -26,6 +26,7 @@ class _ChatsListState extends State<ChatsList> {
     chatStore.getChatList(100);
 
     chatStore.on(td_api.UpdateNewChat.CONSTRUCTOR, onChatListUpdate);
+    chatStore.on(td_api.UpdateChatPosition.CONSTRUCTOR, onChatListUpdate);
     chatStore.on(td_api.UpdateChatAction.CONSTRUCTOR, onChatListUpdate);
     chatStore.on(td_api.UpdateChatLastMessage.CONSTRUCTOR, onChatListUpdate);
     chatStore.on(td_api.UpdateChatDraftMessage.CONSTRUCTOR, onChatListUpdate);
@@ -37,6 +38,7 @@ class _ChatsListState extends State<ChatsList> {
     var chatStore = context.read<ChatStore>();
 
     chatStore.off(td_api.UpdateNewChat.CONSTRUCTOR, onChatListUpdate);
+    chatStore.off(td_api.UpdateChatPosition.CONSTRUCTOR, onChatListUpdate);
     chatStore.off(td_api.UpdateChatAction.CONSTRUCTOR, onChatListUpdate);
     chatStore.off(td_api.UpdateChatLastMessage.CONSTRUCTOR, onChatListUpdate);
     chatStore.off(td_api.UpdateChatDraftMessage.CONSTRUCTOR, onChatListUpdate);

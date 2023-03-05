@@ -110,13 +110,15 @@ class ChatStore extends EventEmitter {
   void setChatPositions(td_api.Chat chat, List<td_api.ChatPosition> positions) {
     // synchronized (mainChatList) {
     // synchronized (chat) {
-    for (var position in positions) {
+    for (var position in chat.positions) {
       if (position.list.getConstructor() == td_api.ChatListMain.CONSTRUCTOR) {
         chatList.removeWhere(((element) => element.chatId == chat.id));
       }
     }
 
-    chat = chat.copyWith(positions: positions);
+    // TODO: idk why we make this reassignment
+    // the same is in Java example
+    items[chat.id] = chat.copyWith(positions: [...positions]);
 
     for (var position in positions) {
       if (position.list.getConstructor() == td_api.ChatListMain.CONSTRUCTOR) {
@@ -131,6 +133,9 @@ class ChatStore extends EventEmitter {
   }
 
   void _updateChatPositionController(td_api.UpdateChatPosition event) {
+    // TODO: This implementation is kinda wrong.
+    // Here we accept only updates for main list.
+    // And also it's very imperative, we can write it in better style.
     td_api.UpdateChatPosition updateChat = event;
     if (updateChat.position.list.getConstructor() !=
         td_api.ChatListMain.CONSTRUCTOR) {
@@ -144,9 +149,9 @@ class ChatStore extends EventEmitter {
     // synchronized(chat, () {
     int i;
     for (i = 0; i < chat.positions.length; i++) {
-      if (chat.positions[i].list.getConstructor() !=
+      if (chat.positions[i].list.getConstructor() ==
           td_api.ChatListMain.CONSTRUCTOR) {
-        return;
+        break;
       }
     }
 
@@ -158,15 +163,20 @@ class ChatStore extends EventEmitter {
           order: 0, list: td_api.ChatList(), isPinned: false),
     );
     int pos = 0;
+    // this if adds position that came from update
     if (updateChat.position.order != 0) {
       newPositions[pos++] = updateChat.position;
     }
+    // this loop adds all existing positions
     for (int j = 0; j < chat.positions.length; j++) {
       if (j != i) {
+        // this check skips mainList position(because it's added in previous if)
         newPositions[pos++] = chat.positions[j];
       }
     }
-    assert(pos == newPositions.length);
+    assert(pos == newPositions.length); // this may become unnecessary
+    Print.green(
+        '${chat.title} has ${chat.positions.length.toString()} positions. Should become ${newPositions.length}');
 
     setChatPositions(chat, newPositions);
   }
