@@ -134,6 +134,43 @@ class ChatMessagePreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var messageContent = message?.content;
+
+    if (draftMessage != null) {
+      // TODO: change to be switch case
+      if (draftMessage?.inputMessageText.getConstructor() !=
+          td_api.InputMessageText.CONSTRUCTOR) {
+        return Row(children: const [
+          Text(
+            'Draft:',
+            style: TextStyle(color: Colors.redAccent),
+          ),
+          Flexible(
+            child: Text(
+              'Unsupported',
+              overflow: TextOverflow.ellipsis,
+            ),
+          )
+        ]);
+      }
+      var draftText =
+          (draftMessage?.inputMessageText as td_api.InputMessageText)
+              .text
+              .text
+              .replaceAll(RegExp(r'[\r\n]+'), ' ');
+      return Row(children: [
+        const Text(
+          'Draft:',
+          style: TextStyle(color: Colors.redAccent),
+        ),
+        Flexible(
+          child: Text(
+            draftText,
+            overflow: TextOverflow.ellipsis,
+          ),
+        )
+      ]);
+    }
+
     switch (messageContent?.getConstructor() ?? '') {
       case td_api.MessageText.CONSTRUCTOR:
         return Text(

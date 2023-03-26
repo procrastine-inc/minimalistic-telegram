@@ -242,7 +242,41 @@ class ChatStore extends EventEmitter {
     if (chat == null) {
       return;
     }
-    setChatPositions(chat, event.positions);
+    // TODO: make util for copying objects
+    var chatCopy = td_api.Chat(
+      id: chat.id,
+      type: chat.type,
+      title: chat.title,
+      photo: chat.photo,
+      permissions: chat.permissions,
+      lastMessage: chat.lastMessage,
+      positions: chat.positions,
+      messageSenderId: chat.messageSenderId,
+      hasProtectedContent: chat.hasProtectedContent,
+      isMarkedAsUnread: chat.isMarkedAsUnread,
+      isBlocked: chat.isBlocked,
+      hasScheduledMessages: chat.hasScheduledMessages,
+      canBeDeletedOnlyForSelf: chat.canBeDeletedOnlyForSelf,
+      canBeDeletedForAllUsers: chat.canBeDeletedForAllUsers,
+      canBeReported: chat.canBeReported,
+      defaultDisableNotification: chat.defaultDisableNotification,
+      unreadCount: chat.unreadCount,
+      lastReadInboxMessageId: chat.lastReadInboxMessageId,
+      lastReadOutboxMessageId: chat.lastReadOutboxMessageId,
+      unreadMentionCount: chat.unreadMentionCount,
+      notificationSettings: chat.notificationSettings,
+      messageTtl: chat.messageTtl,
+      themeName: chat.themeName,
+      actionBar: chat.actionBar,
+      videoChat: chat.videoChat,
+      pendingJoinRequests: chat.pendingJoinRequests,
+      replyMarkupMessageId: chat.replyMarkupMessageId,
+      draftMessage: event.draftMessage,
+      clientData: chat.clientData,
+      extra: chat.extra,
+      clientId: chat.clientId,
+    );
+    setChatPositions(chatCopy, event.positions);
   }
 
   void _printChats() {
