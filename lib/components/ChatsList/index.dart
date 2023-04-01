@@ -16,13 +16,13 @@ class ChatsList extends StatefulWidget {
 }
 
 class _ChatsListState extends State<ChatsList> {
-  var chatList = SplayTreeSet<OrderedChat>();
+  var chatIdsList = SplayTreeSet<OrderedChat>();
 
   @override
   void initState() {
     super.initState();
     var chatStore = context.read<ChatStore>();
-    chatList = chatStore.chatList;
+    chatIdsList = chatStore.chatList;
     chatStore.getChatList(100);
 
     chatStore.on(td_api.UpdateNewChat.CONSTRUCTOR, onChatListUpdate);
@@ -48,9 +48,9 @@ class _ChatsListState extends State<ChatsList> {
   Widget build(BuildContext context) {
     var chatStore = context.read<ChatStore>();
     return ListView.builder(
-        itemCount: chatList.length,
+        itemCount: chatIdsList.length,
         itemBuilder: ((context, index) {
-          var chatId = chatList.elementAt(index).chatId;
+          var chatId = chatIdsList.elementAt(index).chatId;
           return ChatBlock(
               chat: chatStore.items[chatId]!, key: ValueKey(chatId));
         }));
