@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:minimalistic_telegram/components/MessageSubtitle/chat_message_subtitle.dart';
 import 'package:minimalistic_telegram/pages/ChatBasePage.dart';
 import 'package:palestine_console/palestine_console.dart';
 import 'package:tdlib/td_api.dart' as td_api;
@@ -20,7 +21,7 @@ class ChatBlock extends StatelessWidget {
         photo: chat.photo,
       ),
       title: ChatTopRow(title: chat.title),
-      subtitle: ChatMessagePreview(
+      subtitle: ChatMessageSubtitle(
           message: chat.lastMessage, draftMessage: chat.draftMessage),
       // tileColor: theme.colorScheme.background,
       onTap: () {
@@ -120,71 +121,5 @@ class ChatTimeAndStatus extends StatelessWidget {
         Text("14:00"),
       ],
     );
-  }
-}
-
-class ChatMessagePreview extends StatelessWidget {
-  final td_api.Message? message;
-
-  final td_api.DraftMessage? draftMessage;
-
-  const ChatMessagePreview(
-      {super.key, required this.message, required this.draftMessage});
-
-  @override
-  Widget build(BuildContext context) {
-    var messageContent = message?.content;
-
-    if (draftMessage != null) {
-      // TODO: change to be switch case
-      if (draftMessage?.inputMessageText.getConstructor() !=
-          td_api.InputMessageText.CONSTRUCTOR) {
-        return Row(children: const [
-          Text(
-            'Draft:',
-            style: TextStyle(color: Colors.redAccent),
-          ),
-          Flexible(
-            child: Text(
-              'Unsupported',
-              overflow: TextOverflow.ellipsis,
-            ),
-          )
-        ]);
-      }
-      var draftText =
-          (draftMessage?.inputMessageText as td_api.InputMessageText)
-              .text
-              .text
-              .replaceAll(RegExp(r'[\r\n]+'), ' ');
-      return Row(children: [
-        const Text(
-          'Draft:',
-          style: TextStyle(color: Colors.redAccent),
-        ),
-        Flexible(
-          child: Text(
-            draftText,
-            overflow: TextOverflow.ellipsis,
-          ),
-        )
-      ]);
-    }
-
-    switch (messageContent?.getConstructor() ?? '') {
-      case td_api.MessageText.CONSTRUCTOR:
-        return Text(
-          (messageContent as td_api.MessageText)
-              .text
-              .text
-              .replaceAll(RegExp(r'[\r\n]+'), ' '),
-          overflow: TextOverflow.ellipsis,
-        );
-      default:
-        return const Text(
-          "Unsupported.",
-          overflow: TextOverflow.ellipsis,
-        );
-    }
   }
 }
