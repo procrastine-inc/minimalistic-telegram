@@ -81,7 +81,10 @@ class ChatStore extends EventEmitter {
             event as td_api.UpdateChatDraftMessage);
         emit(td_api.UpdateChatDraftMessage.CONSTRUCTOR, event);
         break;
-
+      case td_api.UpdateChatAction.CONSTRUCTOR:
+        _updateChatActionController(event as td_api.UpdateChatAction);
+        emit(td_api.UpdateChatAction.CONSTRUCTOR, event);
+        break;
       default:
     }
   }
@@ -285,5 +288,14 @@ class ChatStore extends EventEmitter {
       Print.green(items[chat.chatId]?.title ?? '');
     }
     Print.blue('Finished printing chats');
+  }
+
+  void _updateChatActionController(td_api.UpdateChatAction event) {
+    var chat = items[event.chatId];
+
+    if (chat == null) {
+      return;
+    }
+    // TODO: implement typingListener
   }
 }
