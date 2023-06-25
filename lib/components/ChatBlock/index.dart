@@ -26,7 +26,7 @@ class ChatBlock extends StatelessWidget {
       // tileColor: theme.colorScheme.background,
       onTap: () {
         Navigator.push(context, CupertinoPageRoute(builder: (context) {
-          return const ChatBasePage();
+          return ChatBasePage(chat: chat);
         }));
       },
       onLongPress: () {},

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:minimalistic_telegram/models/chatMessageModel.dart';
+import 'package:tdlib/td_api.dart' as td_api;
 
 List<ChatMessage> messages = [
   ChatMessage(messageContent: "Hello, Will", messageType: "receiver"),
@@ -12,19 +13,15 @@ List<ChatMessage> messages = [
       messageContent: "Is there any thing wrong?", messageType: "sender"),
 ];
 
-class ChatBasePage extends StatefulWidget {
-  const ChatBasePage({super.key});
+class ChatBasePage extends StatelessWidget {
+  final td_api.Chat chat;
+  const ChatBasePage({super.key, required this.chat});
 
-  @override
-  _ChatBasePageState createState() => _ChatBasePageState();
-}
-
-class _ChatBasePageState extends State<ChatBasePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.amber.shade50,
-      appBar: const ChatAppBar(),
+      appBar: ChatAppBar(title: chat.title),
       body: const ChatBody(),
     );
   }
@@ -132,8 +129,11 @@ class ChatBubble extends StatelessWidget {
 }
 
 class ChatAppBar extends StatelessWidget with PreferredSizeWidget {
+  final String title;
+
   const ChatAppBar({
     Key? key,
+    this.title = "Chat",
   }) : super(key: key);
 
   @override
@@ -170,18 +170,18 @@ class ChatAppBar extends StatelessWidget with PreferredSizeWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: const <Widget>[
+                  children: <Widget>[
                     Text(
-                      "Victoria",
-                      style: TextStyle(
+                      title,
+                      style: const TextStyle(
                           color: Colors.white,
                           fontSize: 16,
                           fontWeight: FontWeight.w600),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 6,
                     ),
-                    Text(
+                    const Text(
                       "Online",
                       style: TextStyle(
                         color: Colors.white38,
