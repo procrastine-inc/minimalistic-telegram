@@ -20,7 +20,11 @@ class ChatBlock extends StatelessWidget {
       leading: ChatAvatar(
         photo: chat.photo,
       ),
-      title: ChatTopRow(title: chat.title),
+      title: ChatTopRow(
+          title: chat.title,
+          date: chat.lastMessage?.date ??
+              chat.draftMessage?.date ??
+              chat.lastReadInboxMessageId),
       subtitle: ChatMessageSubtitle(
           message: chat.lastMessage, draftMessage: chat.draftMessage),
       // tileColor: theme.colorScheme.background,
@@ -65,7 +69,9 @@ class _ChatAvatarState extends State<ChatAvatar> {
 class ChatTopRow extends StatelessWidget {
   final String title;
 
-  const ChatTopRow({super.key, required this.title});
+  final int date;
+
+  const ChatTopRow({super.key, required this.title, required this.date});
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +80,7 @@ class ChatTopRow extends StatelessWidget {
       textBaseline: TextBaseline.alphabetic,
       children: [
         Expanded(child: ChatTitle(title: title)),
-        const ChatTimeAndStatus(),
+        ChatTimeAndStatus(date: date),
       ],
     );
   }
@@ -120,7 +126,8 @@ class ChatTitle extends StatelessWidget {
 }
 
 class ChatTimeAndStatus extends StatelessWidget {
-  const ChatTimeAndStatus({super.key});
+  final int date;
+  const ChatTimeAndStatus({super.key, required this.date});
 
   @override
   Widget build(BuildContext context) {
@@ -131,6 +138,7 @@ class ChatTimeAndStatus extends StatelessWidget {
           size: 20,
         ),
         SizedBox(width: 3),
+        // TODO: add INTL
         Text("14:00"),
       ],
     );
