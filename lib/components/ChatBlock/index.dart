@@ -34,17 +34,30 @@ class ChatBlock extends StatelessWidget {
   }
 }
 
-class ChatAvatar extends StatelessWidget {
+class ChatAvatar extends StatefulWidget {
   final td_api.ChatPhotoInfo? photo;
   const ChatAvatar({super.key, required this.photo});
+
+  @override
+  State<ChatAvatar> createState() => _ChatAvatarState();
+}
+
+class _ChatAvatarState extends State<ChatAvatar> {
+  late MemoryImage? backgroundImage;
+
+  @override
+  void initState() {
+    super.initState();
+    backgroundImage = widget.photo?.minithumbnail?.data != null
+        ? MemoryImage(base64Decode(widget.photo!.minithumbnail!.data))
+        : null;
+  }
 
   @override
   Widget build(BuildContext context) {
     return CircleAvatar(
       radius: 22,
-      backgroundImage: photo?.minithumbnail?.data != null
-          ? MemoryImage(base64Decode(photo!.minithumbnail!.data))
-          : null,
+      backgroundImage: backgroundImage,
     );
   }
 }
