@@ -6,6 +6,7 @@ import 'package:minimalistic_telegram/services/locator.dart';
 import 'package:minimalistic_telegram/stores/application_store.dart';
 import 'package:minimalistic_telegram/stores/chat_store.dart';
 import 'package:minimalistic_telegram/stores/filter_store.dart';
+import 'package:minimalistic_telegram/stores/message_store.dart';
 import 'package:minimalistic_telegram/utils/const.dart';
 import 'package:minimalistic_telegram/utils/router.dart' as util_router;
 import 'package:palestine_console/palestine_console.dart';
@@ -33,6 +34,10 @@ void main() async {
         ),
         Provider<ChatStore>(
           create: (_) => ChatStore(),
+          lazy: false,
+        ),
+        Provider<MessageStore>(
+          create: (_) => MessageStore(),
           lazy: false,
         ),
         Provider<FilterStore>(
