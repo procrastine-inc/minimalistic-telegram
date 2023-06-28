@@ -10,7 +10,7 @@ import '../controllers/tdlib_controller.dart';
 
 // TODO: make it singleTon
 class MessageStore extends EventEmitter {
-  late Map<int, Map<int, dynamic>> items;
+  Map<int, Map<int, td_api.Message>> items = {};
 
   late Map media;
 

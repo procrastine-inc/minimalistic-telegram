@@ -1,17 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:minimalistic_telegram/models/chatMessageModel.dart';
+import 'package:minimalistic_telegram/stores/message_store.dart';
+import 'package:palestine_console/palestine_console.dart';
 import 'package:tdlib/td_api.dart' as td_api;
-
-List<ChatMessage> messages = [
-  ChatMessage(messageContent: "Hello, Will", messageType: "receiver"),
-  ChatMessage(messageContent: "How have you been?", messageType: "receiver"),
-  ChatMessage(
-      messageContent: "Hey Kriss, I am doing fine dude. wbu?",
-      messageType: "sender"),
-  ChatMessage(messageContent: "ehhhh, doing OK.", messageType: "receiver"),
-  ChatMessage(
-      messageContent: "Is there any thing wrong?", messageType: "sender"),
-];
+import 'package:provider/provider.dart';
 
 class ChatBasePage extends StatelessWidget {
   final td_api.Chat chat;
@@ -22,21 +14,23 @@ class ChatBasePage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.amber.shade50,
       appBar: ChatAppBar(title: chat.title),
-      body: const ChatBody(),
+      body: ChatBody(chat: chat),
     );
   }
 }
 
 class ChatBody extends StatelessWidget {
-  const ChatBody({
-    Key? key,
-  }) : super(key: key);
+  final td_api.Chat chat;
+
+  const ChatBody({super.key, required this.chat});
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: <Widget>[
-        const ChatMessages(),
+        ChatMessages(
+          chatId: chat.id,
+        ),
         Align(
           alignment: Alignment.bottomLeft,
           child: Container(
@@ -78,28 +72,32 @@ class ChatBody extends StatelessWidget {
 }
 
 class ChatMessages extends StatelessWidget {
+  final int chatId;
+
   const ChatMessages({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+    required this.chatId,
+  });
 
   @override
   Widget build(BuildContext context) {
+    var messageStore = context.read<MessageStore>();
+    var messagesByChat = messageStore.items[chatId] ?? {};
     return ListView(
       children: [
-        ...messages.map((e) =>
-            ChatBubble(message: e.messageContent, messageType: e.messageType))
+        ...messagesByChat.entries.map((message) =>
+            MessageBubble(key: ValueKey(message.key), message: message.value))
       ],
     );
   }
 }
 
-class ChatBubble extends StatelessWidget {
-  final String message;
-  final String messageType;
-  const ChatBubble({
+class MessageBubble extends StatelessWidget {
+  final td_api.Message message;
+
+  const MessageBubble({
     Key? key,
     required this.message,
-    required this.messageType,
   }) : super(key: key);
 
   @override
@@ -107,21 +105,24 @@ class ChatBubble extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.only(left: 14, right: 14, top: 10, bottom: 10),
       child: Align(
-        alignment: (messageType == "receiver"
-            ? Alignment.topLeft
-            : Alignment.topRight),
+        alignment:
+            (message.isOutgoing ? Alignment.topRight : Alignment.topLeft),
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            color: (messageType == "receiver"
-                ? Colors.grey.shade200
-                : Colors.blue[200]),
+            color:
+                (message.isOutgoing ? Colors.grey.shade200 : Colors.blue[200]),
           ),
           padding: const EdgeInsets.all(8),
-          child: Text(
-            message,
-            style: const TextStyle(fontSize: 15),
-          ),
+          child: message.content is td_api.MessageText
+              ? Text(
+                  (message.content as td_api.MessageText).text.text,
+                  style: const TextStyle(fontSize: 15),
+                )
+              : const Text(
+                  "Unsupported message type",
+                  style: TextStyle(fontSize: 15),
+                ),
         ),
       ),
     );
