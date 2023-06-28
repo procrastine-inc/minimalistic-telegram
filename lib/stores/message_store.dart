@@ -75,4 +75,24 @@ class MessageStore extends EventEmitter {
       default:
     }
   }
+
+  Future<void> getMessagesList(int chatId, {int offset = 0}) async {
+    var getChatHistory = td_api.GetChatHistory(
+        chatId: chatId,
+        fromMessageId: 0,
+        limit: 100,
+        offset: offset,
+        onlyLocal: false);
+    var messages =
+        await TdLibController().send<td_api.Messages>(getChatHistory);
+    Print.blue(messages.totalCount.toString());
+    var chat = items[chatId];
+    chat ??= {};
+    items[chatId] = chat;
+    for (var message in messages.messages) {
+      chat[message.id] = message;
+    }
+    // TODO: find a better way to do this, cause this is a custom event
+    emit('messages', items);
+  }
 }

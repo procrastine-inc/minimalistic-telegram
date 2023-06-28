@@ -1,11 +1,11 @@
 import 'dart:async';
 
-abstract class EventEmitter<T> {
-  final Map<String, List<Function(T)>> _observers = {};
+abstract class EventEmitter<DataGenericType> {
+  final Map<String, List<Function>> _observers = {};
   final StreamController<Map<String, dynamic>> _controller =
       StreamController.broadcast();
 
-  void on(String events, Function(T) listener) {
+  void on<T>(String events, Function(T) listener) {
     events.split(' ').forEach((event) {
       _observers[event] = _observers[event] ?? [];
       _observers[event]!.add(listener);
@@ -21,7 +21,7 @@ abstract class EventEmitter<T> {
     _observers[event]!.remove(listener);
   }
 
-  void emit(String event, T data) {
+  void emit(String event, DataGenericType data) {
     final eventMap = {'event': event, 'data': data};
     _controller.add(eventMap);
 

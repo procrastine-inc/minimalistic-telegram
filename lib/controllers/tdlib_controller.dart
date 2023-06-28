@@ -134,9 +134,10 @@ class TdLibController extends EventEmitter<td_api.TdObject> {
   }
 
   /// Sends request to the TDLib client. May be called from any thread.
-  Future<td_api.TdObject?> send(event, {Future<void>? callback}) async {
-    // ignore: missing_return
+  Future<T> send<T extends td_api.TdObject>(dynamic event,
+      {Future<void>? callback}) async {
     final rndId = _random();
+
     if (callback != null) {
       callbackResults[rndId] = callback;
       try {
@@ -147,12 +148,13 @@ class TdLibController extends EventEmitter<td_api.TdObject> {
         }
       }
     } else {
-      final completer = Completer<td_api.TdObject>();
+      final completer = Completer<T>();
       results[rndId] = completer;
       td_lib.tdSend(_client, event, rndId);
       return completer.future;
     }
-    return null;
+
+    throw Exception('Invalid response');
   }
 
   Future sendTdLibParameters() {

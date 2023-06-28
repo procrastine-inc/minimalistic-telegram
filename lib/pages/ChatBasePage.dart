@@ -5,16 +5,49 @@ import 'package:palestine_console/palestine_console.dart';
 import 'package:tdlib/td_api.dart' as td_api;
 import 'package:provider/provider.dart';
 
-class ChatBasePage extends StatelessWidget {
+class ChatBasePage extends StatefulWidget {
   final td_api.Chat chat;
   const ChatBasePage({super.key, required this.chat});
+
+  @override
+  State<ChatBasePage> createState() => _ChatBasePageState();
+}
+
+class _ChatBasePageState extends State<ChatBasePage> {
+  late MessageStore messageStore;
+  handleNewMessage(td_api.UpdateNewMessage message) {
+    if (message.message.chatId == widget.chat.id) {
+      setState(() => {});
+    }
+  }
+
+  handleMessages(_) {
+    setState(() => {});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    messageStore = context.read<MessageStore>();
+    messageStore.on(td_api.UpdateNewMessage.CONSTRUCTOR, handleNewMessage);
+    messageStore.on("messages", handleMessages);
+
+    messageStore.getMessagesList(widget.chat.id);
+  }
+
+  @override
+  void dispose() {
+    messageStore.off(td_api.UpdateNewMessage.CONSTRUCTOR, handleNewMessage);
+    messageStore.off("messages", handleMessages);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.amber.shade50,
-      appBar: ChatAppBar(title: chat.title),
-      body: ChatBody(chat: chat),
+      appBar: ChatAppBar(title: widget.chat.title),
+      body: ChatBody(chat: widget.chat),
     );
   }
 }
@@ -160,8 +193,7 @@ class ChatAppBar extends StatelessWidget with PreferredSizeWidget {
                 width: 2,
               ),
               const CircleAvatar(
-                backgroundImage: NetworkImage(
-                    "https://randomuser.me/api/portraits/women/5.jpg"),
+                backgroundColor: Colors.white,
                 maxRadius: 20,
               ),
               const SizedBox(
