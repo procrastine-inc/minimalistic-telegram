@@ -124,20 +124,23 @@ class ChatMessages extends StatelessWidget {
       padding: const EdgeInsets.all(8),
       groupBy: (message) => DateUtils.dateOnly(
           DateTime.fromMillisecondsSinceEpoch(message.date * 1000)),
-      // useStickyGroupSeparators: true,
+      useStickyGroupSeparators: true,
       reverse: true,
       order: GroupedListOrder.DESC,
-      // floatingHeader: true,
-      groupHeaderBuilder: (message) => Center(
-        child: Card(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              DateFormat.yMMMd().format(
-                  DateTime.fromMillisecondsSinceEpoch(message.date * 1000)),
-              style: const TextStyle(
-                fontSize: 12,
-                color: Colors.grey,
+      floatingHeader: true,
+      groupHeaderBuilder: (message) => SizedBox(
+        height: 40,
+        child: Center(
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                DateFormat.yMMMd().format(
+                    DateTime.fromMillisecondsSinceEpoch(message.date * 1000)),
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey,
+                ),
               ),
             ),
           ),
