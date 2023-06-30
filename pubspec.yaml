@@ -42,6 +42,8 @@ dependencies:
   flutter_dotenv: ^5.0.2
   synchronized: ^3.0.1
   palestine_console: ^0.0.10
+  grouped_list: ^5.1.2
+  intl: ^0.18.1
 
 dev_dependencies:
   flutter_test:

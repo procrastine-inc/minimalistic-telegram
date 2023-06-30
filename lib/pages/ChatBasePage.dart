@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:grouped_list/grouped_list.dart';
+import 'package:intl/intl.dart';
 import 'package:minimalistic_telegram/models/chatMessageModel.dart';
 import 'package:minimalistic_telegram/stores/message_store.dart';
 import 'package:palestine_console/palestine_console.dart';
@@ -116,11 +118,34 @@ class ChatMessages extends StatelessWidget {
   Widget build(BuildContext context) {
     var messageStore = context.read<MessageStore>();
     var messagesByChat = messageStore.items[chatId] ?? {};
-    return ListView(
-      children: [
-        ...messagesByChat.entries.map((message) =>
-            MessageBubble(key: ValueKey(message.key), message: message.value))
-      ],
+    return GroupedListView<td_api.Message, DateTime>(
+      padding: const EdgeInsets.all(8),
+      groupBy: (message) => DateUtils.dateOnly(
+          DateTime.fromMillisecondsSinceEpoch(message.date * 1000)),
+      // useStickyGroupSeparators: true,
+      reverse: true,
+      order: GroupedListOrder.DESC,
+      // floatingHeader: true,
+      groupHeaderBuilder: (message) => Center(
+        child: Card(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              DateFormat.yMMMd().format(
+                  DateTime.fromMillisecondsSinceEpoch(message.date * 1000)),
+              style: const TextStyle(
+                fontSize: 12,
+                color: Colors.grey,
+              ),
+            ),
+          ),
+        ),
+      ),
+      itemBuilder: (context, message) => MessageBubble(
+        key: ValueKey(message.id),
+        message: message,
+      ),
+      elements: [...messagesByChat.values],
     );
   }
 }
