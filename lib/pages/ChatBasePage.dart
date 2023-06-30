@@ -61,10 +61,12 @@ class ChatBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
+    return Column(
       children: <Widget>[
-        ChatMessages(
-          chatId: chat.id,
+        Expanded(
+          child: ChatMessages(
+            chatId: chat.id,
+          ),
         ),
         Align(
           alignment: Alignment.bottomLeft,
