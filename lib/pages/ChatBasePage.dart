@@ -16,32 +16,12 @@ class ChatBasePage extends StatefulWidget {
 }
 
 class _ChatBasePageState extends State<ChatBasePage> {
-  late MessageStore messageStore;
-  handleNewMessage(td_api.UpdateNewMessage message) {
-    if (message.message.chatId == widget.chat.id) {
-      setState(() => {});
-    }
-  }
-
-  handleMessages(_) {
-    setState(() => {});
-  }
-
   @override
   void initState() {
     super.initState();
-    messageStore = context.read<MessageStore>();
-    messageStore.on(td_api.UpdateNewMessage.CONSTRUCTOR, handleNewMessage);
-    messageStore.on("messages", handleMessages);
+    var messageStore = context.read<MessageStore>();
 
     messageStore.getMessagesList(widget.chat.id);
-  }
-
-  @override
-  void dispose() {
-    messageStore.off(td_api.UpdateNewMessage.CONSTRUCTOR, handleNewMessage);
-    messageStore.off("messages", handleMessages);
-    super.dispose();
   }
 
   @override
@@ -108,7 +88,7 @@ class ChatBody extends StatelessWidget {
   }
 }
 
-class ChatMessages extends StatelessWidget {
+class ChatMessages extends StatefulWidget {
   final int chatId;
 
   const ChatMessages({
@@ -117,9 +97,40 @@ class ChatMessages extends StatelessWidget {
   });
 
   @override
+  State<ChatMessages> createState() => _ChatMessagesState();
+}
+
+class _ChatMessagesState extends State<ChatMessages> {
+  late MessageStore messageStore;
+  handleNewMessage(td_api.UpdateNewMessage message) {
+    if (message.message.chatId == widget.chatId) {
+      setState(() => {});
+    }
+  }
+
+  handleMessages(_) {
+    setState(() => {});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    messageStore = context.read<MessageStore>();
+    messageStore.on(td_api.UpdateNewMessage.CONSTRUCTOR, handleNewMessage);
+    messageStore.on("messages", handleMessages);
+  }
+
+  @override
+  void dispose() {
+    messageStore.off(td_api.UpdateNewMessage.CONSTRUCTOR, handleNewMessage);
+    messageStore.off("messages", handleMessages);
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     var messageStore = context.read<MessageStore>();
-    var messagesByChat = messageStore.items[chatId] ?? {};
+    var messagesByChat = messageStore.items[widget.chatId] ?? {};
     return GroupedListView<td_api.Message, DateTime>(
       padding: const EdgeInsets.all(8),
       groupBy: (message) => DateUtils.dateOnly(

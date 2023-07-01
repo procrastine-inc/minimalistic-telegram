@@ -44,6 +44,7 @@ dependencies:
   palestine_console: ^0.0.10
   grouped_list: ^5.1.2
   intl: ^0.18.1
+  change_case: ^1.0.0+3
 
 dev_dependencies:
   flutter_test:

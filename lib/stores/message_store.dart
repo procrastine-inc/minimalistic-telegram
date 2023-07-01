@@ -5,6 +5,7 @@ import 'package:minimalistic_telegram/models/ordered_chat.dart';
 import 'package:minimalistic_telegram/stores/event_emitter.dart';
 import 'package:palestine_console/palestine_console.dart';
 import 'package:tdlib/td_api.dart' as td_api;
+import 'package:change_case/change_case.dart';
 
 import '../controllers/tdlib_controller.dart';
 
@@ -55,12 +56,13 @@ class MessageStore extends EventEmitter {
 
   //TODO: THIS IS HOW ALL UPDATES SHOULD BE HANDLED IN OTHER STORES
 
-  onUpdate(td_api.TdObject event) async {
+  onUpdate(td_api.TdObject event) {
     final eventType = event.runtimeType;
     final handler = eventHandlers[eventType];
     if (handler != null) {
-      await handler(event);
-      emit(eventType.toString(), event);
+      handler(event);
+      emit(eventType.toString().toCamelCase(),
+          event); // TODO: camelCasing here is a hack, fix it
     } else {
       // Handle unknown event type
     }
