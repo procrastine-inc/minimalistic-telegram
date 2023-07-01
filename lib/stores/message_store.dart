@@ -35,6 +35,10 @@ class MessageStore extends EventEmitter {
     chat[message.id] = message;
   }
 
+  _handlerNotImplemented(td_api.TdObject event) {
+    Print.red('Not implemented');
+  }
+
   void reset() {
     items = SplayTreeMap();
     media = {};
@@ -50,6 +54,24 @@ class MessageStore extends EventEmitter {
     return {
       td_api.UpdateAuthorizationState: handleAuthorizationStateUpdate,
       td_api.UpdateNewMessage: _handleUpdateNewMessage,
+      td_api.UpdateAnimatedEmojiMessageClicked: _handlerNotImplemented,
+      td_api.UpdateChatDraftMessage: _handlerNotImplemented,
+      td_api.UpdateChatHasScheduledMessages: _handlerNotImplemented,
+      td_api.UpdateChatLastMessage: _handlerNotImplemented,
+      td_api.UpdateChatMessageSender: _handlerNotImplemented,
+      td_api.UpdateChatMessageTtl: _handlerNotImplemented,
+      td_api.UpdateDeleteMessages: _handlerNotImplemented,
+      td_api.UpdateMessageContent: _handlerNotImplemented,
+      td_api.UpdateMessageContentOpened: _handlerNotImplemented,
+      td_api.UpdateMessageEdited: _handlerNotImplemented,
+      td_api.UpdateMessageInteractionInfo: _handlerNotImplemented,
+      td_api.UpdateMessageIsPinned: _handlerNotImplemented,
+      td_api.UpdateMessageLiveLocationViewed: _handlerNotImplemented,
+      td_api.UpdateMessageMentionRead: _handlerNotImplemented,
+      td_api.UpdateMessageSendAcknowledged: _handlerNotImplemented,
+      td_api.UpdateMessageSendFailed: _handlerNotImplemented,
+      td_api.UpdateMessageSendSucceeded: _handlerNotImplemented,
+      td_api.UpdateUnreadMessageCount: _handlerNotImplemented,
       // Add more mappings here
     };
   }
