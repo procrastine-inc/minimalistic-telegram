@@ -101,11 +101,38 @@ class ChatMessages extends StatefulWidget {
 }
 
 class _ChatMessagesState extends State<ChatMessages> {
+  late ScrollController _controller;
   late MessageStore messageStore;
   handleNewMessage(td_api.UpdateNewMessage message) {
     if (message.message.chatId == widget.chatId) {
       setState(() => {});
     }
+  }
+
+  _topReachedHandler() {
+    var messageStore = context.read<MessageStore>();
+    var messagesByChat = messageStore.items[widget.chatId] ?? {};
+    var lastMessage = messagesByChat.values.last;
+
+    messageStore.getMessagesList(widget.chatId, fromMessageId: lastMessage.id);
+    Print.yellow('top reached');
+  }
+
+  _bottomReachedHandler() {
+    Print.yellow('bottom reached');
+  }
+
+  _scrollListener() {
+    var topReached =
+        _controller.offset >= _controller.position.maxScrollExtent &&
+            !_controller.position.outOfRange;
+    var bottomReached =
+        _controller.offset <= _controller.position.minScrollExtent &&
+            !_controller.position.outOfRange;
+
+    if (topReached) _topReachedHandler();
+
+    if (bottomReached) _bottomReachedHandler();
   }
 
   handleMessages(_) {
@@ -114,10 +141,12 @@ class _ChatMessagesState extends State<ChatMessages> {
 
   @override
   void initState() {
-    super.initState();
+    _controller = ScrollController();
+    _controller.addListener(_scrollListener);
     messageStore = context.read<MessageStore>();
     messageStore.on(td_api.UpdateNewMessage.CONSTRUCTOR, handleNewMessage);
     messageStore.on("messages", handleMessages);
+    super.initState();
   }
 
   @override
@@ -132,6 +161,7 @@ class _ChatMessagesState extends State<ChatMessages> {
     var messageStore = context.read<MessageStore>();
     var messagesByChat = messageStore.items[widget.chatId] ?? {};
     return GroupedListView<td_api.Message, DateTime>(
+      controller: _controller,
       padding: const EdgeInsets.all(8),
       groupBy: (message) => DateUtils.dateOnly(
           DateTime.fromMillisecondsSinceEpoch(message.date * 1000)),

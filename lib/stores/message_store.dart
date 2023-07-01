@@ -100,10 +100,11 @@ class MessageStore extends EventEmitter {
     }
   }
 
-  Future<void> getMessagesList(int chatId, {int offset = 0}) async {
+  Future<void> getMessagesList(int chatId,
+      {int fromMessageId = 0, int offset = 0}) async {
     var getChatHistory = td_api.GetChatHistory(
         chatId: chatId,
-        fromMessageId: 0,
+        fromMessageId: fromMessageId,
         limit: 100,
         offset: offset,
         onlyLocal: false);
