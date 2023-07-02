@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:flutter/material.dart';
 import 'package:grouped_list/grouped_list.dart';
 import 'package:intl/intl.dart';
@@ -80,7 +82,7 @@ class _ChatMessagesState extends State<ChatMessages> {
   @override
   Widget build(BuildContext context) {
     var messageStore = context.read<MessageStore>();
-    var messagesByChat = messageStore.items[widget.chatId] ?? {};
+    var messagesByChat = messageStore.items[widget.chatId] ?? (SplayTreeMap());
     return GroupedListView<td_api.Message, DateTime>(
       controller: _controller,
       padding: const EdgeInsets.all(8),
@@ -112,7 +114,7 @@ class _ChatMessagesState extends State<ChatMessages> {
         key: ValueKey(message.id),
         message: message,
       ),
-      elements: [...messagesByChat.values],
+      elements: messagesByChat.values.toList(),
     );
   }
 }

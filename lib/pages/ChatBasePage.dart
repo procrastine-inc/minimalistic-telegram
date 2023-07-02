@@ -132,9 +132,8 @@ class _ChatInputState extends State<ChatInput> {
             ),
           ),
           IconButton(
-              onPressed: fieldText.text.isNotEmpty
-                  ? _handleTextMessageSendTap
-                  : () => Print.yellow("Empty!"),
+              onPressed:
+                  fieldText.text.isNotEmpty ? _handleTextMessageSendTap : null,
               icon: Icon(
                 Icons.send,
                 color: Colors.blue.shade800,

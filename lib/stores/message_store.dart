@@ -11,7 +11,7 @@ import '../controllers/tdlib_controller.dart';
 
 // TODO: make it singleTon
 class MessageStore extends EventEmitter {
-  SplayTreeMap<int, Map<int, td_api.Message>> items = SplayTreeMap();
+  Map<int, SplayTreeMap<int, td_api.Message>> items = SplayTreeMap();
 
   late Map media;
 
@@ -30,13 +30,13 @@ class MessageStore extends EventEmitter {
     final message = updateNewMessage.message;
     final chatId = message.chatId;
     var chat = items[chatId];
-    chat ??= {};
+    chat ??= SplayTreeMap();
     items[chatId] = chat;
     chat[message.id] = message;
   }
 
   _handlerNotImplemented(td_api.TdObject event) {
-    Print.red('Not implemented');
+    Print.red('Handler for ${event.runtimeType.toString()} is not implemented');
   }
 
   void reset() {
@@ -50,6 +50,19 @@ class MessageStore extends EventEmitter {
     // TdLibController().on('clientUpdate', onClientUpdate);
   }
 
+  _handleUpdateMessageSendSucceeded(td_api.UpdateMessageSendSucceeded event) {
+    final message = event.message;
+    final chatId = message.chatId;
+    var chat = items[chatId];
+    chat ??= SplayTreeMap();
+    if (chat.containsKey(event.oldMessageId)) {
+      chat.remove(event.oldMessageId);
+    }
+
+    _handleUpdateNewMessage(
+        td_api.UpdateNewMessage(message: message, extra: event.extra));
+  }
+
   _initEventHandlers() {
     return {
       td_api.UpdateAuthorizationState: handleAuthorizationStateUpdate,
@@ -57,7 +70,6 @@ class MessageStore extends EventEmitter {
       td_api.UpdateAnimatedEmojiMessageClicked: _handlerNotImplemented,
       td_api.UpdateChatDraftMessage: _handlerNotImplemented,
       td_api.UpdateChatHasScheduledMessages: _handlerNotImplemented,
-      td_api.UpdateChatLastMessage: _handlerNotImplemented,
       td_api.UpdateChatMessageSender: _handlerNotImplemented,
       td_api.UpdateChatMessageTtl: _handlerNotImplemented,
       td_api.UpdateDeleteMessages: _handlerNotImplemented,
@@ -70,7 +82,7 @@ class MessageStore extends EventEmitter {
       td_api.UpdateMessageMentionRead: _handlerNotImplemented,
       td_api.UpdateMessageSendAcknowledged: _handlerNotImplemented,
       td_api.UpdateMessageSendFailed: _handlerNotImplemented,
-      td_api.UpdateMessageSendSucceeded: _handlerNotImplemented,
+      td_api.UpdateMessageSendSucceeded: _handleUpdateMessageSendSucceeded,
       td_api.UpdateUnreadMessageCount: _handlerNotImplemented,
       // Add more mappings here
     };
@@ -112,7 +124,7 @@ class MessageStore extends EventEmitter {
         await TdLibController().send<td_api.Messages>(getChatHistory);
     Print.blue(messages.totalCount.toString());
     var chat = items[chatId];
-    chat ??= {};
+    chat ??= SplayTreeMap();
     items[chatId] = chat;
     for (var message in messages.messages) {
       chat[message.id] = message;
