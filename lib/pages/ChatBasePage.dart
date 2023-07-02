@@ -51,40 +51,96 @@ class ChatBody extends StatelessWidget {
         ),
         Align(
           alignment: Alignment.bottomLeft,
-          child: Container(
-            color: Colors.cyan.shade100,
-            height: 50,
-            width: double.infinity,
-            // color: Colors.white,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.sentiment_satisfied_alt_outlined),
-                  onPressed: () {},
-                  color: Colors.grey,
-                ),
-                const Expanded(
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: "Message",
-                      hintStyle: TextStyle(color: Colors.grey),
-                      border: InputBorder.none,
-                    ),
-                  ),
-                ),
-                IconButton(
-                    onPressed: () {},
-                    icon: Icon(
-                      Icons.send,
-                      color: Colors.blue.shade800,
-                    )),
-              ],
-            ),
-          ),
+          child: ChatInput(chatId: chat.id),
         ),
       ],
+    );
+  }
+}
+
+class ChatInput extends StatefulWidget {
+  final int chatId;
+
+  const ChatInput({
+    Key? key,
+    required this.chatId,
+  }) : super(key: key);
+
+  @override
+  State<ChatInput> createState() => _ChatInputState();
+}
+
+class _ChatInputState extends State<ChatInput> {
+  final fieldText = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    // TODO: this rebuild whole widget tree, find a better way
+    fieldText.addListener(() {
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    fieldText.dispose();
+    super.dispose();
+  }
+
+  _handleTextMessageSendTap() {
+    var messageStore = context.read<MessageStore>();
+    var textFieldValue = fieldText.text;
+    fieldText.clear();
+    Print.green(textFieldValue.length.toString());
+    messageStore.sendMessage(
+        widget.chatId,
+        td_api.InputMessageText(
+          text: td_api.FormattedText(
+            text: textFieldValue,
+            entities: [],
+          ),
+          disableWebPagePreview: false,
+          clearDraft: true,
+        ));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.cyan.shade100,
+      height: 50,
+      width: double.infinity,
+      // color: Colors.white,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.sentiment_satisfied_alt_outlined),
+            onPressed: () {},
+            color: Colors.grey,
+          ),
+          Expanded(
+            child: TextField(
+              controller: fieldText,
+              decoration: const InputDecoration(
+                hintText: "Message",
+                hintStyle: TextStyle(color: Colors.grey),
+                border: InputBorder.none,
+              ),
+            ),
+          ),
+          IconButton(
+              onPressed: fieldText.text.isNotEmpty
+                  ? _handleTextMessageSendTap
+                  : () => Print.yellow("Empty!"),
+              icon: Icon(
+                Icons.send,
+                color: Colors.blue.shade800,
+              )),
+        ],
+      ),
     );
   }
 }

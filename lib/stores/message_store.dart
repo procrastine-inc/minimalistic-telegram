@@ -120,4 +120,24 @@ class MessageStore extends EventEmitter {
     // TODO: find a better way to do this, cause this is a custom event
     emit('messages', items);
   }
+
+  // send provided message of any content
+  Future<void> sendMessage(
+      int chatId, td_api.InputMessageContent content) async {
+    var sendMessage = td_api.SendMessage(
+        messageThreadId: 0,
+        chatId: chatId,
+        replyToMessageId: 0,
+        replyMarkup: null,
+        inputMessageContent: content);
+    var tempMessage =
+        await TdLibController().send<td_api.TdObject<dynamic>>(sendMessage);
+
+    if (tempMessage is td_api.TdError) {
+      Print.red((tempMessage).message);
+      return;
+    }
+    _handleUpdateNewMessage(
+        td_api.UpdateNewMessage(message: tempMessage as td_api.Message));
+  }
 }
