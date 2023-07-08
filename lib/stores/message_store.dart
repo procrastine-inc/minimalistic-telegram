@@ -74,6 +74,21 @@ class MessageStore extends EventEmitter {
     }
   }
 
+  _handleUpdateMessageEdited(td_api.UpdateMessageEdited event) {
+    // TODO: concurrency will be a problem here
+    final chatId = event.chatId;
+    var chat = items[chatId];
+    chat ??= SplayTreeMap();
+    if (chat.containsKey(event.messageId)) {
+      var newMessage = td_api.Message.fromJson({
+        ...(chat[event.messageId] as td_api.Message).toJson(),
+        ...event.toJson()
+      });
+      _handleUpdateNewMessage(
+          td_api.UpdateNewMessage(message: newMessage, extra: event.extra));
+    }
+  }
+
   _initEventHandlers() {
     return {
       td_api.UpdateAuthorizationState: handleAuthorizationStateUpdate,
@@ -85,7 +100,7 @@ class MessageStore extends EventEmitter {
       td_api.UpdateDeleteMessages: _handleUpdateDeleteMessages,
       td_api.UpdateMessageContent: _handlerNotImplemented,
       td_api.UpdateMessageContentOpened: _handlerNotImplemented,
-      td_api.UpdateMessageEdited: _handlerNotImplemented,
+      td_api.UpdateMessageEdited: _handleUpdateMessageEdited,
       td_api.UpdateMessageInteractionInfo: _handlerNotImplemented,
       td_api.UpdateMessageIsPinned: _handlerNotImplemented,
       td_api.UpdateMessageLiveLocationViewed: _handlerNotImplemented,
