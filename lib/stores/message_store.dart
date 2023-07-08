@@ -63,16 +63,26 @@ class MessageStore extends EventEmitter {
         td_api.UpdateNewMessage(message: message, extra: event.extra));
   }
 
+  _handleUpdateDeleteMessages(td_api.UpdateDeleteMessages event) {
+    final chatId = event.chatId;
+    var chat = items[chatId];
+    chat ??= SplayTreeMap();
+    for (final messageId in event.messageIds) {
+      if (chat.containsKey(messageId)) {
+        chat.remove(messageId);
+      }
+    }
+  }
+
   _initEventHandlers() {
     return {
       td_api.UpdateAuthorizationState: handleAuthorizationStateUpdate,
       td_api.UpdateNewMessage: _handleUpdateNewMessage,
       td_api.UpdateAnimatedEmojiMessageClicked: _handlerNotImplemented,
-      td_api.UpdateChatDraftMessage: _handlerNotImplemented,
       td_api.UpdateChatHasScheduledMessages: _handlerNotImplemented,
       td_api.UpdateChatMessageSender: _handlerNotImplemented,
       td_api.UpdateChatMessageTtl: _handlerNotImplemented,
-      td_api.UpdateDeleteMessages: _handlerNotImplemented,
+      td_api.UpdateDeleteMessages: _handleUpdateDeleteMessages,
       td_api.UpdateMessageContent: _handlerNotImplemented,
       td_api.UpdateMessageContentOpened: _handlerNotImplemented,
       td_api.UpdateMessageEdited: _handlerNotImplemented,

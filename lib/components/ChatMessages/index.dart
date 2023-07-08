@@ -31,6 +31,12 @@ class _ChatMessagesState extends State<ChatMessages> {
     }
   }
 
+  handleDeleteMessages(td_api.UpdateDeleteMessages messages) {
+    if (messages.chatId == widget.chatId) {
+      setState(() => {});
+    }
+  }
+
   _topReachedHandler() {
     var messageStore = context.read<MessageStore>();
     var messagesByChat = messageStore.items[widget.chatId] ?? {};
@@ -68,6 +74,8 @@ class _ChatMessagesState extends State<ChatMessages> {
     _controller.addListener(_scrollListener);
     messageStore = context.read<MessageStore>();
     messageStore.on(td_api.UpdateNewMessage.CONSTRUCTOR, handleNewMessage);
+    messageStore.on(
+        td_api.UpdateDeleteMessages.CONSTRUCTOR, handleDeleteMessages);
     messageStore.on("messages", handleMessages);
     super.initState();
   }
@@ -76,6 +84,8 @@ class _ChatMessagesState extends State<ChatMessages> {
   void dispose() {
     messageStore.off(td_api.UpdateNewMessage.CONSTRUCTOR, handleNewMessage);
     messageStore.off("messages", handleMessages);
+    messageStore.off(
+        td_api.UpdateDeleteMessages.CONSTRUCTOR, handleDeleteMessages);
     super.dispose();
   }
 
