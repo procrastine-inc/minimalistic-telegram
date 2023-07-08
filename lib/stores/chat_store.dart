@@ -1,6 +1,6 @@
 import 'dart:collection';
 import 'dart:developer';
-
+import 'package:change_case/change_case.dart';
 import 'package:minimalistic_telegram/models/ordered_chat.dart';
 import 'package:minimalistic_telegram/stores/event_emitter.dart';
 import 'package:palestine_console/palestine_console.dart';
@@ -30,8 +30,11 @@ class ChatStore extends EventEmitter {
 
   late bool haveFullMainChatList;
 
+  late Map<Type, dynamic> eventHandlers = {};
+
   ChatStore() {
     reset();
+    eventHandlers = _initEventHandlers();
 
     addTdLibListener();
   }
@@ -56,41 +59,20 @@ class ChatStore extends EventEmitter {
   void addStatistics() {}
   //FIXME: update typings here
   onUpdate(td_api.TdObject event) async {
-    switch (event.getConstructor()) {
-      case td_api.UpdateAuthorizationState.CONSTRUCTOR:
-        await handleAuthorizationStateUpdate(
-            (event as td_api.UpdateAuthorizationState).authorizationState);
-        emit(td_api.UpdateAuthorizationState.CONSTRUCTOR, event);
-        break;
-
-      case td_api.UpdateNewChat.CONSTRUCTOR:
-        _updateNewChatController((event as td_api.UpdateNewChat).chat);
-        emit(td_api.UpdateNewChat.CONSTRUCTOR, event);
-        break;
-      case td_api.UpdateChatPosition.CONSTRUCTOR:
-        _updateChatPositionController(event as td_api.UpdateChatPosition);
-        emit(td_api.UpdateChatPosition.CONSTRUCTOR, event);
-        break;
-
-      case td_api.UpdateChatLastMessage.CONSTRUCTOR:
-        _updateChatLastMessageController(event as td_api.UpdateChatLastMessage);
-        emit(td_api.UpdateChatLastMessage.CONSTRUCTOR, event);
-        break;
-      case td_api.UpdateChatDraftMessage.CONSTRUCTOR:
-        _updateChatDraftMessageController(
-            event as td_api.UpdateChatDraftMessage);
-        emit(td_api.UpdateChatDraftMessage.CONSTRUCTOR, event);
-        break;
-      case td_api.UpdateChatAction.CONSTRUCTOR:
-        _updateChatActionController(event as td_api.UpdateChatAction);
-        emit(td_api.UpdateChatAction.CONSTRUCTOR, event);
-        break;
-      default:
+    final eventType = event.runtimeType;
+    final handler = eventHandlers[eventType];
+    if (handler != null) {
+      await handler(event);
+      emit(eventType.toString().toCamelCase(),
+          event); // TODO: camelCasing here is a hack, fix it
+    } else {
+      // Handle unknown event type
     }
   }
 
   handleAuthorizationStateUpdate(
-      td_api.AuthorizationState authorizationState) async {
+      td_api.UpdateAuthorizationState authorizationStateUpdate) async {
+    final authorizationState = authorizationStateUpdate.authorizationState;
     switch (authorizationState.getConstructor()) {
       case td_api.AuthorizationStateClosed.CONSTRUCTOR:
         reset();
@@ -101,7 +83,8 @@ class ChatStore extends EventEmitter {
 
   onClientUpdate() {}
 
-  void _updateNewChatController(td_api.Chat chat) {
+  void _updateNewChatController(td_api.UpdateNewChat chatUpdate) {
+    var chat = chatUpdate.chat;
     items[chat.id] = chat;
     List<td_api.ChatPosition> positions = List.from(chat.positions);
 
@@ -297,5 +280,16 @@ class ChatStore extends EventEmitter {
       return;
     }
     // TODO: implement typingListener
+  }
+
+  _initEventHandlers() {
+    return {
+      td_api.UpdateAuthorizationState: handleAuthorizationStateUpdate,
+      td_api.UpdateNewChat: _updateNewChatController,
+      td_api.UpdateChatPosition: _updateChatPositionController,
+      td_api.UpdateChatLastMessage: _updateChatLastMessageController,
+      td_api.UpdateChatDraftMessage: _updateChatDraftMessageController,
+      td_api.UpdateChatAction: _updateChatActionController
+    };
   }
 }
