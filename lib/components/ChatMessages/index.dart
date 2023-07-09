@@ -38,13 +38,12 @@ class _ChatMessagesState extends State<ChatMessages> {
   }
 
   _topReachedHandler() {
+    Print.yellow('top reached');
     var messageStore = context.read<MessageStore>();
     var messagesByChat = messageStore.items[widget.chatId] ?? {};
-    var lastMessage = messagesByChat.values.last;
-    lastMessage.schedulingState;
+    var lastMessage = messagesByChat.values.first;
 
     messageStore.getMessagesList(widget.chatId, fromMessageId: lastMessage.id);
-    Print.yellow('top reached');
   }
 
   _bottomReachedHandler() {

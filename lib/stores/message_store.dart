@@ -30,7 +30,8 @@ class MessageStore extends EventEmitter {
     final message = updateNewMessage.message;
     final chatId = message.chatId;
     var chat = items[chatId];
-    chat ??= SplayTreeMap();
+    chat ??=
+        SplayTreeMap(); // TODO: probably race condition is happening here, items becomes empty at some point
     items[chatId] = chat;
     chat[message.id] = message;
   }
@@ -54,7 +55,8 @@ class MessageStore extends EventEmitter {
     final message = event.message;
     final chatId = message.chatId;
     var chat = items[chatId];
-    chat ??= SplayTreeMap();
+    chat ??=
+        SplayTreeMap(); // TODO: probably race condition is happening here, items becomes empty at some point
     if (chat.containsKey(event.oldMessageId)) {
       chat.remove(event.oldMessageId);
     }
@@ -66,7 +68,8 @@ class MessageStore extends EventEmitter {
   _handleUpdateDeleteMessages(td_api.UpdateDeleteMessages event) {
     final chatId = event.chatId;
     var chat = items[chatId];
-    chat ??= SplayTreeMap();
+    chat ??=
+        SplayTreeMap(); // TODO: probably race condition is happening here, items becomes empty at some point
     for (final messageId in event.messageIds) {
       if (chat.containsKey(messageId)) {
         chat.remove(messageId);
@@ -78,7 +81,8 @@ class MessageStore extends EventEmitter {
     // TODO: concurrency will be a problem here
     final chatId = event.chatId;
     var chat = items[chatId];
-    chat ??= SplayTreeMap();
+    chat ??=
+        SplayTreeMap(); // TODO: probably race condition is happening here, items becomes empty at some point
     if (chat.containsKey(event.messageId)) {
       var newMessage = td_api.Message.fromJson({
         ...(chat[event.messageId] as td_api.Message).toJson(),
@@ -138,24 +142,43 @@ class MessageStore extends EventEmitter {
   }
 
   Future<void> getMessagesList(int chatId,
-      {int fromMessageId = 0, int offset = 0}) async {
-    var getChatHistory = td_api.GetChatHistory(
-        chatId: chatId,
-        fromMessageId: fromMessageId,
-        limit: 100,
-        offset: offset,
-        onlyLocal: false);
-    var messages =
-        await TdLibController().send<td_api.Messages>(getChatHistory);
-    Print.blue(messages.totalCount.toString());
+      {int fromMessageId = 0, int offset = 0, int limit = 100}) async {
+    int receivedMessageCount = 0;
+    int lastMessageId = fromMessageId;
     var chat = items[chatId];
-    chat ??= SplayTreeMap();
+    chat ??=
+        SplayTreeMap(); // TODO: probably race condition is happening here, items becomes empty at some point
     items[chatId] = chat;
-    for (var message in messages.messages) {
-      chat[message.id] = message;
-    }
+    do {
+      var getChatHistory = td_api.GetChatHistory(
+          chatId: chatId,
+          fromMessageId: lastMessageId,
+          limit: limit,
+          offset: offset,
+          onlyLocal: false);
+      Print.green('Request to get more messages happening');
+      var messages = await TdLibController()
+          .send<td_api.TdObject<dynamic>>(getChatHistory);
+
+      if (messages is td_api.TdError) {
+        Print.red(messages.message);
+        return;
+      } else {
+        if ((messages as td_api.Messages).messages.isEmpty) {
+          break;
+        }
+        lastMessageId = messages.messages.last.id;
+        Print.blue(messages.totalCount.toString());
+
+        for (var message in messages.messages) {
+          chat[message.id] = message;
+        }
+        receivedMessageCount += (messages).messages.length;
+        emit('messages', items);
+      }
+    } while (receivedMessageCount < limit);
+
     // TODO: find a better way to do this, cause this is a custom event
-    emit('messages', items);
   }
 
   // send provided message of any content

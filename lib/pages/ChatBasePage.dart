@@ -22,7 +22,13 @@ class _ChatBasePageState extends State<ChatBasePage> {
     super.initState();
     var messageStore = context.read<MessageStore>();
 
-    messageStore.getMessagesList(widget.chat.id);
+    final chatId = widget.chat.id;
+    var messagesList = messageStore.items[chatId];
+    if (messagesList == null ||
+        messagesList.isEmpty ||
+        messagesList.length < 2) {
+      messageStore.getMessagesList(chatId);
+    }
   }
 
   @override
