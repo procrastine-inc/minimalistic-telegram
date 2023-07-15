@@ -27,11 +27,11 @@ class MessageStore extends EventEmitter {
   }
 
   _handleUpdateNewMessage(td_api.UpdateNewMessage updateNewMessage) {
+    Print.yellow('_handleUpdateNewMessage');
     final message = updateNewMessage.message;
     final chatId = message.chatId;
     var chat = items[chatId];
-    chat ??=
-        SplayTreeMap(); // TODO: probably race condition is happening here, items becomes empty at some point
+    chat ??= SplayTreeMap();
     items[chatId] = chat;
     chat[message.id] = message;
   }
@@ -52,11 +52,11 @@ class MessageStore extends EventEmitter {
   }
 
   _handleUpdateMessageSendSucceeded(td_api.UpdateMessageSendSucceeded event) {
+    Print.yellow('_handleUpdateMessageSendSucceeded');
     final message = event.message;
     final chatId = message.chatId;
     var chat = items[chatId];
-    chat ??=
-        SplayTreeMap(); // TODO: probably race condition is happening here, items becomes empty at some point
+    chat ??= SplayTreeMap();
     if (chat.containsKey(event.oldMessageId)) {
       chat.remove(event.oldMessageId);
     }
@@ -66,10 +66,12 @@ class MessageStore extends EventEmitter {
   }
 
   _handleUpdateDeleteMessages(td_api.UpdateDeleteMessages event) {
+    Print.yellow('_handleUpdateDeleteMessages');
+    if (event.fromCache && !event.isPermanent) return;
     final chatId = event.chatId;
+
     var chat = items[chatId];
-    chat ??=
-        SplayTreeMap(); // TODO: probably race condition is happening here, items becomes empty at some point
+    chat ??= SplayTreeMap();
     for (final messageId in event.messageIds) {
       if (chat.containsKey(messageId)) {
         chat.remove(messageId);
@@ -79,10 +81,10 @@ class MessageStore extends EventEmitter {
 
   _handleUpdateMessageEdited(td_api.UpdateMessageEdited event) {
     // TODO: concurrency will be a problem here
+    Print.yellow('_handleUpdateMessageEdited');
     final chatId = event.chatId;
     var chat = items[chatId];
-    chat ??=
-        SplayTreeMap(); // TODO: probably race condition is happening here, items becomes empty at some point
+    chat ??= SplayTreeMap();
     if (chat.containsKey(event.messageId)) {
       var newMessage = td_api.Message.fromJson({
         ...(chat[event.messageId] as td_api.Message).toJson(),
@@ -104,7 +106,7 @@ class MessageStore extends EventEmitter {
       td_api.UpdateDeleteMessages: _handleUpdateDeleteMessages,
       td_api.UpdateMessageContent: _handlerNotImplemented,
       td_api.UpdateMessageContentOpened: _handlerNotImplemented,
-      td_api.UpdateMessageEdited: _handleUpdateMessageEdited,
+      td_api.UpdateMessageEdited: _handlerNotImplemented,
       td_api.UpdateMessageInteractionInfo: _handlerNotImplemented,
       td_api.UpdateMessageIsPinned: _handlerNotImplemented,
       td_api.UpdateMessageLiveLocationViewed: _handlerNotImplemented,
@@ -146,8 +148,7 @@ class MessageStore extends EventEmitter {
     int receivedMessageCount = 0;
     int lastMessageId = fromMessageId;
     var chat = items[chatId];
-    chat ??=
-        SplayTreeMap(); // TODO: probably race condition is happening here, items becomes empty at some point
+    chat ??= SplayTreeMap();
     items[chatId] = chat;
     do {
       var getChatHistory = td_api.GetChatHistory(
