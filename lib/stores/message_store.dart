@@ -106,7 +106,7 @@ class MessageStore extends EventEmitter {
       td_api.UpdateDeleteMessages: _handleUpdateDeleteMessages,
       td_api.UpdateMessageContent: _handlerNotImplemented,
       td_api.UpdateMessageContentOpened: _handlerNotImplemented,
-      td_api.UpdateMessageEdited: _handlerNotImplemented,
+      td_api.UpdateMessageEdited: _handleUpdateMessageEdited,
       td_api.UpdateMessageInteractionInfo: _handlerNotImplemented,
       td_api.UpdateMessageIsPinned: _handlerNotImplemented,
       td_api.UpdateMessageLiveLocationViewed: _handlerNotImplemented,
