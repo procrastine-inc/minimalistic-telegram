@@ -6,6 +6,7 @@ import 'package:minimalistic_telegram/controllers/tdlib_controller.dart';
 import 'package:minimalistic_telegram/services/locator.dart';
 import 'package:minimalistic_telegram/stores/application_store.dart';
 import 'package:minimalistic_telegram/stores/chat_store.dart';
+import 'package:minimalistic_telegram/stores/file_store.dart';
 import 'package:minimalistic_telegram/stores/filter_store.dart';
 import 'package:minimalistic_telegram/stores/message_store.dart';
 import 'package:minimalistic_telegram/utils/const.dart';
@@ -43,6 +44,10 @@ void main() async {
         ),
         Provider<FilterStore>(
           create: (_) => FilterStore(),
+          lazy: false,
+        ),
+        Provider<FileStore>(
+          create: (_) => FileStore(),
           lazy: false,
         ),
       ],

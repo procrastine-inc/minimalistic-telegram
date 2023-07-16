@@ -1,10 +1,14 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
-
+import 'dart:io';
+import 'package:provider/provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:minimalistic_telegram/components/MessageSubtitle/chat_message_subtitle.dart';
+import 'package:minimalistic_telegram/controllers/tdlib_controller.dart';
 import 'package:minimalistic_telegram/pages/ChatBasePage.dart';
+import 'package:minimalistic_telegram/stores/file_store.dart';
 import 'package:palestine_console/palestine_console.dart';
 import 'package:tdlib/td_api.dart' as td_api;
 
@@ -47,14 +51,65 @@ class ChatAvatar extends StatefulWidget {
 }
 
 class _ChatAvatarState extends State<ChatAvatar> {
-  late MemoryImage? backgroundImage;
+  late ImageProvider? backgroundImage;
+
+  List<StreamSubscription> subscriptions = [];
+
+  updateFileListener(td_api.UpdateFile event) {
+    var file = event.file;
+    if (file.local.isDownloadingCompleted) {
+      setState(() {
+        backgroundImage = FileImage(File(file.local.path!));
+      });
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    backgroundImage = widget.photo?.minithumbnail?.data != null
-        ? MemoryImage(base64Decode(widget.photo!.minithumbnail!.data))
-        : null;
+    setState(() {
+      backgroundImage = widget.photo?.minithumbnail?.data != null
+          ? MemoryImage(base64Decode(widget.photo!.minithumbnail!.data))
+          : null;
+    });
+    var fileStore = context.read<FileStore>();
+
+    var smallFileDowloadSubscription = fileStore
+        .on<td_api.UpdateFile>()
+        .takeWhile((element) => element.file.id == widget.photo?.small.id)
+        .listen(updateFileListener);
+    subscriptions.add(smallFileDowloadSubscription);
+    if (widget.photo == null) {
+      return;
+    }
+
+    var smallPhotoLocal = fileStore.items[widget.photo?.small.id]?.local;
+
+    var smallPhotoAvailable =
+        (smallPhotoLocal?.isDownloadingCompleted ?? false);
+
+    if (!smallPhotoAvailable && widget.photo?.small != null) {
+      fileStore.downloadFile(widget.photo!.small);
+    } else {
+      var file = fileStore.items[widget.photo!.small.id];
+      var localPath = file?.local.path;
+      if (localPath == null) {
+        Print.red('file path is null');
+        return;
+      }
+      setState(() {
+        backgroundImage = FileImage(File(localPath));
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    for (var element in subscriptions) {
+      element.cancel();
+    }
+    subscriptions = [];
+    super.dispose();
   }
 
   @override

@@ -57,7 +57,6 @@ class ChatStore extends EventEmitter {
   }
 
   void addStatistics() {}
-  //FIXME: update typings here
   onUpdate(td_api.TdObject event) async {
     final eventType = event.runtimeType;
     final handler = eventHandlers[eventType];
