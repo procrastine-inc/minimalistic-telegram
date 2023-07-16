@@ -45,6 +45,7 @@ dependencies:
   grouped_list: ^5.1.2
   intl: ^0.18.1
   change_case: ^1.0.0+3
+  event_bus: ^2.0.0
 
 dev_dependencies:
   flutter_test:

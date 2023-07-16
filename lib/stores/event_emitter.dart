@@ -2,8 +2,7 @@ import 'dart:async';
 
 abstract class EventEmitter<DataGenericType> {
   final Map<String, List<Function>> _observers = {};
-  final StreamController<Map<String, dynamic>> _controller =
-      StreamController.broadcast();
+  final StreamController<dynamic> _controller = StreamController.broadcast();
 
   void on<T>(String events, Function(T) listener) {
     events.split(' ').forEach((event) {
@@ -40,5 +39,5 @@ abstract class EventEmitter<DataGenericType> {
     }
   }
 
-  Stream<Map<String, dynamic>> get stream => _controller.stream;
+  get stream => _controller.stream;
 }

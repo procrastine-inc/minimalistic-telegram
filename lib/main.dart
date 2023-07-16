@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
@@ -60,25 +61,33 @@ class MyNewApp extends StatefulWidget {
 class _MyNewAppState extends State<MyNewApp> {
   String authState = '';
   String lastRoute = '';
+  List<StreamSubscription> subscriptions = [];
   @override
   void initState() {
     super.initState();
     TdLibController().initClient();
     authState = '';
     var appStore = context.read<ApplicationStore>();
-    appStore.on(td_api.UpdateAuthorizationState.CONSTRUCTOR, onAuthStateChange);
+
+    var subscription = appStore
+        .on<td_api.UpdateAuthorizationState>()
+        .listen(onAuthStateChange);
+    subscriptions.add(subscription);
   }
 
   @override
   void dispose() {
-    super.dispose();
     var controller = TdLibController();
     controller.stop();
     controller.destroyClient();
-    var appStore = context.read<ApplicationStore>();
+
     authState = '';
-    appStore.off(
-        td_api.UpdateAuthorizationState.CONSTRUCTOR, onAuthStateChange);
+    for (var element in subscriptions) {
+      element.cancel();
+    }
+    subscriptions = [];
+
+    super.dispose();
   }
 
   void onAuthStateChange(event) {

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:minimalistic_telegram/stores/application_store.dart';
@@ -28,21 +30,26 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   // Map<int, TdApi.Chat>? mainChatsList;
   String authState = '';
+  List<StreamSubscription> subscriptions = [];
   @override
   void initState() {
     super.initState();
     authState = '';
     var appStore = context.read<ApplicationStore>();
-    appStore.on(td_api.UpdateAuthorizationState.CONSTRUCTOR, onAuthStateChange);
+    var subscription = appStore
+        .on<td_api.UpdateAuthorizationState>()
+        .listen(onAuthStateChange);
+    subscriptions.add(subscription);
   }
 
   @override
   void dispose() {
-    super.dispose();
-    var appStore = context.read<ApplicationStore>();
     authState = '';
-    appStore.off(
-        td_api.UpdateAuthorizationState.CONSTRUCTOR, onAuthStateChange);
+    for (var element in subscriptions) {
+      element.cancel();
+    }
+    subscriptions = [];
+    super.dispose();
   }
 
   void onAuthStateChange(event) {

@@ -1,12 +1,13 @@
 import 'dart:developer';
 
+import 'package:event_bus/event_bus.dart';
 import 'package:minimalistic_telegram/stores/event_emitter.dart';
 import 'package:tdlib/td_api.dart' as td_api;
 
 import '../controllers/tdlib_controller.dart';
 
 // TODO: make it singleTon
-class ApplicationStore extends EventEmitter {
+class ApplicationStore extends EventBus {
   ApplicationStore() {
     reset();
 
@@ -28,7 +29,7 @@ class ApplicationStore extends EventEmitter {
       case td_api.UpdateAuthorizationState.CONSTRUCTOR:
         handleAuthorizationStateUpdate(
             (event as td_api.UpdateAuthorizationState).authorizationState);
-        emit(td_api.UpdateAuthorizationState.CONSTRUCTOR, event);
+        fire(event);
 
         break;
       default:
