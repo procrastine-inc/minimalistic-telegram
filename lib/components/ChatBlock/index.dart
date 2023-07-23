@@ -56,10 +56,11 @@ class _ChatAvatarState extends State<ChatAvatar> {
   List<StreamSubscription> subscriptions = [];
 
   updateFileListener(td_api.UpdateFile event) {
+    Print.yellow('updateFileListener');
     var file = event.file;
     if (file.local.isDownloadingCompleted) {
       setState(() {
-        backgroundImage = FileImage(File(file.local.path!));
+        backgroundImage = FileImage(File(file.local.path));
       });
     }
   }
@@ -67,32 +68,32 @@ class _ChatAvatarState extends State<ChatAvatar> {
   @override
   void initState() {
     super.initState();
-    setState(() {
-      backgroundImage = widget.photo?.minithumbnail?.data != null
-          ? MemoryImage(base64Decode(widget.photo!.minithumbnail!.data))
-          : null;
-    });
     var fileStore = context.read<FileStore>();
-
     var smallFileDowloadSubscription = fileStore
         .on<td_api.UpdateFile>()
         .takeWhile((element) => element.file.id == widget.photo?.small.id)
         .listen(updateFileListener);
     subscriptions.add(smallFileDowloadSubscription);
+    setState(() {
+      backgroundImage = widget.photo?.minithumbnail?.data != null
+          ? MemoryImage(base64Decode(widget.photo!.minithumbnail!.data))
+          : null;
+    });
+
     if (widget.photo == null) {
       return;
     }
 
-    var smallPhotoLocal = fileStore.items[widget.photo?.small.id]?.local;
+    var smallPhoto = widget.photo?.small;
+    var smallPhotoDownloadingCompleted =
+        smallPhoto?.local.isDownloadingCompleted;
 
-    var smallPhotoAvailable =
-        (smallPhotoLocal?.isDownloadingCompleted ?? false);
+    var smallPhotoAvailable = (smallPhotoDownloadingCompleted ?? false);
 
-    if (!smallPhotoAvailable && widget.photo?.small != null) {
-      fileStore.downloadFile(widget.photo!.small);
+    if (!smallPhotoAvailable && smallPhoto != null) {
+      fileStore.downloadFile(smallPhoto);
     } else {
-      var file = fileStore.items[widget.photo!.small.id];
-      var localPath = file?.local.path;
+      var localPath = smallPhoto?.local.path;
       if (localPath == null) {
         Print.red('file path is null');
         return;
