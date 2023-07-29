@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:minimalistic_telegram/components/ChatBlock/index.dart';
+import 'package:tdlib/td_api.dart' as td_api;
 
 class ChatAppBar extends StatelessWidget with PreferredSizeWidget {
-  final String title;
+  final td_api.Chat chat;
 
   const ChatAppBar({
     Key? key,
-    this.title = "Chat",
+    required this.chat,
   }) : super(key: key);
 
   @override
@@ -30,10 +32,7 @@ class ChatAppBar extends StatelessWidget with PreferredSizeWidget {
               const SizedBox(
                 width: 2,
               ),
-              const CircleAvatar(
-                backgroundColor: Colors.white,
-                maxRadius: 20,
-              ),
+              ChatAvatar(photo: chat.photo),
               const SizedBox(
                 width: 12,
               ),
@@ -43,7 +42,7 @@ class ChatAppBar extends StatelessWidget with PreferredSizeWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     Text(
-                      title,
+                      chat.title,
                       style: const TextStyle(
                           color: Colors.white,
                           fontSize: 16,

@@ -112,7 +112,6 @@ class _ChatAvatarState extends State<ChatAvatar> {
   @override
   Widget build(BuildContext context) {
     return CircleAvatar(
-      radius: 22,
       backgroundImage: backgroundImage,
     );
   }

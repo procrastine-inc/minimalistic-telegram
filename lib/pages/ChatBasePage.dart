@@ -35,7 +35,7 @@ class _ChatBasePageState extends State<ChatBasePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.amber.shade50,
-      appBar: ChatAppBar(title: widget.chat.title),
+      appBar: ChatAppBar(chat: widget.chat),
       body: ChatBody(chat: widget.chat),
     );
   }
