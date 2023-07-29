@@ -51,7 +51,7 @@ class ChatAvatar extends StatefulWidget {
 }
 
 class _ChatAvatarState extends State<ChatAvatar> {
-  late ImageProvider? backgroundImage;
+  ImageProvider? backgroundImage;
 
   List<StreamSubscription> subscriptions = [];
 
@@ -67,22 +67,12 @@ class _ChatAvatarState extends State<ChatAvatar> {
 
   @override
   void initState() {
-    super.initState();
     var fileStore = context.read<FileStore>();
     var smallFileDowloadSubscription = fileStore
         .on<td_api.UpdateFile>()
         .takeWhile((element) => element.file.id == widget.photo?.small.id)
         .listen(updateFileListener);
     subscriptions.add(smallFileDowloadSubscription);
-    setState(() {
-      backgroundImage = widget.photo?.minithumbnail?.data != null
-          ? MemoryImage(base64Decode(widget.photo!.minithumbnail!.data))
-          : null;
-    });
-
-    if (widget.photo == null) {
-      return;
-    }
 
     var smallPhoto = widget.photo?.small;
     var smallPhotoDownloadingCompleted =
@@ -92,16 +82,22 @@ class _ChatAvatarState extends State<ChatAvatar> {
 
     if (!smallPhotoAvailable && smallPhoto != null) {
       fileStore.downloadFile(smallPhoto);
+      setState(() {
+        backgroundImage = widget.photo?.minithumbnail?.data != null
+            ? MemoryImage(base64Decode(widget.photo!.minithumbnail!.data))
+            : null;
+      });
     } else {
       var localPath = smallPhoto?.local.path;
       if (localPath == null) {
         Print.red('file path is null');
-        return;
+      } else {
+        setState(() {
+          backgroundImage = FileImage(File(localPath));
+        });
       }
-      setState(() {
-        backgroundImage = FileImage(File(localPath));
-      });
     }
+    super.initState();
   }
 
   @override
