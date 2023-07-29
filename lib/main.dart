@@ -107,11 +107,19 @@ class _MyNewAppState extends State<MyNewApp> {
       case td_api.AuthorizationStateClosed.CONSTRUCTOR:
         Print.green("im here, I have to work and assign");
         route = loginRoute;
+        setState(() {
+          lastRoute = route;
+        });
+        locator<NavigationService>().navigateToAndRemoveUntil(route);
         Print.green("new route is: $route");
-        break;
+        return;
       case td_api.AuthorizationStateReady.CONSTRUCTOR:
         route = homeRoute;
-        break;
+        setState(() {
+          lastRoute = route;
+        });
+        locator<NavigationService>().navigateToAndRemoveUntil(route);
+        return;
       case td_api.AuthorizationStateWaitCode.CONSTRUCTOR:
         route = otpRoute;
         break;
