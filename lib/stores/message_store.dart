@@ -11,7 +11,7 @@ import '../controllers/tdlib_controller.dart';
 
 // TODO: make it singleTon
 class MessageStore extends EventEmitter {
-  Map<int, SplayTreeMap<int, td_api.Message>> items = SplayTreeMap();
+  Map<int, SplayTreeMap<int, td_api.Message>> items = {};
 
   late Map media;
 
@@ -41,7 +41,7 @@ class MessageStore extends EventEmitter {
   }
 
   void reset() {
-    items = SplayTreeMap();
+    items = {};
     media = {};
     selectedItems = {};
   }
