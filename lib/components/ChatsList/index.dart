@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
@@ -17,30 +18,30 @@ class ChatsList extends StatefulWidget {
 
 class _ChatsListState extends State<ChatsList> {
   var chatIdsList = SplayTreeSet<OrderedChat>();
-
+  List<StreamSubscription> subscriptions = [];
   @override
   void initState() {
     super.initState();
     var chatStore = context.read<ChatStore>();
     chatIdsList = chatStore.chatList;
     chatStore.getChatList(100);
-
-    chatStore.on(td_api.UpdateNewChat.CONSTRUCTOR, onChatListUpdate);
-    chatStore.on(td_api.UpdateChatPosition.CONSTRUCTOR, onChatListUpdate);
-    chatStore.on(td_api.UpdateChatAction.CONSTRUCTOR, onChatListUpdate);
-    chatStore.on(td_api.UpdateChatLastMessage.CONSTRUCTOR, onChatListUpdate);
-    chatStore.on(td_api.UpdateChatDraftMessage.CONSTRUCTOR, onChatListUpdate);
+    var subscription = chatStore
+        .on()
+        .where((event) => (event is td_api.UpdateNewChat ||
+            event is td_api.UpdateChatPosition ||
+            event is td_api.UpdateChatAction ||
+            event is td_api.UpdateChatLastMessage ||
+            event is td_api.UpdateChatDraftMessage))
+        .listen(onChatListUpdate);
+    subscriptions.add(subscription);
   }
 
   @override
   void dispose() {
-    var chatStore = context.read<ChatStore>();
-
-    chatStore.off(td_api.UpdateNewChat.CONSTRUCTOR, onChatListUpdate);
-    chatStore.off(td_api.UpdateChatPosition.CONSTRUCTOR, onChatListUpdate);
-    chatStore.off(td_api.UpdateChatAction.CONSTRUCTOR, onChatListUpdate);
-    chatStore.off(td_api.UpdateChatLastMessage.CONSTRUCTOR, onChatListUpdate);
-    chatStore.off(td_api.UpdateChatDraftMessage.CONSTRUCTOR, onChatListUpdate);
+    for (var element in subscriptions) {
+      element.cancel();
+    }
+    subscriptions = [];
     super.dispose();
   }
 

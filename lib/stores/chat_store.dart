@@ -1,6 +1,7 @@
 import 'dart:collection';
 import 'dart:developer';
 import 'package:change_case/change_case.dart';
+import 'package:event_bus/event_bus.dart';
 import 'package:minimalistic_telegram/models/ordered_chat.dart';
 import 'package:minimalistic_telegram/stores/event_emitter.dart';
 import 'package:palestine_console/palestine_console.dart';
@@ -9,7 +10,7 @@ import 'package:tdlib/td_api.dart' as td_api;
 import '../controllers/tdlib_controller.dart';
 
 // TODO: make it singleTon
-class ChatStore extends EventEmitter {
+class ChatStore extends EventBus {
   late List<td_api.ChatFilterInfo>? filters;
 
   late Map scrollPositions;
@@ -62,8 +63,7 @@ class ChatStore extends EventEmitter {
     final handler = eventHandlers[eventType];
     if (handler != null) {
       await handler(event);
-      emit(eventType.toString().toCamelCase(),
-          event); // TODO: camelCasing here is a hack, fix it
+      fire(event);
     } else {
       // Handle unknown event type
     }
