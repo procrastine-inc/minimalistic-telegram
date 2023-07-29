@@ -26,6 +26,20 @@ class MessageStore extends EventEmitter {
     addTdLibListener();
   }
 
+  _makeCorrectMessageJson(td_api.Message message, td_api.TdObject event) {
+    return {
+      ...message.toJson(),
+      /**
+         * this part exists because of a bug in tdlib
+         * mediaAlbimId is in fact int, but in source code it tries to
+         * int.parse(int), which causes error. So we cast it to string
+         */
+      'media_album_id': message.mediaAlbumId.toString(),
+      ...event.toJson()
+    };
+    ;
+  }
+
   _handleUpdateNewMessage(td_api.UpdateNewMessage updateNewMessage) {
     Print.yellow('_handleUpdateNewMessage');
     final message = updateNewMessage.message;
@@ -80,16 +94,15 @@ class MessageStore extends EventEmitter {
   }
 
   _handleUpdateMessageEdited(td_api.UpdateMessageEdited event) {
-    // TODO: concurrency will be a problem here
     Print.yellow('_handleUpdateMessageEdited');
     final chatId = event.chatId;
     var chat = items[chatId];
     chat ??= SplayTreeMap();
-    if (chat.containsKey(event.messageId)) {
-      var newMessage = td_api.Message.fromJson({
-        ...(chat[event.messageId] as td_api.Message).toJson(),
-        ...event.toJson()
-      });
+    if (chat.containsKey(event.messageId) &&
+        chat[event.messageId] is td_api.Message) {
+      var json = _makeCorrectMessageJson(chat[event.messageId]!, event);
+
+      var newMessage = td_api.Message.fromJson(json);
       _handleUpdateNewMessage(
           td_api.UpdateNewMessage(message: newMessage, extra: event.extra));
     }
@@ -104,7 +117,7 @@ class MessageStore extends EventEmitter {
       td_api.UpdateChatMessageSender: _handlerNotImplemented,
       td_api.UpdateChatMessageTtl: _handlerNotImplemented,
       td_api.UpdateDeleteMessages: _handleUpdateDeleteMessages,
-      td_api.UpdateMessageContent: _handlerNotImplemented,
+      td_api.UpdateMessageContent: _handleUpdateMessageContent,
       td_api.UpdateMessageContentOpened: _handlerNotImplemented,
       td_api.UpdateMessageEdited: _handleUpdateMessageEdited,
       td_api.UpdateMessageInteractionInfo: _handlerNotImplemented,
@@ -200,5 +213,20 @@ class MessageStore extends EventEmitter {
     }
     _handleUpdateNewMessage(
         td_api.UpdateNewMessage(message: tempMessage as td_api.Message));
+  }
+
+  _handleUpdateMessageContent(td_api.UpdateMessageContent event) {
+    Print.yellow('_handleUpdateMessageContent');
+    final chatId = event.chatId;
+    var chat = items[chatId];
+    chat ??= SplayTreeMap();
+    if (!chat.containsKey(event.messageId) ||
+        (chat[event.messageId] is! td_api.Message)) {
+      return;
+    }
+    var json = _makeCorrectMessageJson(chat[event.messageId]!, event);
+    var newMessage = td_api.Message.fromJson(json);
+    _handleUpdateNewMessage(
+        td_api.UpdateNewMessage(message: newMessage, extra: event.extra));
   }
 }
