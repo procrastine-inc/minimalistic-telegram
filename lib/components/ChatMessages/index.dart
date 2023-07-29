@@ -92,7 +92,9 @@ class _ChatMessagesState extends State<ChatMessages> {
   Widget build(BuildContext context) {
     var messageStore = context.read<MessageStore>();
     var messagesByChat = messageStore.items[widget.chatId] ?? (SplayTreeMap());
+
     return GroupedListView<td_api.Message, DateTime>(
+      itemComparator: (element1, element2) => element1.id - element2.id,
       controller: _controller,
       padding: const EdgeInsets.all(8),
       groupBy: (message) => DateUtils.dateOnly(
