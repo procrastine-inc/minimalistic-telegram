@@ -176,7 +176,7 @@ class TdLibController extends EventEmitter<td_api.TdObject> {
           databaseDirectory: appDocDir.path,
           applicationVersion: '0.0.1',
           deviceModel: 'Unknown',
-          systemVersion: 'Unknonw',
+          systemVersion: 'Unknown',
           apiId: apiId,
           apiHash: apiHash,
         ),
