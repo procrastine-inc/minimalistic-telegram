@@ -34,7 +34,6 @@ class _ChatsListState extends State<ChatsList> {
 
   @override
   void dispose() {
-    super.dispose();
     var chatStore = context.read<ChatStore>();
 
     chatStore.off(td_api.UpdateNewChat.CONSTRUCTOR, onChatListUpdate);
@@ -42,6 +41,7 @@ class _ChatsListState extends State<ChatsList> {
     chatStore.off(td_api.UpdateChatAction.CONSTRUCTOR, onChatListUpdate);
     chatStore.off(td_api.UpdateChatLastMessage.CONSTRUCTOR, onChatListUpdate);
     chatStore.off(td_api.UpdateChatDraftMessage.CONSTRUCTOR, onChatListUpdate);
+    super.dispose();
   }
 
   @override

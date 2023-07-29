@@ -133,8 +133,8 @@ class MessageStore extends EventEmitter {
     }
   }
 
-  handleAuthorizationStateUpdate(
-      td_api.AuthorizationState authorizationState) async {
+  handleAuthorizationStateUpdate(td_api.UpdateAuthorizationState update) async {
+    var authorizationState = update.authorizationState;
     switch (authorizationState.getConstructor()) {
       case td_api.AuthorizationStateClosed.CONSTRUCTOR:
         reset();
