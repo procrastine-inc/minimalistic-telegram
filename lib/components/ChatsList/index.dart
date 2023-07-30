@@ -9,6 +9,21 @@ import 'package:tdlib/td_api.dart' as td_api;
 
 import '../../models/ordered_chat.dart';
 
+class ArchiveBlock extends StatelessWidget {
+  const ArchiveBlock({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      // leading: Icons.abc()
+      title: const Text('Archive'),
+      subtitle: const Text('Archived chats'),
+      onTap: () {},
+      onLongPress: () {},
+    );
+  }
+}
+
 class ChatsList extends StatefulWidget {
   const ChatsList({super.key});
 
@@ -49,8 +64,15 @@ class _ChatsListState extends State<ChatsList> {
   Widget build(BuildContext context) {
     var chatStore = context.read<ChatStore>();
     return ListView.builder(
-        itemCount: chatIdsList.length,
+        itemCount: chatIdsList.length + 1,
         itemBuilder: ((context, index) {
+          if (index == 0) {
+            // return the header
+            return const ArchiveBlock(
+              key: ValueKey('archive'),
+            );
+          }
+          index -= 1;
           var chatId = chatIdsList.elementAt(index).chatId;
           return ChatBlock(
               chat: chatStore.items[chatId]!, key: ValueKey(chatId));
