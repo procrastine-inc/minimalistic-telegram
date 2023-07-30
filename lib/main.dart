@@ -64,14 +64,12 @@ class MyNewApp extends StatefulWidget {
 }
 
 class _MyNewAppState extends State<MyNewApp> {
-  String authState = '';
   String lastRoute = '';
   List<StreamSubscription> subscriptions = [];
   @override
   void initState() {
     super.initState();
     TdLibController().initClient();
-    authState = '';
     var appStore = context.read<ApplicationStore>();
 
     var subscription = appStore
@@ -86,7 +84,6 @@ class _MyNewAppState extends State<MyNewApp> {
     controller.stop();
     controller.destroyClient();
 
-    authState = '';
     for (var element in subscriptions) {
       element.cancel();
     }
@@ -96,43 +93,43 @@ class _MyNewAppState extends State<MyNewApp> {
   }
 
   void onAuthStateChange(event) {
-    var route = lastRoute;
-    setState(() {
-      authState = (event).authorizationState.getConstructor();
-    });
+    final constructorToAction = {
+      td_api.AuthorizationStateWaitPhoneNumber: navigateToLogin,
+      td_api.AuthorizationStateClosed: navigateToLogin,
+      td_api.AuthorizationStateReady: goToMainPage,
+      td_api.AuthorizationStateWaitCode: goToOtpPage,
+    };
 
-    // debugger();
-    switch (event.authorizationState.getConstructor()) {
-      case td_api.AuthorizationStateWaitPhoneNumber.CONSTRUCTOR:
-      case td_api.AuthorizationStateClosed.CONSTRUCTOR:
-        Print.green("im here, I have to work and assign");
-        route = loginRoute;
-        setState(() {
-          lastRoute = route;
-        });
-        locator<NavigationService>().navigateToAndRemoveUntil(route);
-        Print.green("new route is: $route");
-        return;
-      case td_api.AuthorizationStateReady.CONSTRUCTOR:
-        route = homeRoute;
-        setState(() {
-          lastRoute = route;
-        });
-        locator<NavigationService>().navigateToAndRemoveUntil(route);
-        return;
-      case td_api.AuthorizationStateWaitCode.CONSTRUCTOR:
-        route = otpRoute;
-        break;
-      default:
-        break;
-    }
-    Print.red('route: $route');
-    if (route == lastRoute) return;
-    setState(() {
-      lastRoute = route;
-    });
+    final type = event.authorizationState.runtimeType;
+    final action = constructorToAction[type];
+    action?.call();
+  }
 
-    locator<NavigationService>().navigateTo(route);
+  void goToOtpPage() {
+    setState(() {
+      lastRoute = otpRoute;
+    });
+    locator<NavigationService>().navigator.pushNamed(otpRoute);
+    return;
+  }
+
+  void goToMainPage() {
+    setState(() {
+      lastRoute = homeRoute;
+    });
+    locator<NavigationService>()
+        .navigator
+        .pushNamedAndRemoveUntil(homeRoute, (route) => false);
+  }
+
+  void navigateToLogin() {
+    setState(() {
+      lastRoute = loginRoute;
+    });
+    locator<NavigationService>()
+        .navigator
+        .pushNamedAndRemoveUntil(loginRoute, (route) => false);
+    Print.green("new route is: $loginRoute");
   }
 
   @override
