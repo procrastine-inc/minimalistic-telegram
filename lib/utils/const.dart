@@ -4,6 +4,7 @@ const String initRoute = '/splash';
 const String loginRoute = '/login';
 const String otpRoute = '/code_entry';
 const String homeRoute = '/';
+const String searchRoute = '/search';
 
 class NavigationService {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();

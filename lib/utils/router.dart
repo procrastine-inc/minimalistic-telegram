@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:minimalistic_telegram/pages/global_search_page.dart';
 import 'package:minimalistic_telegram/pages/homepage/homepage.dart';
 import 'package:minimalistic_telegram/pages/login/code_entry.dart';
 import 'package:minimalistic_telegram/pages/login/login.dart';
@@ -23,6 +24,10 @@ class Router {
       case homeRoute:
         return MaterialPageRoute(
           builder: (_) => const MyHomePage(title: 'Minigram'),
+        );
+      case searchRoute:
+        return MaterialPageRoute(
+          builder: (_) => const GlobalSearchPage(),
         );
       default:
         return MaterialPageRoute(

@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:minimalistic_telegram/services/locator.dart';
 import 'package:minimalistic_telegram/stores/application_store.dart';
+import 'package:minimalistic_telegram/utils/const.dart';
 import 'package:palestine_console/palestine_console.dart';
 import 'package:provider/provider.dart';
 import 'package:tdlib/td_api.dart' as td_api;
@@ -75,6 +77,13 @@ class _MyHomePageState extends State<MyHomePage> {
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
         title: Text(authState),
+        actions: [
+          IconButton(
+              icon: const Icon(Icons.search),
+              onPressed: () {
+                locator<NavigationService>().navigator.pushNamed(searchRoute);
+              }),
+        ],
       ),
       body: const Center(
         child: ChatsList(),
