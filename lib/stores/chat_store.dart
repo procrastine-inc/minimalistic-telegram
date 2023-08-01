@@ -227,39 +227,9 @@ class ChatStore extends EventBus {
     if (chat == null) {
       return;
     }
-    // TODO: make util for copying objects
-    var chatCopy = td_api.Chat(
-      id: chat.id,
-      type: chat.type,
-      title: chat.title,
-      photo: chat.photo,
-      permissions: chat.permissions,
-      lastMessage: chat.lastMessage,
-      positions: chat.positions,
-      messageSenderId: chat.messageSenderId,
-      hasProtectedContent: chat.hasProtectedContent,
-      isMarkedAsUnread: chat.isMarkedAsUnread,
-      isBlocked: chat.isBlocked,
-      hasScheduledMessages: chat.hasScheduledMessages,
-      canBeDeletedOnlyForSelf: chat.canBeDeletedOnlyForSelf,
-      canBeDeletedForAllUsers: chat.canBeDeletedForAllUsers,
-      canBeReported: chat.canBeReported,
-      defaultDisableNotification: chat.defaultDisableNotification,
-      unreadCount: chat.unreadCount,
-      lastReadInboxMessageId: chat.lastReadInboxMessageId,
-      lastReadOutboxMessageId: chat.lastReadOutboxMessageId,
-      unreadMentionCount: chat.unreadMentionCount,
-      notificationSettings: chat.notificationSettings,
-      messageTtl: chat.messageTtl,
-      themeName: chat.themeName,
-      actionBar: chat.actionBar,
-      videoChat: chat.videoChat,
-      pendingJoinRequests: chat.pendingJoinRequests,
-      replyMarkupMessageId: chat.replyMarkupMessageId,
-      draftMessage: event.draftMessage,
-      clientData: chat.clientData,
-      extra: chat.extra,
-      clientId: chat.clientId,
+
+    var chatCopy = td_api.Chat.fromJson(
+      chat.toJson(),
     );
     setChatPositions(chatCopy, event.positions);
   }
@@ -288,7 +258,33 @@ class ChatStore extends EventBus {
       td_api.UpdateChatPosition: _updateChatPositionController,
       td_api.UpdateChatLastMessage: _updateChatLastMessageController,
       td_api.UpdateChatDraftMessage: _updateChatDraftMessageController,
-      td_api.UpdateChatAction: _updateChatActionController
+      td_api.UpdateChatAction: _updateChatActionController,
+      td_api.UpdateChatReadOutbox: _updateChatReadOutboxHandler,
+      td_api.UpdateChatReadInbox: _updateChatReadInboxHandler,
     };
+  }
+
+  _updateChatReadOutboxHandler(td_api.UpdateChatReadOutbox event) {
+    var chat = items[event.chatId];
+
+    if (chat == null) {
+      return;
+    }
+
+    var updatedChat =
+        chat.copyWith(lastReadOutboxMessageId: event.lastReadOutboxMessageId);
+    items[event.chatId] = updatedChat;
+  }
+
+  _updateChatReadInboxHandler(td_api.UpdateChatReadInbox event) {
+    var chat = items[event.chatId];
+
+    if (chat == null) {
+      return;
+    }
+
+    var updatedChat =
+        chat.copyWith(lastReadInboxMessageId: event.lastReadInboxMessageId);
+    items[event.chatId] = updatedChat;
   }
 }

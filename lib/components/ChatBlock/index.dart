@@ -46,6 +46,18 @@ String formatDate(int dateInSeconds, BuildContext context) {
   }
 }
 
+const sentIcon = Icon(
+  Icons.done,
+  size: 20,
+  color: Colors.grey,
+);
+
+const sentAndReadIcon = Icon(
+  Icons.done_all,
+  size: 20,
+  color: Colors.blue,
+);
+
 class ChatBlock extends StatelessWidget {
   final td_api.Chat chat;
 
@@ -152,6 +164,8 @@ class ChatTopRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var messageRead = chat.lastReadOutboxMessageId == chat.lastMessage?.id;
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.baseline,
       textBaseline: TextBaseline.alphabetic,
@@ -163,6 +177,7 @@ class ChatTopRow extends StatelessWidget {
         ChatTimeAndStatus(
             date: chat.draftMessage?.date ?? chat.lastMessage?.date ?? 0,
             isOutgoing: chat.lastMessage?.isOutgoing ?? false,
+            isRead: messageRead,
             sendingState: chat.lastMessage?.sendingState),
       ],
     );
@@ -214,21 +229,53 @@ class ChatTimeAndStatus extends StatelessWidget {
   final bool isOutgoing;
 
   final td_api.MessageSendingState? sendingState;
+
+  final bool isRead;
+
   const ChatTimeAndStatus(
       {super.key,
       required this.date,
       required this.sendingState,
-      required this.isOutgoing});
+      required this.isOutgoing,
+      required this.isRead});
 
   @override
   Widget build(BuildContext context) {
+    var messageSent = sendingState is! td_api.MessageSendingStatePending &&
+        sendingState is! td_api.MessageSendingStateFailed;
+    var messageSending = sendingState is td_api.MessageSendingStatePending;
+
+    var messageFailed = sendingState is td_api.MessageSendingStateFailed;
     Print.green(date.toString());
     return Row(
       children: [
-        const Icon(
-          Icons.done_all,
-          size: 20,
-        ),
+        if (!isOutgoing)
+          ...[]
+        else if (messageFailed) ...[
+          const Icon(
+            Icons.error_outline,
+            size: 20,
+            color: Colors.red,
+          )
+        ] else if (messageSending) ...[
+          const Icon(
+            Icons.access_time,
+            size: 20,
+            color: Colors.grey,
+          )
+        ] else if (isRead) ...[
+          const Icon(
+            Icons.done_all,
+            size: 20,
+            color: Colors.blue,
+          )
+        ] else if (messageSent) ...[
+          const Icon(
+            Icons.done,
+            size: 20,
+            color: Colors.blue,
+          )
+        ],
         const SizedBox(width: 3),
         Text(formatDate(date, context))
       ],
