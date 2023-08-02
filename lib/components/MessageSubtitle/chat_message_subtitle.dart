@@ -6,12 +6,12 @@ import 'package:minimalistic_telegram/components/MessageSubtitle/unsupported_sub
 import 'package:palestine_console/palestine_console.dart';
 import 'package:tdlib/td_api.dart' as td_api;
 
-class ChatMessageSubtitle extends StatelessWidget {
+class ChatMessagePreview extends StatelessWidget {
   final td_api.Message? message;
 
   final td_api.DraftMessage? draftMessage;
 
-  const ChatMessageSubtitle(
+  const ChatMessagePreview(
       {super.key, required this.message, required this.draftMessage});
 
   @override

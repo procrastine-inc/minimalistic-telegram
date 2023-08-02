@@ -13,38 +13,8 @@ import 'package:minimalistic_telegram/stores/file_store.dart';
 import 'package:palestine_console/palestine_console.dart';
 import 'package:tdlib/td_api.dart' as td_api;
 
-String formatDate(int dateInSeconds, BuildContext context) {
-  final now = DateTime.now();
-  final date = DateTime.fromMillisecondsSinceEpoch(dateInSeconds * 1000);
-  final timeFormat = MediaQuery.of(context).alwaysUse24HourFormat
-      ? DateFormat.Hm() // 24-hour format (e.g., 14:30)
-      : DateFormat.jm(); // 12-hour format (e.g., 2:30 PM)
-
-  final last365Days = now.subtract(const Duration(days: 365));
-
-  if (date.isAfter(last365Days) && date.isBefore(now)) {
-    // Within the last 365 days, show month and day
-    return DateFormat.MMMd()
-        .format(date); // Month and day format (e.g., Jul 15)
-  } else if (date.year == now.year) {
-    if (date.month == now.month && date.day == now.day) {
-      // Today, show time
-      return timeFormat.format(date); // Format based on system settings
-    } else if (date.isAfter(now.subtract(Duration(days: now.weekday - 1))) &&
-        date.isBefore(
-            now.add(Duration(days: DateTime.daysPerWeek - now.weekday)))) {
-      // This week, show the day of the week
-      return DateFormat.E().format(date); // Weekday format (e.g., Mon)
-    } else {
-      // Not within the last 365 days, show day.month.year
-      return DateFormat.yMd()
-          .format(date); // Full date format (e.g., 07/15/2022)
-    }
-  } else {
-    // Not within the last 365 days and not this year, show day.month.year
-    return DateFormat.yMd().format(date); // Full date format (e.g., 07/15/2022)
-  }
-}
+import 'chat_bottom_row.dart';
+import 'chat_top_row.dart';
 
 const sentIcon = Icon(
   Icons.done,
@@ -69,8 +39,7 @@ class ChatBlock extends StatelessWidget {
     return ListTile(
       leading: ChatAvatar(photo: chat.photo),
       title: ChatTopRow(chat: chat),
-      subtitle: ChatMessageSubtitle(
-          message: chat.lastMessage, draftMessage: chat.draftMessage),
+      subtitle: ChatBottomRow(chat: chat),
       // tileColor: theme.colorScheme.background,
       onTap: () {
         Navigator.push(context, CupertinoPageRoute(builder: (context) {
@@ -153,132 +122,6 @@ class _ChatAvatarState extends State<ChatAvatar> {
   Widget build(BuildContext context) {
     return CircleAvatar(
       backgroundImage: backgroundImage,
-    );
-  }
-}
-
-class ChatTopRow extends StatelessWidget {
-  final td_api.Chat chat;
-
-  const ChatTopRow({super.key, required this.chat});
-
-  @override
-  Widget build(BuildContext context) {
-    var messageRead = chat.lastReadOutboxMessageId == chat.lastMessage?.id;
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.baseline,
-      textBaseline: TextBaseline.alphabetic,
-      children: [
-        Expanded(child: ChatTitle(title: chat.title)),
-        const SizedBox(
-          width: 40,
-        ),
-        ChatTimeAndStatus(
-            date: chat.draftMessage?.date ?? chat.lastMessage?.date ?? 0,
-            isOutgoing: chat.lastMessage?.isOutgoing ?? false,
-            isRead: messageRead,
-            sendingState: chat.lastMessage?.sendingState),
-      ],
-    );
-  }
-}
-
-class ChatTitle extends StatelessWidget {
-  final String title;
-  const ChatTitle({super.key, required this.title});
-
-  final isCommunity = true;
-  final isBot = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        if (isCommunity)
-          const Icon(
-            Icons.people_alt,
-            size: 20,
-          ),
-        if (isBot)
-          const Icon(
-            Icons.smart_toy_outlined,
-            size: 20,
-          ),
-        Flexible(
-            child: Text(
-          title,
-          overflow: TextOverflow.fade,
-          softWrap: false,
-        )),
-        const SizedBox(
-          width: 5,
-        ),
-        const Icon(
-          CupertinoIcons.volume_off,
-          size: 14,
-        ),
-      ],
-    );
-  }
-}
-
-class ChatTimeAndStatus extends StatelessWidget {
-  final int date;
-
-  final bool isOutgoing;
-
-  final td_api.MessageSendingState? sendingState;
-
-  final bool isRead;
-
-  const ChatTimeAndStatus(
-      {super.key,
-      required this.date,
-      required this.sendingState,
-      required this.isOutgoing,
-      required this.isRead});
-
-  @override
-  Widget build(BuildContext context) {
-    var messageSent = sendingState is! td_api.MessageSendingStatePending &&
-        sendingState is! td_api.MessageSendingStateFailed;
-    var messageSending = sendingState is td_api.MessageSendingStatePending;
-
-    var messageFailed = sendingState is td_api.MessageSendingStateFailed;
-    Print.green(date.toString());
-    return Row(
-      children: [
-        if (!isOutgoing)
-          ...[]
-        else if (messageFailed) ...[
-          const Icon(
-            Icons.error_outline,
-            size: 20,
-            color: Colors.red,
-          )
-        ] else if (messageSending) ...[
-          const Icon(
-            Icons.access_time,
-            size: 20,
-            color: Colors.grey,
-          )
-        ] else if (isRead) ...[
-          const Icon(
-            Icons.done_all,
-            size: 20,
-            color: Colors.blue,
-          )
-        ] else if (messageSent) ...[
-          const Icon(
-            Icons.done,
-            size: 20,
-            color: Colors.blue,
-          )
-        ],
-        const SizedBox(width: 3),
-        Text(formatDate(date, context))
-      ],
     );
   }
 }
