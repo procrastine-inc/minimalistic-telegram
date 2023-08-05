@@ -283,8 +283,9 @@ class ChatStore extends EventBus {
       return;
     }
 
-    var updatedChat =
-        chat.copyWith(lastReadInboxMessageId: event.lastReadInboxMessageId);
+    var updatedChat = chat.copyWith(
+        lastReadInboxMessageId: event.lastReadInboxMessageId,
+        unreadCount: event.unreadCount);
     items[event.chatId] = updatedChat;
   }
 }
