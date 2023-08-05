@@ -94,7 +94,6 @@ class ChatTimeAndStatus extends StatelessWidget {
     var messageSending = sendingState is td_api.MessageSendingStatePending;
 
     var messageFailed = sendingState is td_api.MessageSendingStateFailed;
-    Print.green(date.toString());
     return Row(
       children: [
         if (!isOutgoing)
