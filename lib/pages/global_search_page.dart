@@ -10,15 +10,19 @@ class GlobalSearchPage extends StatefulWidget {
 }
 
 class _GlobalSearchPageState extends State<GlobalSearchPage> {
+  final searchFieldcontroler = TextEditingController();
+
   List<StreamSubscription> subscriptions = [];
   @override
   void initState() {
     super.initState();
     // subscriptions.add();
+    searchFieldcontroler.addListener(_initiateSearch);
   }
 
   @override
   void dispose() {
+    searchFieldcontroler.dispose();
     for (var element in subscriptions) {
       element.cancel();
     }
@@ -44,11 +48,25 @@ class _GlobalSearchPageState extends State<GlobalSearchPage> {
         titleSpacing: 18,
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
-        title: const Text('search bar goes here'),
+        title: TextField(
+          controller: searchFieldcontroler,
+          autofocus: true,
+          decoration: const InputDecoration(
+            hintStyle: TextStyle(color: Colors.white60),
+            border: InputBorder.none,
+            focusedBorder: InputBorder.none,
+            enabledBorder: InputBorder.none,
+            errorBorder: InputBorder.none,
+            disabledBorder: InputBorder.none,
+            hintText: "Search",
+          ),
+        ),
       ),
       body: const Center(
         child: Text('test search page'),
       ),
     );
   }
+
+  void _initiateSearch() {}
 }
