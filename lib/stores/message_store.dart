@@ -156,6 +156,32 @@ class MessageStore extends EventEmitter {
     }
   }
 
+  Future searchAllMessages({
+    required String searchQuery,
+    required int offsetDate,
+    required int limit,
+    required int offsetMessageId,
+    required int offsetChatId,
+    required int minDate,
+    required int maxDate,
+  }) async {
+    var searchMessagesRequestBody = td_api.SearchMessages(
+      query: searchQuery,
+      offsetDate: offsetDate,
+      limit: limit,
+      offsetMessageId: offsetMessageId,
+      offsetChatId: offsetChatId,
+      minDate: minDate,
+      maxDate: maxDate,
+    );
+    var messagesResponse = await TdLibController()
+        .send<td_api.TdObject<dynamic>>(searchMessagesRequestBody);
+    if (messagesResponse is td_api.TdError) {
+      Print.red(messagesResponse.message);
+    }
+    return messagesResponse;
+  }
+
   Future<void> getMessagesList(int chatId,
       {int fromMessageId = 0, int offset = 0, int limit = 100}) async {
     int receivedMessageCount = 0;

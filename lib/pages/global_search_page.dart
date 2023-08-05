@@ -1,6 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:minimalistic_telegram/stores/message_store.dart';
+import 'package:palestine_console/palestine_console.dart';
+import 'package:provider/provider.dart';
+
+import 'package:tdlib/td_api.dart' as td_api;
 
 class GlobalSearchPage extends StatefulWidget {
   const GlobalSearchPage({Key? key}) : super(key: key);
@@ -10,19 +15,19 @@ class GlobalSearchPage extends StatefulWidget {
 }
 
 class _GlobalSearchPageState extends State<GlobalSearchPage> {
-  final searchFieldcontroler = TextEditingController();
+  final searchFieldController = TextEditingController();
 
   List<StreamSubscription> subscriptions = [];
+
   @override
   void initState() {
     super.initState();
     // subscriptions.add();
-    searchFieldcontroler.addListener(_initiateSearch);
   }
 
   @override
   void dispose() {
-    searchFieldcontroler.dispose();
+    searchFieldController.dispose();
     for (var element in subscriptions) {
       element.cancel();
     }
@@ -49,7 +54,7 @@ class _GlobalSearchPageState extends State<GlobalSearchPage> {
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
         title: TextField(
-          controller: searchFieldcontroler,
+          controller: searchFieldController,
           autofocus: true,
           decoration: const InputDecoration(
             hintStyle: TextStyle(color: Colors.white60),
@@ -62,11 +67,88 @@ class _GlobalSearchPageState extends State<GlobalSearchPage> {
           ),
         ),
       ),
-      body: const Center(
-        child: Text('test search page'),
-      ),
+      body: SearchPageBody(searchController: searchFieldController),
     );
   }
+}
 
-  void _initiateSearch() {}
+class SearchPageBody extends StatefulWidget {
+  TextEditingController searchController;
+  late bool loading = false;
+  late MessageStore messageStore;
+  // state for result of chats search
+
+  // result of users search
+  // result of messages search
+
+  SearchPageBody({super.key, required this.searchController});
+
+  @override
+  State<SearchPageBody> createState() => _SearchPageBodyState();
+}
+
+class _SearchPageBodyState extends State<SearchPageBody> {
+  void clearSearchResult() {}
+
+  void getSearchResult() async {
+    // td_api.searchChatsOnServer to get chats 100%
+    //searchMessages to get messages 100%
+    var result = await widget.messageStore.searchAllMessages(
+      searchQuery: widget.searchController.text,
+      offsetDate: 0,
+      limit: 100,
+      offsetMessageId: 0,
+      offsetChatId: 0,
+      minDate: 0,
+      maxDate: 0,
+    );
+    if (result is td_api.TdError) {
+      return;
+    }
+    Print.magenta('result is recieved');
+    setState(() {
+      widget.loading = false;
+    });
+  }
+
+  void searchControllerListener() {
+    if (widget.searchController.text.isEmpty) {
+      clearSearchResult();
+      setState(() {
+        widget.loading = false;
+      });
+    } else {
+      setState(() {
+        widget.loading = true;
+      });
+      getSearchResult();
+    }
+  }
+
+  @override
+  void initState() {
+    widget.messageStore = context.read<MessageStore>();
+    widget.searchController.addListener(searchControllerListener);
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    widget.searchController.removeListener(searchControllerListener);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text('recent chats'),
+        Text('search results'),
+        //debug
+        Text(widget.loading ? 'loading' : ''),
+        Text(widget.searchController.text),
+      ],
+    );
+  }
 }
