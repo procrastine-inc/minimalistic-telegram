@@ -27,27 +27,6 @@ class GlobalSearchPage extends StatefulWidget {
 }
 
 class _GlobalSearchPageState extends State<GlobalSearchPage> {
-  List<StreamSubscription> subscriptions = [];
-
-  @override
-  void initState() {
-    super.initState();
-    // subscriptions.add();
-  }
-
-  @override
-  void dispose() {
-    for (var element in subscriptions) {
-      element.cancel();
-    }
-    subscriptions = [];
-    super.dispose();
-  }
-
-  void onAuthStateChange(event) {
-    setState(() {});
-  }
-
   final searchTextNotifier = SearchTextNotifier();
   @override
   Widget build(BuildContext context) {
