@@ -104,7 +104,7 @@ class _SearchPageBodyState extends State<SearchPageBody> {
     var result = await messageStore.searchAllMessages(
       searchQuery: widget.searchTextNotifier._searchText,
       offsetDate: 0,
-      limit: 100,
+      limit: 20,
       offsetMessageId: 0,
       offsetChatId: 0,
       minDate: 0,
