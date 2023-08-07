@@ -7,6 +7,18 @@ import 'package:provider/provider.dart';
 
 import 'package:tdlib/td_api.dart' as td_api;
 
+class SearchTextNotifier extends ChangeNotifier {
+  String _searchText = '';
+
+  String get searchText => _searchText;
+
+  set searchText(String value) {
+    if (value == _searchText) return;
+    _searchText = value;
+    notifyListeners();
+  }
+}
+
 class GlobalSearchPage extends StatefulWidget {
   const GlobalSearchPage({Key? key}) : super(key: key);
 
@@ -15,8 +27,6 @@ class GlobalSearchPage extends StatefulWidget {
 }
 
 class _GlobalSearchPageState extends State<GlobalSearchPage> {
-  final searchFieldController = TextEditingController();
-
   List<StreamSubscription> subscriptions = [];
 
   @override
@@ -27,7 +37,6 @@ class _GlobalSearchPageState extends State<GlobalSearchPage> {
 
   @override
   void dispose() {
-    searchFieldController.dispose();
     for (var element in subscriptions) {
       element.cancel();
     }
@@ -39,22 +48,17 @@ class _GlobalSearchPageState extends State<GlobalSearchPage> {
     setState(() {});
   }
 
+  final searchTextNotifier = SearchTextNotifier();
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-
     return Scaffold(
       appBar: AppBar(
         titleSpacing: 18,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
         title: TextField(
-          controller: searchFieldController,
+          onChanged: (value) {
+            searchTextNotifier.searchText =
+                value; // Update the SearchTextNotifier
+          },
           autofocus: true,
           decoration: const InputDecoration(
             hintStyle: TextStyle(color: Colors.white60),
@@ -67,34 +71,38 @@ class _GlobalSearchPageState extends State<GlobalSearchPage> {
           ),
         ),
       ),
-      body: SearchPageBody(searchController: searchFieldController),
+      body: SearchPageBody(searchTextNotifier: searchTextNotifier),
     );
   }
 }
 
 class SearchPageBody extends StatefulWidget {
-  TextEditingController searchController;
-  late bool loading = false;
-  late MessageStore messageStore;
-  // state for result of chats search
+  final SearchTextNotifier searchTextNotifier;
 
-  // result of users search
-  // result of messages search
-
-  SearchPageBody({super.key, required this.searchController});
+  const SearchPageBody({super.key, required this.searchTextNotifier});
 
   @override
   State<SearchPageBody> createState() => _SearchPageBodyState();
 }
 
 class _SearchPageBodyState extends State<SearchPageBody> {
+  late bool loading = false;
+  // state for result of chats search
+
+  // result of users search
+  // result of messages search
+  List<td_api.Message> searchMessagesResult = [];
+
   void clearSearchResult() {}
 
   void getSearchResult() async {
+    var messageStore = context.read<MessageStore>();
+
+    Print.magenta('getting search result');
     // td_api.searchChatsOnServer to get chats 100%
     //searchMessages to get messages 100%
-    var result = await widget.messageStore.searchAllMessages(
-      searchQuery: widget.searchController.text,
+    var result = await messageStore.searchAllMessages(
+      searchQuery: widget.searchTextNotifier._searchText,
       offsetDate: 0,
       limit: 100,
       offsetMessageId: 0,
@@ -102,24 +110,27 @@ class _SearchPageBodyState extends State<SearchPageBody> {
       minDate: 0,
       maxDate: 0,
     );
+    Print.magenta('result is recieved');
     if (result is td_api.TdError) {
       return;
     }
-    Print.magenta('result is recieved');
+    Print.magenta('result is not error');
     setState(() {
-      widget.loading = false;
+      loading = false;
+      searchMessagesResult = (result as td_api.Messages).messages;
     });
   }
 
   void searchControllerListener() {
-    if (widget.searchController.text.isEmpty) {
+    Print.white('searchControllerListener');
+    if (widget.searchTextNotifier._searchText.isEmpty) {
       clearSearchResult();
       setState(() {
-        widget.loading = false;
+        loading = false;
       });
     } else {
       setState(() {
-        widget.loading = true;
+        loading = true;
       });
       getSearchResult();
     }
@@ -127,15 +138,14 @@ class _SearchPageBodyState extends State<SearchPageBody> {
 
   @override
   void initState() {
-    widget.messageStore = context.read<MessageStore>();
-    widget.searchController.addListener(searchControllerListener);
+    widget.searchTextNotifier.addListener(searchControllerListener);
 
     super.initState();
   }
 
   @override
   void dispose() {
-    widget.searchController.removeListener(searchControllerListener);
+    widget.searchTextNotifier.removeListener(searchControllerListener);
     super.dispose();
   }
 
@@ -144,11 +154,35 @@ class _SearchPageBodyState extends State<SearchPageBody> {
     return Column(
       children: [
         Text('recent chats'),
-        Text('search results'),
         //debug
-        Text(widget.loading ? 'loading' : ''),
-        Text(widget.searchController.text),
+        Text(loading ? 'loading' : ''),
+        if (searchMessagesResult.isNotEmpty && !loading)
+          Expanded(
+            child: ListView(
+                children: searchMessagesResult
+                    .map((message) => MessageSearchResult(message: message))
+                    .toList()),
+          ),
       ],
+    );
+  }
+}
+
+class MessageSearchResult extends StatelessWidget {
+  td_api.Message message;
+
+  MessageSearchResult({super.key, required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    // list item with avatar, title, message, date
+    return ListTile(
+      leading: const CircleAvatar(
+        child: Icon(Icons.person),
+      ),
+      title: Text(message.chatId.toString()),
+      subtitle: Text(message.content.toString()),
+      trailing: Text(message.date.toString()),
     );
   }
 }
