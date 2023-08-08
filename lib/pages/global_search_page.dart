@@ -28,6 +28,12 @@ class GlobalSearchPage extends StatefulWidget {
 
 class _GlobalSearchPageState extends State<GlobalSearchPage> {
   final searchTextNotifier = SearchTextNotifier();
+
+  @override
+  void dispose() {
+    searchTextNotifier.dispose();
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
