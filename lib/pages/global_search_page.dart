@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:minimalistic_telegram/stores/message_store.dart';
 import 'package:palestine_console/palestine_console.dart';
@@ -34,6 +32,7 @@ class _GlobalSearchPageState extends State<GlobalSearchPage> {
     searchTextNotifier.dispose();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
