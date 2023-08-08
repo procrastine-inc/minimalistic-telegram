@@ -5,18 +5,6 @@ import 'package:provider/provider.dart';
 
 import 'package:tdlib/td_api.dart' as td_api;
 
-class SearchTextNotifier extends ChangeNotifier {
-  String _searchText = '';
-
-  String get searchText => _searchText;
-
-  set searchText(String value) {
-    if (value == _searchText) return;
-    _searchText = value;
-    notifyListeners();
-  }
-}
-
 class GlobalSearchPage extends StatefulWidget {
   const GlobalSearchPage({Key? key}) : super(key: key);
 
@@ -25,7 +13,7 @@ class GlobalSearchPage extends StatefulWidget {
 }
 
 class _GlobalSearchPageState extends State<GlobalSearchPage> {
-  final searchTextNotifier = SearchTextNotifier();
+  final searchTextNotifier = ValueNotifier('');
 
   @override
   void dispose() {
@@ -40,8 +28,7 @@ class _GlobalSearchPageState extends State<GlobalSearchPage> {
         titleSpacing: 18,
         title: TextField(
           onChanged: (value) {
-            searchTextNotifier.searchText =
-                value; // Update the SearchTextNotifier
+            searchTextNotifier.value = value; // Update the SearchTextNotifier
           },
           autofocus: true,
           decoration: const InputDecoration(
@@ -61,7 +48,7 @@ class _GlobalSearchPageState extends State<GlobalSearchPage> {
 }
 
 class SearchPageBody extends StatefulWidget {
-  final SearchTextNotifier searchTextNotifier;
+  final ValueNotifier searchTextNotifier;
 
   const SearchPageBody({super.key, required this.searchTextNotifier});
 
@@ -86,7 +73,7 @@ class _SearchPageBodyState extends State<SearchPageBody> {
     // td_api.searchChatsOnServer to get chats 100%
     //searchMessages to get messages 100%
     var result = await messageStore.searchAllMessages(
-      searchQuery: widget.searchTextNotifier._searchText,
+      searchQuery: widget.searchTextNotifier.value,
       offsetDate: 0,
       limit: 20,
       offsetMessageId: 0,
@@ -107,7 +94,7 @@ class _SearchPageBodyState extends State<SearchPageBody> {
 
   void searchControllerListener() {
     Print.white('searchControllerListener');
-    if (widget.searchTextNotifier._searchText.isEmpty) {
+    if (widget.searchTextNotifier.value.isEmpty) {
       clearSearchResult();
       setState(() {
         loading = false;
