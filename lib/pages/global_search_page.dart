@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:minimalistic_telegram/components/MessageSearchResult/index.dart';
 import 'package:minimalistic_telegram/stores/message_store.dart';
 import 'package:palestine_console/palestine_console.dart';
 import 'package:provider/provider.dart';
@@ -135,25 +136,6 @@ class _SearchPageBodyState extends State<SearchPageBody> {
                     .toList()),
           ),
       ],
-    );
-  }
-}
-
-class MessageSearchResult extends StatelessWidget {
-  td_api.Message message;
-
-  MessageSearchResult({super.key, required this.message});
-
-  @override
-  Widget build(BuildContext context) {
-    // list item with avatar, title, message, date
-    return ListTile(
-      leading: const CircleAvatar(
-        child: Icon(Icons.person),
-      ),
-      title: Text(message.chatId.toString()),
-      subtitle: Text(message.content.toString()),
-      trailing: Text(message.date.toString()),
     );
   }
 }

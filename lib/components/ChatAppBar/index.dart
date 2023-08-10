@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:minimalistic_telegram/components/ChatBlock/index.dart';
 import 'package:tdlib/td_api.dart' as td_api;
+
+import '../ChatAvatar/index.dart';
 
 class ChatAppBar extends StatelessWidget with PreferredSizeWidget {
   final td_api.Chat chat;
