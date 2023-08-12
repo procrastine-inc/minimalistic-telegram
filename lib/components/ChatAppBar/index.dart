@@ -3,7 +3,7 @@ import 'package:tdlib/td_api.dart' as td_api;
 
 import '../ChatAvatar/index.dart';
 
-class ChatAppBar extends StatelessWidget with PreferredSizeWidget {
+class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
   final td_api.Chat chat;
 
   const ChatAppBar({

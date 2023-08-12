@@ -33,7 +33,9 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
-  tdlib: ^1.5.9+1
+  tdlib:
+    git:
+      url: https://github.com/MetaMmodern/tdlib
   provider: ^6.0.5
   path_provider: ^2.0.12
   permission_handler: ^9.2.0
