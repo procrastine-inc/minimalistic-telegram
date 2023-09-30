@@ -85,10 +85,10 @@ packages:
     dependency: transitive
     description:
       name: ffi
-      sha256: "13a6ccf6a459a125b3fcdb6ec73bd5ff90822e071207c663bfd1f70062d51d18"
+      sha256: "7bf0adc28a23d395f19f3f1eb21dd7cfd1dd9f8e1c50051c069122e6853bc878"
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.1"
+    version: "2.1.0"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -252,10 +252,10 @@ packages:
     dependency: transitive
     description:
       name: path_provider_windows
-      sha256: a34ecd7fb548f8e57321fd8e50d865d266941b54e6c3b7758cf8f37c24116905
+      sha256: ee0e0d164516b90ae1f970bdf29f726f1aa730d7cfc449ecc74c495378b705da
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.7"
+    version: "2.2.0"
   permission_handler:
     dependency: "direct main"
     description:
@@ -368,11 +368,10 @@ packages:
   tdlib:
     dependency: "direct main"
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: bf2247d1e2ea0c7f7c5e6f324bced6cefdca3a88
-      url: "https://github.com/MetaMmodern/tdlib"
-    source: git
+      name: tdlib
+      sha256: "4aa3cbb7c3a1231104e2b61c77d56c7c719bd048d5b52ffa3195f9ec0d2e1724"
+      url: "https://pub.dev"
+    source: hosted
     version: "1.6.0"
   term_glyph:
     dependency: transitive
@@ -410,10 +409,10 @@ packages:
     dependency: transitive
     description:
       name: win32
-      sha256: c0e3a4f7be7dae51d8f152230b86627e3397c1ba8c3fa58e63d44a9f3edc9cef
+      sha256: f2add6fa510d3ae152903412227bda57d0d5a8da61d2c39c1fb022c9429a41c0
       url: "https://pub.dev"
     source: hosted
-    version: "2.6.1"
+    version: "5.0.6"
   xdg_directories:
     dependency: transitive
     description:

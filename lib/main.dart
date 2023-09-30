@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:developer';
 
+import 'package:tdlib/tdlib.dart';
 import 'package:flutter/material.dart';
 import 'package:minimalistic_telegram/controllers/tdlib_controller.dart';
 import 'package:minimalistic_telegram/services/locator.dart';

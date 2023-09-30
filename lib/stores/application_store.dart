@@ -42,22 +42,22 @@ class ApplicationStore extends EventBus {
       case td_api.AuthorizationStateWaitTdlibParameters.CONSTRUCTOR:
         TdLibController().sendTdLibParameters();
         return;
-      case td_api.AuthorizationStateWaitEncryptionKey.CONSTRUCTOR:
-        if ((event as td_api.AuthorizationStateWaitEncryptionKey).isEncrypted) {
-          TdLibController().send(
-            const td_api.CheckDatabaseEncryptionKey(
-              encryptionKey: 'mostrandomencryption', // TODO: wtf, fix this
-            ),
-          );
-        } else {
-          TdLibController().send(
-            const td_api.SetDatabaseEncryptionKey(
-              newEncryptionKey: 'mostrandomencryption', // TODO: wtf, fix this
-            ),
-          );
-        }
-        // emit(td_api.UpdateAuthorizationState.CONSTRUCTOR, event);
-        return;
+      // case td_api.AuthorizationStateWaitEncryptionKey.CONSTRUCTOR:
+      //   if ((event as td_api.AuthorizationStateWaitEncryptionKey).isEncrypted) {
+      //     TdLibController().send(
+      //       const td_api.CheckDatabaseEncryptionKey(
+      //         encryptionKey: 'mostrandomencryption', // TODO: wtf, fix this
+      //       ),
+      //     );
+      //   } else {
+      //     TdLibController().send(
+      //       const td_api.SetDatabaseEncryptionKey(
+      //         newEncryptionKey: 'mostrandomencryption', // TODO: wtf, fix this
+      //       ),
+      //     );
+      //   }
+      //   // emit(td_api.UpdateAuthorizationState.CONSTRUCTOR, event);
+      //   return;
       case td_api.AuthorizationStateWaitPhoneNumber.CONSTRUCTOR:
       case td_api.AuthorizationStateClosed.CONSTRUCTOR:
       case td_api.AuthorizationStateReady.CONSTRUCTOR:

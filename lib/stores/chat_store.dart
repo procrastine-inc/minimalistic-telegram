@@ -11,7 +11,7 @@ import '../controllers/tdlib_controller.dart';
 
 // TODO: make it singleTon
 class ChatStore extends EventBus {
-  late List<td_api.ChatFilterInfo>? filters;
+  late List<dynamic>? filters;
 
   late Map scrollPositions;
 

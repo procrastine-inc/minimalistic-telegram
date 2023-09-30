@@ -13,7 +13,8 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:synchronized/synchronized.dart';
 
-import 'package:tdlib/tdlib.dart' as td_lib;
+import 'package:tdlib/tdlib.dart';
+import 'package:tdlib/td_client.dart' as td_client;
 import 'package:tdlib/td_api.dart' as td_api;
 
 int _random() => Random().nextInt(10000000);
@@ -45,7 +46,7 @@ class TdLibController extends EventEmitter<td_api.TdObject> {
   }
 
   void initClient() async {
-    _client = td_lib.tdCreate();
+    _client = td_client.tdCreate();
 
     // ignore: unused_local_variable
     bool storagePermission = await Permission.storage
@@ -64,7 +65,7 @@ class TdLibController extends EventEmitter<td_api.TdObject> {
 
     //execute(SetLogStream(logStream: LogStreamEmpty()));
     execute(const td_api.SetLogVerbosityLevel(newVerbosityLevel: 1));
-    td_lib.tdSend(_client, const td_api.GetCurrentState());
+    td_client.tdSend(_client, const td_api.GetCurrentState());
 
     // spawning a separate thread in order to have a while(true) loop there
     // TODO: extract this logic into separate file!!!
@@ -74,12 +75,17 @@ class TdLibController extends EventEmitter<td_api.TdObject> {
   }
 
   static _receive(sendPortToMain) async {
-    td_lib.TdNativePlugin.registerWith();
-    await td_lib.TdPlugin.initialize();
+    td_client.TdNativePlugin.registerWith();
+    final tdlibPath = kIsWeb
+        ? null
+        : (Platform.isAndroid || Platform.isLinux || Platform.isWindows)
+            ? 'libtdjson.so'
+            : null;
+    await td_client.TdPlugin.initialize(tdlibPath);
 
     //var x = _rawClient.td_json_client_create();
     while (true) {
-      final s = td_lib.TdPlugin.instance.tdReceive();
+      final s = td_client.TdPlugin.instance.tdReceive();
       if (s != null) {
         sendPortToMain.send(s);
       }
@@ -130,7 +136,7 @@ class TdLibController extends EventEmitter<td_api.TdObject> {
   }
 
   void destroyClient() async {
-    td_lib.tdSend(_client, const td_api.Close());
+    td_client.tdSend(_client, const td_api.Close());
   }
 
   /// Sends request to the TDLib client. May be called from any thread.
@@ -141,7 +147,7 @@ class TdLibController extends EventEmitter<td_api.TdObject> {
     if (callback != null) {
       callbackResults[rndId] = callback;
       try {
-        td_lib.tdSend(_client, event, rndId);
+        td_client.tdSend(_client, event, rndId);
       } catch (e) {
         if (kDebugMode) {
           print(e);
@@ -150,7 +156,7 @@ class TdLibController extends EventEmitter<td_api.TdObject> {
     } else {
       final completer = Completer<T>();
       results[rndId] = completer;
-      td_lib.tdSend(_client, event, rndId);
+      td_client.tdSend(_client, event, rndId);
       return completer.future;
     }
 
@@ -163,23 +169,22 @@ class TdLibController extends EventEmitter<td_api.TdObject> {
 
     return send(
       td_api.SetTdlibParameters(
-        parameters: td_api.TdlibParameters(
-          useTestDc: false,
-          useSecretChats: false,
-          useMessageDatabase: true,
-          useFileDatabase: true,
-          useChatInfoDatabase: true,
-          ignoreFileNames: true,
-          enableStorageOptimizer: true,
-          systemLanguageCode: 'EN',
-          filesDirectory: '${appExtDir.path}/tdlib',
-          databaseDirectory: appDocDir.path,
-          applicationVersion: '0.0.1',
-          deviceModel: 'Unknown',
-          systemVersion: 'Unknown',
-          apiId: apiId,
-          apiHash: apiHash,
-        ),
+        useTestDc: false,
+        useSecretChats: false,
+        useMessageDatabase: true,
+        useFileDatabase: true,
+        useChatInfoDatabase: true,
+        ignoreFileNames: true,
+        enableStorageOptimizer: true,
+        systemLanguageCode: 'EN',
+        filesDirectory: '${appExtDir.path}/tdlib',
+        databaseDirectory: appDocDir.path,
+        applicationVersion: '0.0.1',
+        deviceModel: 'Unknown',
+        systemVersion: 'Unknown',
+        apiId: apiId,
+        apiHash: apiHash,
+        databaseEncryptionKey: 'randomkey',
       ),
     );
   }
@@ -187,5 +192,6 @@ class TdLibController extends EventEmitter<td_api.TdObject> {
   /// Synchronously executes TDLib request. May be called from any thread.
   /// Only a few requests can be executed synchronously.
   /// Returned pointer will be deallocated by TDLib during next call to clientReceive or clientExecute in the same thread, so it can't be used after that.
-  td_api.TdObject execute(td_api.TdFunction event) => td_lib.tdExecute(event)!;
+  td_api.TdObject execute(td_api.TdFunction event) =>
+      td_client.tdExecute(event)!;
 }

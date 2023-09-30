@@ -115,7 +115,7 @@ class MessageStore extends EventEmitter {
       td_api.UpdateAnimatedEmojiMessageClicked: _handlerNotImplemented,
       td_api.UpdateChatHasScheduledMessages: _handlerNotImplemented,
       td_api.UpdateChatMessageSender: _handlerNotImplemented,
-      td_api.UpdateChatMessageTtl: _handlerNotImplemented,
+      // td_api.UpdateChatMessageTtl: _handlerNotImplemented,
       td_api.UpdateDeleteMessages: _handleUpdateDeleteMessages,
       td_api.UpdateMessageContent: _handleUpdateMessageContent,
       td_api.UpdateMessageContentOpened: _handlerNotImplemented,
@@ -167,10 +167,11 @@ class MessageStore extends EventEmitter {
   }) async {
     var searchMessagesRequestBody = td_api.SearchMessages(
       query: searchQuery,
-      offsetDate: offsetDate,
+      offset: '',
+      // offsetDate: offsetDate,
       limit: limit,
-      offsetMessageId: offsetMessageId,
-      offsetChatId: offsetChatId,
+      // offsetMessageId: offsetMessageId,
+      // offsetChatId: offsetChatId,
       minDate: minDate,
       maxDate: maxDate,
     );
@@ -227,7 +228,7 @@ class MessageStore extends EventEmitter {
     var sendMessage = td_api.SendMessage(
         messageThreadId: 0,
         chatId: chatId,
-        replyToMessageId: 0,
+        replyTo: null,
         replyMarkup: null,
         inputMessageContent: content);
     var tempMessage =

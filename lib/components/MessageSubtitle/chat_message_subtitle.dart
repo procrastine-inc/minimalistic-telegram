@@ -66,7 +66,7 @@ class ChatMessagePreview extends StatelessWidget {
       case td_api.MessagePinMessage.CONSTRUCTOR:
       case td_api.MessageScreenshotTaken.CONSTRUCTOR:
       case td_api.MessageChatSetTheme.CONSTRUCTOR:
-      case td_api.MessageChatSetTtl.CONSTRUCTOR:
+      // case td_api.MessageChatSetTtl.CONSTRUCTOR:
       case td_api.MessageCustomServiceAction.CONSTRUCTOR:
       case td_api.MessageGameScore.CONSTRUCTOR:
       case td_api.MessagePaymentSuccessful.CONSTRUCTOR:

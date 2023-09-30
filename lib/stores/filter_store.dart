@@ -5,7 +5,7 @@ import '../controllers/tdlib_controller.dart';
 
 // TODO: make it singleTon
 class FilterStore extends EventEmitter {
-  late List<td_api.ChatFilterInfo>? filters;
+  late List<dynamic>? filters;
   late td_api.ChatList chatList;
   FilterStore() {
     reset();
@@ -32,10 +32,10 @@ class FilterStore extends EventEmitter {
             (event as td_api.UpdateAuthorizationState).authorizationState);
         emit(td_api.UpdateAuthorizationState.CONSTRUCTOR, event);
         break;
-      case td_api.UpdateChatFilters.CONSTRUCTOR:
-        filters = (event as td_api.UpdateChatFilters).chatFilters;
-        emit('updateChatFilters', event);
-        break;
+      // case td_api.UpdateChatFilters.CONSTRUCTOR:
+      //   filters = (event as td_api.UpdateChatFilters).chatFilters;
+      //   emit('updateChatFilters', event);
+      //   break;
 
       default:
     }
