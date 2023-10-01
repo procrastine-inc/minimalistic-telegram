@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:tdlib/tdlib.dart';
 import 'package:flutter/material.dart';
 import 'package:minimalistic_telegram/controllers/tdlib_controller.dart';
@@ -22,7 +24,14 @@ void main() async {
   await dotenv.load();
   WidgetsFlutterBinding.ensureInitialized();
   Provider.debugCheckInvalidValueType = null;
-  await TdPlugin.initialize();
+  final tdlibPath = kIsWeb
+      ? null
+      : (Platform.isAndroid || Platform.isLinux || Platform.isWindows)
+          ? 'libtdjson.so'
+          : null;
+
+  print(tdlibPath);
+  await TdPlugin.initialize(tdlibPath);
   setupLocator();
   runApp(
     MultiProvider(
