@@ -49,6 +49,7 @@ dependencies:
   intl: ^0.18.1
   change_case: ^1.0.0+3
   event_bus: ^2.0.0
+  dart_thread: ^0.0.6
 
 dev_dependencies:
   flutter_test:

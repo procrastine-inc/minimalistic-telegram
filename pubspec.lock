@@ -65,6 +65,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.5"
+  dart_thread:
+    dependency: "direct main"
+    description:
+      name: dart_thread
+      sha256: c46fce62a921ee3bfa086e05199af5b14333b0bd3f5278815ab0487de93a32cf
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.6"
   event_bus:
     dependency: "direct main"
     description:

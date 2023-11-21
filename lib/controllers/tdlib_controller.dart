@@ -13,11 +13,39 @@ import 'package:palestine_console/palestine_console.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:synchronized/synchronized.dart';
+import 'package:dart_thread/dart_thread.dart';
 
 import 'package:tdlib/tdlib.dart';
 import 'package:tdlib/td_api.dart' as td_api;
 
 int _random() => Random().nextInt(10000000);
+
+class TestThread extends DartThread {
+  // Need to mapping Class to super.init,
+  // because dart did not allow override a static method
+  static TestThread newInstance() => TestThread();
+
+  @override
+  // Running once in isolate or worker
+  Future<void> onExecute(Function(dynamic message) sendMessage) async {
+    TdNativePlugin.registerWith();
+    final tdlibPath = kIsWeb
+        ? null
+        : (Platform.isAndroid || Platform.isLinux || Platform.isWindows)
+            ? 'libtdjson.so'
+            : null;
+
+    await TdPlugin.initialize(tdlibPath);
+
+    //var x = _rawClient.td_json_client_create();
+    while (true) {
+      final s = TdPlugin.instance.tdReceive();
+      if (s != null) {
+        sendMessage(s);
+      }
+    }
+  }
+}
 
 class TdLibController extends EventEmitter<td_api.TdObject> {
   static final TdLibController _singleton = TdLibController._internal();
@@ -32,8 +60,10 @@ class TdLibController extends EventEmitter<td_api.TdObject> {
   late Directory appExtDir;
   // String lastRouteName;
 
-  final ReceivePort _receivePort = ReceivePort();
-  late Isolate _isolate;
+  // separate thread for tdlib recieve calls
+  // final ReceivePort _receivePort = ReceivePort();
+  // late Isolate _isolate;
+  late TestThread testThread;
 
   factory TdLibController() {
     return _singleton;
@@ -49,9 +79,9 @@ class TdLibController extends EventEmitter<td_api.TdObject> {
     _client = tdCreate();
 
     // ignore: unused_local_variable
-    bool storagePermission = await Permission.storage
-        .request()
-        .isGranted; // todo : handel storage permission
+    // bool storagePermission = await Permission.storage
+    //     .request()
+    //     .isGranted; // todo : handel storage permission
     /*try {
       PermissionStatus storagePermission =
           await SimplePermissions.requestPermission(
@@ -60,8 +90,8 @@ class TdLibController extends EventEmitter<td_api.TdObject> {
       print(e);
     }
     */
-    appDocDir = await getApplicationDocumentsDirectory();
-    appExtDir = await getTemporaryDirectory();
+    // appDocDir = await getApplicationDocumentsDirectory();
+    // appExtDir = await getTemporaryDirectory();
 
     //execute(SetLogStream(logStream: LogStreamEmpty()));
     execute(const td_api.SetLogVerbosityLevel(newVerbosityLevel: 1));
@@ -69,29 +99,32 @@ class TdLibController extends EventEmitter<td_api.TdObject> {
 
     // spawning a separate thread in order to have a while(true) loop there
     // TODO: extract this logic into separate file!!!
-    _isolate = await Isolate.spawn(_receive, _receivePort.sendPort,
-        debugName: "isolated receive");
-    _receivePort.listen(_receiver);
+    // _isolate = await Isolate.spawn(_receive, _receivePort.sendPort,
+    //     debugName: "isolated receive");
+    testThread = TestThread();
+
+    await testThread.init(TestThread.newInstance, _receiver);
+    // _receivePort.listen(_receiver);
   }
 
-  static _receive(sendPortToMain) async {
-    TdNativePlugin.registerWith();
-    final tdlibPath = kIsWeb
-        ? null
-        : (Platform.isAndroid || Platform.isLinux || Platform.isWindows)
-            ? 'libtdjson.so'
-            : null;
+  // static _receive(sendPortToMain) async {
+  //   TdNativePlugin.registerWith();
+  //   final tdlibPath = kIsWeb
+  //       ? null
+  //       : (Platform.isAndroid || Platform.isLinux || Platform.isWindows)
+  //           ? 'libtdjson.so'
+  //           : null;
 
-    await TdPlugin.initialize(tdlibPath);
+  //   await TdPlugin.initialize(tdlibPath);
 
-    //var x = _rawClient.td_json_client_create();
-    while (true) {
-      final s = TdPlugin.instance.tdReceive();
-      if (s != null) {
-        sendPortToMain.send(s);
-      }
-    }
-  }
+  //   //var x = _rawClient.td_json_client_create();
+  //   while (true) {
+  //     final s = TdPlugin.instance.tdReceive();
+  //     if (s != null) {
+  //       sendPortToMain.send(s);
+  //     }
+  //   }
+  // }
 
   void _receiver(dynamic newEvent) async {
     final event = td_api.convertToObject(newEvent);
@@ -123,8 +156,9 @@ class TdLibController extends EventEmitter<td_api.TdObject> {
   void stop() {
     _eventController.close();
     _eventReceiver.cancel();
-    _receivePort.close();
-    _isolate.kill(priority: Isolate.immediate);
+    // _receivePort.close();
+    // _isolate.kill(priority: Isolate.immediate);
+    testThread.deInit();
   }
 
   void _onEvent(td_api.TdObject event) async {
