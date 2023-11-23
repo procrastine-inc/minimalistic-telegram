@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:minimalistic_telegram/services/locator.dart';
+import 'package:minimalistic_telegram/utils/const.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -132,6 +134,30 @@ class SettingsPage extends StatelessWidget {
                   visualDensity: VisualDensity.compact,
                   leading: const Icon(Icons.language_outlined),
                   title: const Text("Language"),
+                  onTap: () {},
+                ),
+              ],
+            ),
+            const SizedBox(
+              height: 14,
+            ),
+            SettingsCardBlock(
+              title: "Minigram Settings",
+              children: [
+                ListTile(
+                  visualDensity: VisualDensity.compact,
+                  leading: const Icon(Icons.travel_explore_sharp),
+                  title: const Text("Channel search"),
+                  onTap: () {
+                    locator<NavigationService>()
+                        .navigator
+                        .pushNamed(channelSearchRoute);
+                  },
+                ),
+                ListTile(
+                  visualDensity: VisualDensity.compact,
+                  leading: const Icon(Icons.analytics_outlined),
+                  title: const Text("Analytics"),
                   onTap: () {},
                 ),
               ],

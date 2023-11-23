@@ -6,14 +6,14 @@ import 'package:provider/provider.dart';
 
 import 'package:tdlib/td_api.dart' as td_api;
 
-class GlobalSearchPage extends StatefulWidget {
-  const GlobalSearchPage({Key? key}) : super(key: key);
+class ChannelSearchPage extends StatefulWidget {
+  const ChannelSearchPage({Key? key}) : super(key: key);
 
   @override
-  State<GlobalSearchPage> createState() => _GlobalSearchPageState();
+  State<ChannelSearchPage> createState() => _ChannelSearchPageState();
 }
 
-class _GlobalSearchPageState extends State<GlobalSearchPage> {
+class _ChannelSearchPageState extends State<ChannelSearchPage> {
   final searchTextNotifier = ValueNotifier('');
 
   @override
@@ -73,7 +73,6 @@ class _SearchPageBodyState extends State<SearchPageBody> {
     Print.magenta('getting search result');
     // td_api.searchChatsOnServer to get chats 100%
     //searchMessages to get messages 100%
-
     var result = await messageStore.searchAllMessages(
       searchQuery: widget.searchTextNotifier.value,
       offsetDate: 0,
