@@ -120,27 +120,26 @@ class MessageStore extends EventEmitter {
       td_api.UpdateMessageContent: _handleUpdateMessageContent,
       td_api.UpdateMessageContentOpened: _handlerNotImplemented,
       td_api.UpdateMessageEdited: _handleUpdateMessageEdited,
-      td_api.UpdateMessageInteractionInfo: _handlerNotImplemented,
+      td_api.UpdateMessageInteractionInfo: _handleUpdateMessageEdited,
       td_api.UpdateMessageIsPinned: _handlerNotImplemented,
       td_api.UpdateMessageLiveLocationViewed: _handlerNotImplemented,
       td_api.UpdateMessageMentionRead: _handlerNotImplemented,
       td_api.UpdateMessageSendAcknowledged: _handlerNotImplemented,
       td_api.UpdateMessageSendFailed: _handlerNotImplemented,
       td_api.UpdateMessageSendSucceeded: _handleUpdateMessageSendSucceeded,
-      td_api.UpdateUnreadMessageCount: _handlerNotImplemented,
+      td_api.UpdateUnreadMessageCount: _handleUpdateMessageSendSucceeded,
       // Add more mappings here
     };
   }
 
   //TODO: THIS IS HOW ALL UPDATES SHOULD BE HANDLED IN OTHER STORES
 
-  onUpdate(td_api.TdObject event) {
+  onUpdate(td_api.TdObject event) async {
     final eventType = event.runtimeType;
     final handler = eventHandlers[eventType];
     if (handler != null) {
-      handler(event);
-      emit(eventType.toString().toCamelCase(),
-          event); // TODO: camelCasing here is a hack, fix it
+      await handler(event);
+      emit(eventType.toString().toCamelCase(), event);
     } else {
       // Handle unknown event type
     }
@@ -155,6 +154,22 @@ class MessageStore extends EventEmitter {
       default:
     }
   }
+
+  // _handleUpdateMessageInteractionInfo(
+  //     td_api.UpdateMessageInteractionInfo event) {
+  //   Print.yellow('_handleUpdateMessageInteractionInfo');
+  //   final chatId = event.chatId;
+  //   var chat = items[chatId];
+  //   chat ??= SplayTreeMap();
+  //   if (chat.containsKey(event.messageId) &&
+  //       chat[event.messageId] is td_api.Message) {
+  //     var json = _makeCorrectMessageJson(chat[event.messageId]!, event);
+
+  //     var newMessage = td_api.Message.fromJson(json);
+  //     _handleUpdateNewMessage(
+  //         td_api.UpdateNewMessage(message: newMessage, extra: event.extra));
+  //   }
+  // }
 
   Future searchAllMessages({
     required String searchQuery,

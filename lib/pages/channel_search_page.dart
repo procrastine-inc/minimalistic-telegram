@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:minimalistic_telegram/components/ChatBlock/index.dart';
 import 'package:minimalistic_telegram/components/MessageSearchResult/index.dart';
+import 'package:minimalistic_telegram/stores/chat_store.dart';
 import 'package:minimalistic_telegram/stores/message_store.dart';
 import 'package:palestine_console/palestine_console.dart';
 import 'package:provider/provider.dart';
@@ -63,33 +65,29 @@ class _SearchPageBodyState extends State<SearchPageBody> {
 
   // result of users search
   // result of messages search
-  List<td_api.Message> searchMessagesResult = [];
+  List<int> searchChatIdsResult = [];
 
   void clearSearchResult() {}
 
   void getSearchResult() async {
-    var messageStore = context.read<MessageStore>();
+    var chatStore = context.read<ChatStore>();
 
-    Print.magenta('getting search result');
-    // td_api.searchChatsOnServer to get chats 100%
-    //searchMessages to get messages 100%
-    var result = await messageStore.searchAllMessages(
+    Print.magenta('getting search result for chats');
+
+    var result = await chatStore.searchGlobalChats(
       searchQuery: widget.searchTextNotifier.value,
-      offsetDate: 0,
-      limit: 20,
-      offsetMessageId: 0,
-      offsetChatId: 0,
-      minDate: 0,
-      maxDate: 0,
     );
-    Print.magenta('result is recieved');
+
+    Print.magenta('chat search result is recieved');
     if (result is td_api.TdError) {
       return;
     }
-    Print.magenta('result is not error');
+    result as td_api.Chats;
+    result.chatIds;
+    Print.magenta('chat search result is not error');
     setState(() {
       loading = false;
-      searchMessagesResult = (result as td_api.FoundMessages).messages;
+      searchChatIdsResult = result.chatIds;
     });
   }
 
@@ -123,17 +121,21 @@ class _SearchPageBodyState extends State<SearchPageBody> {
 
   @override
   Widget build(BuildContext context) {
+    var chatStore = context.read<ChatStore>();
+
     return Column(
       children: [
-        Text('recent chats'),
         //debug
         Text(loading ? 'loading' : ''),
-        if (searchMessagesResult.isNotEmpty && !loading)
+        if (searchChatIdsResult.isNotEmpty && !loading)
           Expanded(
-            child: ListView(
-                children: searchMessagesResult
-                    .map((message) => MessageSearchResult(message: message))
-                    .toList()),
+            child: ListView.builder(
+                itemCount: searchChatIdsResult.length,
+                itemBuilder: ((context, index) {
+                  var chatId = searchChatIdsResult.elementAt(index);
+                  return ChatBlock(
+                      chat: chatStore.items[chatId]!, key: ValueKey(chatId));
+                })),
           ),
       ],
     );
