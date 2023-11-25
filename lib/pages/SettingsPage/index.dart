@@ -24,33 +24,33 @@ class SettingsPage extends StatelessWidget {
             IconButton(onPressed: () {}, icon: const Icon(Icons.search)),
             PopupMenuButton(
                 itemBuilder: (context) => [
-                      PopupMenuItem(
+                      const PopupMenuItem(
                         child: Wrap(
                           // crossAxisAlignment: CrossAxisAlignment.center,
                           spacing: 10,
                           crossAxisAlignment: WrapCrossAlignment.center,
-                          children: const [
+                          children: [
                             Icon(Icons.edit_outlined, color: Colors.black),
                             Text("Change name"),
                           ],
                         ),
                       ),
-                      PopupMenuItem(
+                      const PopupMenuItem(
                         child: Wrap(
                           spacing: 10,
                           crossAxisAlignment: WrapCrossAlignment.center,
-                          children: const [
+                          children: [
                             Icon(Icons.add_a_photo_outlined,
                                 color: Colors.black),
                             Text("Select photo or video"),
                           ],
                         ),
                       ),
-                      PopupMenuItem(
+                      const PopupMenuItem(
                         child: Wrap(
                           spacing: 10,
                           crossAxisAlignment: WrapCrossAlignment.center,
-                          children: const [
+                          children: [
                             Icon(Icons.exit_to_app, color: Colors.black),
                             Text("Logout"),
                           ],
@@ -158,7 +158,11 @@ class SettingsPage extends StatelessWidget {
                   visualDensity: VisualDensity.compact,
                   leading: const Icon(Icons.analytics_outlined),
                   title: const Text("Analytics"),
-                  onTap: () {},
+                  onTap: () {
+                    locator<NavigationService>()
+                        .navigator
+                        .pushNamed(statsRoute);
+                  },
                 ),
               ],
             ),

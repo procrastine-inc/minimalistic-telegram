@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:minimalistic_telegram/services/isar_service.dart';
 import 'package:tdlib/tdlib.dart';
 import 'package:flutter/material.dart';
 import 'package:minimalistic_telegram/controllers/tdlib_controller.dart';
@@ -30,8 +31,8 @@ void main() async {
           ? 'libtdjson.so'
           : null;
 
-  print(tdlibPath);
   await TdPlugin.initialize(tdlibPath);
+  final dbservice = IsarService();
   setupLocator();
   runApp(
     MultiProvider(

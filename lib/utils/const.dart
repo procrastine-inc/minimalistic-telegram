@@ -8,6 +8,7 @@ const String searchRoute = '/search';
 const String chatRoute = '/chat';
 const String settingsRoute = '/settings';
 const String channelSearchRoute = '/channel_search';
+const String statsRoute = '/stats_route';
 
 class NavigationService {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
