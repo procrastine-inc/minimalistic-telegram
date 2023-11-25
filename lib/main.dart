@@ -22,6 +22,7 @@ import 'package:tdlib/td_api.dart' as td_api;
 
 void main() async {
   await dotenv.load();
+  TdNativePlugin.registerWith();
   WidgetsFlutterBinding.ensureInitialized();
   Provider.debugCheckInvalidValueType = null;
   final tdlibPath = kIsWeb
@@ -31,6 +32,7 @@ void main() async {
           : null;
 
   print(tdlibPath);
+  print('Hi!');
   await TdPlugin.initialize(tdlibPath);
   setupLocator();
   runApp(

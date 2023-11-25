@@ -2,7 +2,7 @@
 
 import 'dart:html';
 import 'dart:js_interop';
-import 'tdlib_controller.dart';
+import 'custom_thread.dart';
 
 @JS('self')
 external DedicatedWorkerGlobalScope get self;

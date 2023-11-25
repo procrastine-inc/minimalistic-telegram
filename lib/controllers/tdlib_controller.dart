@@ -13,39 +13,12 @@ import 'package:palestine_console/palestine_console.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:synchronized/synchronized.dart';
-import 'package:dart_thread/dart_thread.dart';
+import 'custom_thread.dart';
 
 import 'package:tdlib/tdlib.dart';
 import 'package:tdlib/td_api.dart' as td_api;
 
 int _random() => Random().nextInt(10000000);
-
-class TestThread extends DartThread {
-  // Need to mapping Class to super.init,
-  // because dart did not allow override a static method
-  static TestThread newInstance() => TestThread();
-
-  @override
-  // Running once in isolate or worker
-  Future<void> onExecute(Function(dynamic message) sendMessage) async {
-    TdNativePlugin.registerWith();
-    final tdlibPath = kIsWeb
-        ? null
-        : (Platform.isAndroid || Platform.isLinux || Platform.isWindows)
-            ? 'libtdjson.so'
-            : null;
-
-    await TdPlugin.initialize(tdlibPath);
-
-    //var x = _rawClient.td_json_client_create();
-    while (true) {
-      final s = TdPlugin.instance.tdReceive();
-      if (s != null) {
-        sendMessage(s);
-      }
-    }
-  }
-}
 
 class TdLibController extends EventEmitter<td_api.TdObject> {
   static final TdLibController _singleton = TdLibController._internal();
