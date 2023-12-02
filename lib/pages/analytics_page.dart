@@ -22,6 +22,7 @@ class _AppUsageStatsPageState extends State<AppUsageStatsPage> {
 
   @override
   Widget build(BuildContext context) {
+    var statsToDisplay = todayStats;
     return Scaffold(
       appBar: AppBar(
         title: const Text('App Usage Statistics'),
@@ -35,7 +36,7 @@ class _AppUsageStatsPageState extends State<AppUsageStatsPage> {
             _buildTimeRangeSelectionWidget(),
             const SizedBox(height: 16),
 
-            _buildStats(todayStats),
+            _buildStats(statsToDisplay),
 
             // Add widgets for date range stats and selecting preset range...
           ],

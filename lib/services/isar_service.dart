@@ -1,6 +1,7 @@
 import 'package:isar/isar.dart';
 import 'package:minimalistic_telegram/models/db/app_usage.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:tdlib/td_api.dart' as td_api;
 
 class IsarService {
   late Future<Isar> db;
@@ -13,7 +14,7 @@ class IsarService {
     if (Isar.instanceNames.isEmpty) {
       final dir = await getApplicationDocumentsDirectory();
       return await Isar.open(
-        [AppUsageSchema],
+        [AppUsageSchema, ActionEntitySchema],
         directory: dir.path,
         inspector: true,
       );
@@ -22,115 +23,61 @@ class IsarService {
     return Future.value(Isar.getInstance());
   }
 
-  // Future<List<AppUsage>> getAppUsagesForTimeRange(
-  //     DateTime from, DateTime to) async {
-  //   final isar = await db;
-  //   return await isar.appUsages.filter().timestampBetween(from, to).findAll();
-  // }
+  // Method to add a new app usage entry to the database
+  Future<void> addAppUsage(AppUsage appUsage) async {
+    final isar = await db;
+    await isar.writeTxn(() async {
+      await isar.appUsages.put(appUsage);
+    });
+  }
 
-  // Future<List<AppUsage>> getAppUsagesForDay(DateTime day) async {
-  //   final startOfDay = DateTime(day.year, day.month, day.day);
-  //   final endOfDay = startOfDay
-  //       .add(const Duration(days: 1))
-  //       .subtract(const Duration(milliseconds: 1));
-  //   return await getAppUsagesForTimeRange(startOfDay, endOfDay);
-  // }
+  Future<void> addChatOpened(td_api.Chat chat) async {
+    final isar = await db;
+    var actionEntity = await isar.actionEntitys
+        .where()
+        .filter()
+        .entityTypeEqualTo('Chat')
+        .and()
+        .entityIdEqualTo(chat.id)
+        .findFirst();
 
-  // Future<List<AppUsage>> getAppUsagesForActionType(String actionType) async {
-  //   final isar = await db;
-  //   return await isar.appUsages
-  //       .filter()
-  //       .actionTypeEqualTo(actionType)
-  //       .findAll();
-  // }
+    actionEntity ??= ActionEntity()
+      ..entityType = 'Chat'
+      ..entityId = chat.id;
 
-  // Future<int> getCountOfActionTypeForTimeRange(
-  //     String actionType, DateTime from, DateTime to) async {
-  //   final usages = await getAppUsagesForTimeRange(from, to);
-  //   return usages.where((usage) => usage.actionType == actionType).length;
-  // }
+    var appUsage = AppUsage()
+      ..timestamp = DateTime.now()
+      ..actionType = 'Open'
+      ..actionEntitity.value = actionEntity;
+    await isar.writeTxn(() async {
+      await isar.appUsages.put(appUsage);
+      await isar.actionEntitys.put(actionEntity!);
+      await appUsage.actionEntitity.save();
+    });
+  }
 
-  // Future<int> getCountOfActionTypeForDay(
-  //     String actionType, DateTime day) async {
-  //   final usages = await getAppUsagesForDay(day);
-  //   return usages.where((usage) => usage.actionType == actionType).length;
-  // }
+  Future<void> addChatClosed(td_api.Chat chat) async {
+    final isar = await db;
+    var actionEntity = await isar.actionEntitys
+        .where()
+        .filter()
+        .entityTypeEqualTo('Chat')
+        .and()
+        .entityIdEqualTo(chat.id)
+        .findFirst();
 
-  // Future<Duration> getTotalTimeSpentInChatsForTimeRange(
-  //     DateTime from, DateTime to) async {
-  //   final usages = await getAppUsagesForTimeRange(from, to);
-  //   final chatUsages = usages.where((usage) =>
-  //       usage.actionType == 'ChatOpened' || usage.actionType == 'ChatClosed');
+    actionEntity ??= ActionEntity()
+      ..entityType = 'Chat'
+      ..entityId = chat.id;
 
-  //   Duration totalTime = Duration.zero;
-
-  //   for (var i = 0; i < chatUsages.length - 1; i += 2) {
-  //     final chatOpenTime = chatUsages[i].timestamp;
-  //     final chatCloseTime = chatUsages[i + 1].timestamp;
-  //     totalTime += chatCloseTime.difference(chatOpenTime);
-  //   }
-
-  //   return totalTime;
-  // }
-
-  // Future<int> getNumberOfTimesChatsOpenedForTimeRange(
-  //     DateTime from, DateTime to) async {
-  //   return await getCountOfActionTypeForTimeRange('ChatOpened', from, to);
-  // }
-
-  // // Calculate the total time spent in channels
-  // Future<Duration> getTotalTimeSpentInChannelsForTimeRange(
-  //     DateTime from, DateTime to) async {
-  //   final usages = await getAppUsagesForTimeRange(from, to);
-  //   final channelUsages = usages.where((usage) =>
-  //       usage.actionType == 'ChannelOpened' ||
-  //       usage.actionType == 'ChannelClosed');
-
-  //   Duration totalTime = Duration.zero;
-
-  //   for (var i = 0; i < channelUsages.length - 1; i += 2) {
-  //     final channelOpenTime = channelUsages[i].timestamp;
-  //     final channelCloseTime = channelUsages[i + 1].timestamp;
-  //     totalTime += channelCloseTime.difference(channelOpenTime);
-  //   }
-
-  //   return totalTime;
-  // }
-
-  // // Calculate the total time spent in all chats
-  // Future<Duration> getTotalTimeSpentInAllChatsForTimeRange(
-  //     DateTime from, DateTime to) async {
-  //   final usages = await getAppUsagesForTimeRange(from, to);
-  //   final chatUsages = usages.where((usage) =>
-  //       usage.actionType == 'ChatOpened' || usage.actionType == 'ChatClosed');
-
-  //   Duration totalTime = Duration.zero;
-
-  //   for (var i = 0; i < chatUsages.length - 1; i += 2) {
-  //     final chatOpenTime = chatUsages[i].timestamp;
-  //     final chatCloseTime = chatUsages[i + 1].timestamp;
-  //     totalTime += chatCloseTime.difference(chatOpenTime);
-  //   }
-
-  //   return totalTime;
-  // }
-
-  // // Calculate the total time spent in all channels
-  // Future<Duration> getTotalTimeSpentInAllChannelsForTimeRange(
-  //     DateTime from, DateTime to) async {
-  //   final usages = await getAppUsagesForTimeRange(from, to);
-  //   final channelUsages = usages.where((usage) =>
-  //       usage.actionType == 'ChannelOpened' ||
-  //       usage.actionType == 'ChannelClosed');
-
-  //   Duration totalTime = Duration.zero;
-
-  //   for (var i = 0; i < channelUsages.length - 1; i += 2) {
-  //     final channelOpenTime = channelUsages[i].timestamp;
-  //     final channelCloseTime = channelUsages[i + 1].timestamp;
-  //     totalTime += channelCloseTime.difference(channelOpenTime);
-  //   }
-
-  //   return totalTime;
-  // }
+    var appUsage = AppUsage()
+      ..timestamp = DateTime.now()
+      ..actionType = 'Close'
+      ..actionEntitity.value = actionEntity;
+    await isar.writeTxn(() async {
+      await isar.appUsages.put(appUsage);
+      await isar.actionEntitys.put(actionEntity!);
+      await appUsage.actionEntitity.save();
+    });
+  }
 }

@@ -127,7 +127,7 @@ class MessageStore extends EventEmitter {
       td_api.UpdateMessageSendAcknowledged: _handlerNotImplemented,
       td_api.UpdateMessageSendFailed: _handlerNotImplemented,
       td_api.UpdateMessageSendSucceeded: _handleUpdateMessageSendSucceeded,
-      td_api.UpdateUnreadMessageCount: _handleUpdateMessageSendSucceeded,
+      td_api.UpdateUnreadMessageCount: _handleUpdateUnreadMessageCount,
       // Add more mappings here
     };
   }
@@ -143,6 +143,23 @@ class MessageStore extends EventEmitter {
     } else {
       // Handle unknown event type
     }
+  }
+
+  _handleUpdateUnreadMessageCount(td_api.UpdateUnreadMessageCount event) {
+    Print.yellow('_handleUpdateUnreadMessageCount');
+    // event.
+    // final chatId = event.chatId;
+    // var chat = items[chatId];
+    // chat ??= SplayTreeMap();
+    // if (chat.containsKey(event.lastReadInboxMessageId) &&
+    //     chat[event.lastReadInboxMessageId] is td_api.Message) {
+    //   var json = _makeCorrectMessageJson(
+    //       chat[event.lastReadInboxMessageId]!, event);
+
+    //   var newMessage = td_api.Message.fromJson(json);
+    //   _handleUpdateNewMessage(
+    //       td_api.UpdateNewMessage(message: newMessage, extra: event.extra));
+    // }
   }
 
   handleAuthorizationStateUpdate(td_api.UpdateAuthorizationState update) async {

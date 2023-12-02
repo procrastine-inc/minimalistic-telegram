@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:minimalistic_telegram/components/ChatAppBar/index.dart';
+import 'package:minimalistic_telegram/services/isar_service.dart';
 
 import 'package:minimalistic_telegram/stores/message_store.dart';
 import 'package:palestine_console/palestine_console.dart';
@@ -20,6 +21,8 @@ class _ChatBasePageState extends State<ChatBasePage> {
   @override
   void initState() {
     super.initState();
+    var dbservice = IsarService();
+    dbservice.addChatOpened(widget.chat);
     var messageStore = context.read<MessageStore>();
 
     final chatId = widget.chat.id;
@@ -29,6 +32,13 @@ class _ChatBasePageState extends State<ChatBasePage> {
         messagesList.length < 2) {
       messageStore.getMessagesList(chatId);
     }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    var dbservice = IsarService();
+    dbservice.addChatClosed(widget.chat);
   }
 
   @override

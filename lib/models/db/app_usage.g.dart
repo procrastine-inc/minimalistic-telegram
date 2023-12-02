@@ -35,11 +35,11 @@ const AppUsageSchema = CollectionSchema(
   idName: r'id',
   indexes: {},
   links: {
-    r'actionEntities': LinkSchema(
-      id: 2011254160442026966,
-      name: r'actionEntities',
+    r'actionEntitity': LinkSchema(
+      id: 6396312034690123562,
+      name: r'actionEntitity',
       target: r'ActionEntity',
-      single: false,
+      single: true,
     )
   },
   embeddedSchemas: {},
@@ -103,13 +103,13 @@ Id _appUsageGetId(AppUsage object) {
 }
 
 List<IsarLinkBase<dynamic>> _appUsageGetLinks(AppUsage object) {
-  return [object.actionEntities];
+  return [object.actionEntitity];
 }
 
 void _appUsageAttach(IsarCollection<dynamic> col, Id id, AppUsage object) {
   object.id = id;
-  object.actionEntities
-      .attach(col, col.isar.collection<ActionEntity>(), r'actionEntities', id);
+  object.actionEntitity
+      .attach(col, col.isar.collection<ActionEntity>(), r'actionEntitity', id);
 }
 
 extension AppUsageQueryWhereSort on QueryBuilder<AppUsage, AppUsage, QWhere> {
@@ -431,64 +431,17 @@ extension AppUsageQueryObject
 
 extension AppUsageQueryLinks
     on QueryBuilder<AppUsage, AppUsage, QFilterCondition> {
-  QueryBuilder<AppUsage, AppUsage, QAfterFilterCondition> actionEntities(
+  QueryBuilder<AppUsage, AppUsage, QAfterFilterCondition> actionEntitity(
       FilterQuery<ActionEntity> q) {
     return QueryBuilder.apply(this, (query) {
-      return query.link(q, r'actionEntities');
+      return query.link(q, r'actionEntitity');
     });
   }
 
   QueryBuilder<AppUsage, AppUsage, QAfterFilterCondition>
-      actionEntitiesLengthEqualTo(int length) {
+      actionEntitityIsNull() {
     return QueryBuilder.apply(this, (query) {
-      return query.linkLength(r'actionEntities', length, true, length, true);
-    });
-  }
-
-  QueryBuilder<AppUsage, AppUsage, QAfterFilterCondition>
-      actionEntitiesIsEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.linkLength(r'actionEntities', 0, true, 0, true);
-    });
-  }
-
-  QueryBuilder<AppUsage, AppUsage, QAfterFilterCondition>
-      actionEntitiesIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.linkLength(r'actionEntities', 0, false, 999999, true);
-    });
-  }
-
-  QueryBuilder<AppUsage, AppUsage, QAfterFilterCondition>
-      actionEntitiesLengthLessThan(
-    int length, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.linkLength(r'actionEntities', 0, true, length, include);
-    });
-  }
-
-  QueryBuilder<AppUsage, AppUsage, QAfterFilterCondition>
-      actionEntitiesLengthGreaterThan(
-    int length, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.linkLength(r'actionEntities', length, include, 999999, true);
-    });
-  }
-
-  QueryBuilder<AppUsage, AppUsage, QAfterFilterCondition>
-      actionEntitiesLengthBetween(
-    int lower,
-    int upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.linkLength(
-          r'actionEntities', lower, includeLower, upper, includeUpper);
+      return query.linkLength(r'actionEntitity', 0, true, 0, true);
     });
   }
 }
@@ -623,14 +576,7 @@ const ActionEntitySchema = CollectionSchema(
   deserializeProp: _actionEntityDeserializeProp,
   idName: r'id',
   indexes: {},
-  links: {
-    r'actionTypes': LinkSchema(
-      id: 7103977950125203289,
-      name: r'actionTypes',
-      target: r'ActionType',
-      single: false,
-    )
-  },
+  links: {},
   embeddedSchemas: {},
   getId: _actionEntityGetId,
   getLinks: _actionEntityGetLinks,
@@ -692,14 +638,12 @@ Id _actionEntityGetId(ActionEntity object) {
 }
 
 List<IsarLinkBase<dynamic>> _actionEntityGetLinks(ActionEntity object) {
-  return [object.actionTypes];
+  return [];
 }
 
 void _actionEntityAttach(
     IsarCollection<dynamic> col, Id id, ActionEntity object) {
   object.id = id;
-  object.actionTypes
-      .attach(col, col.isar.collection<ActionType>(), r'actionTypes', id);
 }
 
 extension ActionEntityQueryWhereSort
@@ -1033,68 +977,7 @@ extension ActionEntityQueryObject
     on QueryBuilder<ActionEntity, ActionEntity, QFilterCondition> {}
 
 extension ActionEntityQueryLinks
-    on QueryBuilder<ActionEntity, ActionEntity, QFilterCondition> {
-  QueryBuilder<ActionEntity, ActionEntity, QAfterFilterCondition> actionTypes(
-      FilterQuery<ActionType> q) {
-    return QueryBuilder.apply(this, (query) {
-      return query.link(q, r'actionTypes');
-    });
-  }
-
-  QueryBuilder<ActionEntity, ActionEntity, QAfterFilterCondition>
-      actionTypesLengthEqualTo(int length) {
-    return QueryBuilder.apply(this, (query) {
-      return query.linkLength(r'actionTypes', length, true, length, true);
-    });
-  }
-
-  QueryBuilder<ActionEntity, ActionEntity, QAfterFilterCondition>
-      actionTypesIsEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.linkLength(r'actionTypes', 0, true, 0, true);
-    });
-  }
-
-  QueryBuilder<ActionEntity, ActionEntity, QAfterFilterCondition>
-      actionTypesIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.linkLength(r'actionTypes', 0, false, 999999, true);
-    });
-  }
-
-  QueryBuilder<ActionEntity, ActionEntity, QAfterFilterCondition>
-      actionTypesLengthLessThan(
-    int length, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.linkLength(r'actionTypes', 0, true, length, include);
-    });
-  }
-
-  QueryBuilder<ActionEntity, ActionEntity, QAfterFilterCondition>
-      actionTypesLengthGreaterThan(
-    int length, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.linkLength(r'actionTypes', length, include, 999999, true);
-    });
-  }
-
-  QueryBuilder<ActionEntity, ActionEntity, QAfterFilterCondition>
-      actionTypesLengthBetween(
-    int lower,
-    int upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.linkLength(
-          r'actionTypes', lower, includeLower, upper, includeUpper);
-    });
-  }
-}
+    on QueryBuilder<ActionEntity, ActionEntity, QFilterCondition> {}
 
 extension ActionEntityQuerySortBy
     on QueryBuilder<ActionEntity, ActionEntity, QSortBy> {
@@ -1197,430 +1080,6 @@ extension ActionEntityQueryProperty
   QueryBuilder<ActionEntity, String, QQueryOperations> entityTypeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'entityType');
-    });
-  }
-}
-
-// coverage:ignore-file
-// ignore_for_file: duplicate_ignore, non_constant_identifier_names, constant_identifier_names, invalid_use_of_protected_member, unnecessary_cast, prefer_const_constructors, lines_longer_than_80_chars, require_trailing_commas, inference_failure_on_function_invocation, unnecessary_parenthesis, unnecessary_raw_strings, unnecessary_null_checks, join_return_with_assignment, prefer_final_locals, avoid_js_rounded_ints, avoid_positional_boolean_parameters, always_specify_types
-
-extension GetActionTypeCollection on Isar {
-  IsarCollection<ActionType> get actionTypes => this.collection();
-}
-
-const ActionTypeSchema = CollectionSchema(
-  name: r'ActionType',
-  id: 4904338462466248200,
-  properties: {
-    r'type': PropertySchema(
-      id: 0,
-      name: r'type',
-      type: IsarType.string,
-    )
-  },
-  estimateSize: _actionTypeEstimateSize,
-  serialize: _actionTypeSerialize,
-  deserialize: _actionTypeDeserialize,
-  deserializeProp: _actionTypeDeserializeProp,
-  idName: r'id',
-  indexes: {},
-  links: {},
-  embeddedSchemas: {},
-  getId: _actionTypeGetId,
-  getLinks: _actionTypeGetLinks,
-  attach: _actionTypeAttach,
-  version: '3.1.0+1',
-);
-
-int _actionTypeEstimateSize(
-  ActionType object,
-  List<int> offsets,
-  Map<Type, List<int>> allOffsets,
-) {
-  var bytesCount = offsets.last;
-  bytesCount += 3 + object.type.length * 3;
-  return bytesCount;
-}
-
-void _actionTypeSerialize(
-  ActionType object,
-  IsarWriter writer,
-  List<int> offsets,
-  Map<Type, List<int>> allOffsets,
-) {
-  writer.writeString(offsets[0], object.type);
-}
-
-ActionType _actionTypeDeserialize(
-  Id id,
-  IsarReader reader,
-  List<int> offsets,
-  Map<Type, List<int>> allOffsets,
-) {
-  final object = ActionType();
-  object.id = id;
-  object.type = reader.readString(offsets[0]);
-  return object;
-}
-
-P _actionTypeDeserializeProp<P>(
-  IsarReader reader,
-  int propertyId,
-  int offset,
-  Map<Type, List<int>> allOffsets,
-) {
-  switch (propertyId) {
-    case 0:
-      return (reader.readString(offset)) as P;
-    default:
-      throw IsarError('Unknown property with id $propertyId');
-  }
-}
-
-Id _actionTypeGetId(ActionType object) {
-  return object.id;
-}
-
-List<IsarLinkBase<dynamic>> _actionTypeGetLinks(ActionType object) {
-  return [];
-}
-
-void _actionTypeAttach(IsarCollection<dynamic> col, Id id, ActionType object) {
-  object.id = id;
-}
-
-extension ActionTypeQueryWhereSort
-    on QueryBuilder<ActionType, ActionType, QWhere> {
-  QueryBuilder<ActionType, ActionType, QAfterWhere> anyId() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(const IdWhereClause.any());
-    });
-  }
-}
-
-extension ActionTypeQueryWhere
-    on QueryBuilder<ActionType, ActionType, QWhereClause> {
-  QueryBuilder<ActionType, ActionType, QAfterWhereClause> idEqualTo(Id id) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IdWhereClause.between(
-        lower: id,
-        upper: id,
-      ));
-    });
-  }
-
-  QueryBuilder<ActionType, ActionType, QAfterWhereClause> idNotEqualTo(Id id) {
-    return QueryBuilder.apply(this, (query) {
-      if (query.whereSort == Sort.asc) {
-        return query
-            .addWhereClause(
-              IdWhereClause.lessThan(upper: id, includeUpper: false),
-            )
-            .addWhereClause(
-              IdWhereClause.greaterThan(lower: id, includeLower: false),
-            );
-      } else {
-        return query
-            .addWhereClause(
-              IdWhereClause.greaterThan(lower: id, includeLower: false),
-            )
-            .addWhereClause(
-              IdWhereClause.lessThan(upper: id, includeUpper: false),
-            );
-      }
-    });
-  }
-
-  QueryBuilder<ActionType, ActionType, QAfterWhereClause> idGreaterThan(Id id,
-      {bool include = false}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(
-        IdWhereClause.greaterThan(lower: id, includeLower: include),
-      );
-    });
-  }
-
-  QueryBuilder<ActionType, ActionType, QAfterWhereClause> idLessThan(Id id,
-      {bool include = false}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(
-        IdWhereClause.lessThan(upper: id, includeUpper: include),
-      );
-    });
-  }
-
-  QueryBuilder<ActionType, ActionType, QAfterWhereClause> idBetween(
-    Id lowerId,
-    Id upperId, {
-    bool includeLower = true,
-    bool includeUpper = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IdWhereClause.between(
-        lower: lowerId,
-        includeLower: includeLower,
-        upper: upperId,
-        includeUpper: includeUpper,
-      ));
-    });
-  }
-}
-
-extension ActionTypeQueryFilter
-    on QueryBuilder<ActionType, ActionType, QFilterCondition> {
-  QueryBuilder<ActionType, ActionType, QAfterFilterCondition> idEqualTo(
-      Id value) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'id',
-        value: value,
-      ));
-    });
-  }
-
-  QueryBuilder<ActionType, ActionType, QAfterFilterCondition> idGreaterThan(
-    Id value, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'id',
-        value: value,
-      ));
-    });
-  }
-
-  QueryBuilder<ActionType, ActionType, QAfterFilterCondition> idLessThan(
-    Id value, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'id',
-        value: value,
-      ));
-    });
-  }
-
-  QueryBuilder<ActionType, ActionType, QAfterFilterCondition> idBetween(
-    Id lower,
-    Id upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'id',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
-    });
-  }
-
-  QueryBuilder<ActionType, ActionType, QAfterFilterCondition> typeEqualTo(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'type',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<ActionType, ActionType, QAfterFilterCondition> typeGreaterThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'type',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<ActionType, ActionType, QAfterFilterCondition> typeLessThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'type',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<ActionType, ActionType, QAfterFilterCondition> typeBetween(
-    String lower,
-    String upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'type',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<ActionType, ActionType, QAfterFilterCondition> typeStartsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'type',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<ActionType, ActionType, QAfterFilterCondition> typeEndsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'type',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<ActionType, ActionType, QAfterFilterCondition> typeContains(
-      String value,
-      {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.contains(
-        property: r'type',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<ActionType, ActionType, QAfterFilterCondition> typeMatches(
-      String pattern,
-      {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.matches(
-        property: r'type',
-        wildcard: pattern,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<ActionType, ActionType, QAfterFilterCondition> typeIsEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'type',
-        value: '',
-      ));
-    });
-  }
-
-  QueryBuilder<ActionType, ActionType, QAfterFilterCondition> typeIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'type',
-        value: '',
-      ));
-    });
-  }
-}
-
-extension ActionTypeQueryObject
-    on QueryBuilder<ActionType, ActionType, QFilterCondition> {}
-
-extension ActionTypeQueryLinks
-    on QueryBuilder<ActionType, ActionType, QFilterCondition> {}
-
-extension ActionTypeQuerySortBy
-    on QueryBuilder<ActionType, ActionType, QSortBy> {
-  QueryBuilder<ActionType, ActionType, QAfterSortBy> sortByType() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'type', Sort.asc);
-    });
-  }
-
-  QueryBuilder<ActionType, ActionType, QAfterSortBy> sortByTypeDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'type', Sort.desc);
-    });
-  }
-}
-
-extension ActionTypeQuerySortThenBy
-    on QueryBuilder<ActionType, ActionType, QSortThenBy> {
-  QueryBuilder<ActionType, ActionType, QAfterSortBy> thenById() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'id', Sort.asc);
-    });
-  }
-
-  QueryBuilder<ActionType, ActionType, QAfterSortBy> thenByIdDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'id', Sort.desc);
-    });
-  }
-
-  QueryBuilder<ActionType, ActionType, QAfterSortBy> thenByType() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'type', Sort.asc);
-    });
-  }
-
-  QueryBuilder<ActionType, ActionType, QAfterSortBy> thenByTypeDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'type', Sort.desc);
-    });
-  }
-}
-
-extension ActionTypeQueryWhereDistinct
-    on QueryBuilder<ActionType, ActionType, QDistinct> {
-  QueryBuilder<ActionType, ActionType, QDistinct> distinctByType(
-      {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'type', caseSensitive: caseSensitive);
-    });
-  }
-}
-
-extension ActionTypeQueryProperty
-    on QueryBuilder<ActionType, ActionType, QQueryProperty> {
-  QueryBuilder<ActionType, int, QQueryOperations> idProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'id');
-    });
-  }
-
-  QueryBuilder<ActionType, String, QQueryOperations> typeProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'type');
     });
   }
 }
