@@ -22,7 +22,12 @@ class _ChatBasePageState extends State<ChatBasePage> {
   void initState() {
     super.initState();
     var dbservice = IsarService();
-    dbservice.addChatOpened(widget.chat);
+    if (widget.chat.type is td_api.ChatTypeSupergroup &&
+        (widget.chat.type as td_api.ChatTypeSupergroup).isChannel) {
+      dbservice.addChannelOpened(widget.chat);
+    } else {
+      dbservice.addChatOpened(widget.chat);
+    }
     var messageStore = context.read<MessageStore>();
 
     final chatId = widget.chat.id;
@@ -38,7 +43,12 @@ class _ChatBasePageState extends State<ChatBasePage> {
   void dispose() {
     super.dispose();
     var dbservice = IsarService();
-    dbservice.addChatClosed(widget.chat);
+    if (widget.chat.type is td_api.ChatTypeSupergroup &&
+        (widget.chat.type as td_api.ChatTypeSupergroup).isChannel) {
+      dbservice.addChannelClosed(widget.chat);
+    } else {
+      dbservice.addChatClosed(widget.chat);
+    }
   }
 
   @override

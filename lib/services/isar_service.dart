@@ -23,61 +23,134 @@ class IsarService {
     return Future.value(Isar.getInstance());
   }
 
-  // Method to add a new app usage entry to the database
-  Future<void> addAppUsage(AppUsage appUsage) async {
+  Future<void> addEventForEntity(
+    String entityType,
+    int entityId,
+    String actionType,
+  ) async {
     final isar = await db;
+    var actionEntity = await isar.actionEntitys
+        .where()
+        .filter()
+        .entityTypeEqualTo(entityType)
+        .and()
+        .entityIdEqualTo(entityId)
+        .findFirst();
+
+    actionEntity ??= ActionEntity()
+      ..entityType = entityType
+      ..entityId = entityId;
+
+    var appUsage = AppUsage()
+      ..timestamp = DateTime.now()
+      ..actionType = actionType
+      ..actionEntitity.value = actionEntity;
+
     await isar.writeTxn(() async {
       await isar.appUsages.put(appUsage);
+      await isar.actionEntitys.put(actionEntity!);
+      await appUsage.actionEntitity.save();
     });
+  }
+
+  Future<int> getEventsNumberToday(
+    String entityType,
+    String actionType,
+  ) async {
+    final isar = await db;
+    final now = DateTime.now();
+    final todayStart = DateTime(now.year, now.month, now.day);
+    final todayEnd = DateTime(now.year, now.month, now.day, 23, 59, 59);
+
+    return await isar.appUsages
+        .where()
+        .filter()
+        .timestampBetween(todayStart, todayEnd)
+        .and()
+        .actionTypeEqualTo(actionType)
+        .and()
+        .actionTypeEqualTo(entityType)
+        .count();
+  }
+
+  Future<Duration> getTotalTimeToday(
+    String entityType,
+    String openActionType,
+    String closeActionType,
+  ) async {
+    final isar = await db;
+    final now = DateTime.now();
+    final todayStart = DateTime(now.year, now.month, now.day);
+    final todayEnd = DateTime(now.year, now.month, now.day, 23, 59, 59);
+
+    final openEvents = await isar.appUsages
+        .where()
+        .filter()
+        .timestampBetween(todayStart, todayEnd)
+        .and()
+        .actionTypeEqualTo(openActionType)
+        .and()
+        .actionTypeEqualTo(entityType)
+        .findAll();
+
+    final closeEvents = await isar.appUsages
+        .where()
+        .filter()
+        .timestampBetween(todayStart, todayEnd)
+        .and()
+        .actionTypeEqualTo(closeActionType)
+        .and()
+        .actionTypeEqualTo(entityType)
+        .findAll();
+
+    if (openEvents.length != closeEvents.length) {
+      if (openEvents.length > closeEvents.length) {
+        openEvents.removeRange(closeEvents.length, openEvents.length);
+      } else {
+        closeEvents.removeRange(openEvents.length, closeEvents.length);
+      }
+    }
+
+    var zipEvents = openEvents.asMap().entries.map((entry) {
+      return [entry.value, closeEvents[entry.key]];
+    });
+    var timeRanges = zipEvents.map((eventPair) {
+      return eventPair[1].timestamp.difference(eventPair[0].timestamp);
+    });
+
+    var sum = timeRanges.fold(
+      const Duration(),
+      (previousValue, element) => previousValue + element,
+    );
+
+    return sum;
   }
 
   Future<void> addChatOpened(td_api.Chat chat) async {
-    final isar = await db;
-    var actionEntity = await isar.actionEntitys
-        .where()
-        .filter()
-        .entityTypeEqualTo('Chat')
-        .and()
-        .entityIdEqualTo(chat.id)
-        .findFirst();
-
-    actionEntity ??= ActionEntity()
-      ..entityType = 'Chat'
-      ..entityId = chat.id;
-
-    var appUsage = AppUsage()
-      ..timestamp = DateTime.now()
-      ..actionType = 'Open'
-      ..actionEntitity.value = actionEntity;
-    await isar.writeTxn(() async {
-      await isar.appUsages.put(appUsage);
-      await isar.actionEntitys.put(actionEntity!);
-      await appUsage.actionEntitity.save();
-    });
+    await addEventForEntity('Chat', chat.id, 'Open');
   }
 
   Future<void> addChatClosed(td_api.Chat chat) async {
-    final isar = await db;
-    var actionEntity = await isar.actionEntitys
-        .where()
-        .filter()
-        .entityTypeEqualTo('Chat')
-        .and()
-        .entityIdEqualTo(chat.id)
-        .findFirst();
+    await addEventForEntity('Chat', chat.id, 'Close');
+  }
 
-    actionEntity ??= ActionEntity()
-      ..entityType = 'Chat'
-      ..entityId = chat.id;
+  Future<void> addChannelOpened(td_api.Chat chat) async {
+    await addEventForEntity('Channel', chat.id, 'Open');
+  }
 
-    var appUsage = AppUsage()
-      ..timestamp = DateTime.now()
-      ..actionType = 'Close'
-      ..actionEntitity.value = actionEntity;
-    await isar.writeTxn(() async {
-      await isar.appUsages.put(appUsage);
-      await isar.actionEntitys.put(actionEntity!);
-      await appUsage.actionEntitity.save();
-    });
+  Future<void> addChannelClosed(td_api.Chat chat) async {
+    await addEventForEntity('Channel', chat.id, 'Close');
+  }
+
+  Future<int> getChatOpenEventsNumberToday() async {
+    return await getEventsNumberToday('Chat', 'Open');
+  }
+
+  Future<int> getChatCloseEventsNumberToday() async {
+    return await getEventsNumberToday('Chat', 'Close');
+  }
+
+  Future<Duration> getChatTotalTimeOpenedToday() async {
+    return await getTotalTimeToday('Chat', 'Open', 'Close');
   }
 }
