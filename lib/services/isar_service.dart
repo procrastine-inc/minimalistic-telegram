@@ -147,6 +147,10 @@ class IsarService {
     return await getEventsNumberToday('Chat', 'Open');
   }
 
+  Future<int> getChannelOpenEventsNumberToday() async {
+    return await getEventsNumberToday('Channel', 'Open');
+  }
+
   Future<int> getChatCloseEventsNumberToday() async {
     return await getEventsNumberToday('Chat', 'Close');
   }

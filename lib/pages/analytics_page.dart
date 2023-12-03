@@ -32,9 +32,10 @@ class _AppUsageStatsPageState extends State<AppUsageStatsPage> {
     var dbservice = IsarService();
     var chatOpens = await dbservice.getChatOpenEventsNumberToday();
     var chatTotalTime = await dbservice.getChatTotalTimeOpenedToday();
+    var channelOpens = await dbservice.getChannelOpenEventsNumberToday();
     var todayStats = AppUsageStats(
         chatOpens: chatOpens,
-        channelOpens: 0,
+        channelOpens: channelOpens,
         contactsOpens: 0,
         totalTimeSpentInChats: chatTotalTime,
         totalTimeSpentInChannels: Duration(),
