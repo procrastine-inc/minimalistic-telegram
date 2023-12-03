@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:minimalistic_telegram/mock/usage_stats.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:minimalistic_telegram/services/isar_service.dart';
 
 class AppUsageStatsPage extends StatefulWidget {
   const AppUsageStatsPage({super.key});
@@ -10,6 +11,7 @@ class AppUsageStatsPage extends StatefulWidget {
 }
 
 class _AppUsageStatsPageState extends State<AppUsageStatsPage> {
+  AppUsageStats? statsToDisplay;
   DateTimeRange _selectedDateRange = DateTimeRange(
     start: DateTime.now(),
     end: DateTime.now(),
@@ -21,8 +23,30 @@ class _AppUsageStatsPageState extends State<AppUsageStatsPage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    initStats();
+  }
+
+  initStats() async {
+    var dbservice = IsarService();
+    var chatOpens = await dbservice.getChatOpenEventsNumberToday();
+    var chatTotalTime = await dbservice.getChatTotalTimeOpenedToday();
+    var todayStats = AppUsageStats(
+        chatOpens: chatOpens,
+        channelOpens: 0,
+        contactsOpens: 0,
+        totalTimeSpentInChats: chatTotalTime,
+        totalTimeSpentInChannels: Duration(),
+        topChats: [],
+        topChannels: []);
+    setState(() {
+      statsToDisplay = todayStats;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    var statsToDisplay = todayStats;
     return Scaffold(
       appBar: AppBar(
         title: const Text('App Usage Statistics'),
@@ -36,7 +60,11 @@ class _AppUsageStatsPageState extends State<AppUsageStatsPage> {
             _buildTimeRangeSelectionWidget(),
             const SizedBox(height: 16),
 
-            _buildStats(statsToDisplay),
+            statsToDisplay == null
+                ? const CircularProgressIndicator(
+                    semanticsLabel: 'Linear progress indicator',
+                  )
+                : _buildStats(statsToDisplay!),
 
             // Add widgets for date range stats and selecting preset range...
           ],

@@ -69,7 +69,7 @@ class IsarService {
         .and()
         .actionTypeEqualTo(actionType)
         .and()
-        .actionTypeEqualTo(entityType)
+        .actionEntitity((q) => q.entityTypeEqualTo(entityType))
         .count();
   }
 
@@ -90,7 +90,7 @@ class IsarService {
         .and()
         .actionTypeEqualTo(openActionType)
         .and()
-        .actionTypeEqualTo(entityType)
+        .actionEntitity((q) => q.entityTypeEqualTo(entityType))
         .findAll();
 
     final closeEvents = await isar.appUsages
@@ -100,7 +100,7 @@ class IsarService {
         .and()
         .actionTypeEqualTo(closeActionType)
         .and()
-        .actionTypeEqualTo(entityType)
+        .actionEntitity((q) => q.entityTypeEqualTo(entityType))
         .findAll();
 
     if (openEvents.length != closeEvents.length) {
@@ -111,9 +111,10 @@ class IsarService {
       }
     }
 
-    var zipEvents = openEvents.asMap().entries.map((entry) {
-      return [entry.value, closeEvents[entry.key]];
+    var zipEvents = List.generate(openEvents.length, (index) {
+      return [openEvents[index], closeEvents[index]];
     });
+
     var timeRanges = zipEvents.map((eventPair) {
       return eventPair[1].timestamp.difference(eventPair[0].timestamp);
     });
