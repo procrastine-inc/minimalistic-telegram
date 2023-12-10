@@ -53,19 +53,18 @@ class IsarService {
     });
   }
 
-  Future<int> getEventsNumberToday(
+  Future<int> getEventsNumberPerTimeframe(
     String entityType,
     String actionType,
+    DateTime start,
+    DateTime end,
   ) async {
     final isar = await db;
-    final now = DateTime.now();
-    final todayStart = DateTime(now.year, now.month, now.day);
-    final todayEnd = DateTime(now.year, now.month, now.day, 23, 59, 59);
 
     return await isar.appUsages
         .where()
         .filter()
-        .timestampBetween(todayStart, todayEnd)
+        .timestampBetween(start, end)
         .and()
         .actionTypeEqualTo(actionType)
         .and()
@@ -73,20 +72,55 @@ class IsarService {
         .count();
   }
 
-  Future<Duration> getTotalTimeToday(
+  Future<int> getEventsNumberToday(
     String entityType,
-    String openActionType,
-    String closeActionType,
+    String actionType,
   ) async {
-    final isar = await db;
     final now = DateTime.now();
     final todayStart = DateTime(now.year, now.month, now.day);
     final todayEnd = DateTime(now.year, now.month, now.day, 23, 59, 59);
 
+    return getEventsNumberPerTimeframe(
+        entityType, actionType, todayStart, todayEnd);
+  }
+
+  Future<int> getEventsNumberThisWeek(
+    String entityType,
+    String actionType,
+  ) async {
+    final now = DateTime.now();
+    final weekStart = DateTime(now.year, now.month, now.day - now.weekday + 1);
+    final weekEnd = DateTime(now.year, now.month, now.day, 23, 59, 59);
+
+    return getEventsNumberPerTimeframe(
+        entityType, actionType, weekStart, weekEnd);
+  }
+
+  Future<int> getEventsNumberThisMonth(
+    String entityType,
+    String actionType,
+  ) async {
+    final now = DateTime.now();
+    final monthStart = DateTime(now.year, now.month, 1);
+    final monthEnd = DateTime(now.year, now.month, now.day, 23, 59, 59);
+
+    return getEventsNumberPerTimeframe(
+        entityType, actionType, monthStart, monthEnd);
+  }
+
+  Future<Duration> getTotalTimePerTimeframe(
+    String entityType,
+    String openActionType,
+    String closeActionType,
+    DateTime start,
+    DateTime end,
+  ) async {
+    final isar = await db;
+
     final openEvents = await isar.appUsages
         .where()
         .filter()
-        .timestampBetween(todayStart, todayEnd)
+        .timestampBetween(start, end)
         .and()
         .actionTypeEqualTo(openActionType)
         .and()
@@ -96,7 +130,7 @@ class IsarService {
     final closeEvents = await isar.appUsages
         .where()
         .filter()
-        .timestampBetween(todayStart, todayEnd)
+        .timestampBetween(start, end)
         .and()
         .actionTypeEqualTo(closeActionType)
         .and()
@@ -125,6 +159,19 @@ class IsarService {
     );
 
     return sum;
+  }
+
+  Future<Duration> getTotalTimeToday(
+    String entityType,
+    String openActionType,
+    String closeActionType,
+  ) async {
+    final now = DateTime.now();
+    final todayStart = DateTime(now.year, now.month, now.day);
+    final todayEnd = DateTime(now.year, now.month, now.day, 23, 59, 59);
+
+    return getTotalTimePerTimeframe(
+        entityType, openActionType, closeActionType, todayStart, todayEnd);
   }
 
   Future<void> addChatOpened(td_api.Chat chat) async {
@@ -157,5 +204,68 @@ class IsarService {
 
   Future<Duration> getChatTotalTimeOpenedToday() async {
     return await getTotalTimeToday('Chat', 'Open', 'Close');
+  }
+
+  Future<Duration> getChannelTotalTimeOpenedToday() async {
+    return await getTotalTimeToday('Channel', 'Open', 'Close');
+  }
+
+  Future<int> getChatOpenEventsNumberThisWeek() async {
+    return await getEventsNumberThisWeek('Chat', 'Open');
+  }
+
+  Future<int> getChannelOpenEventsNumberThisWeek() async {
+    return await getEventsNumberThisWeek('Channel', 'Open');
+  }
+
+  Future<Duration> getChatTotalTimeOpenedThisWeek() async {
+    return await getTotalTimeToday('Chat', 'Open', 'Close');
+  }
+
+  Future<Duration> getChannelTotalTimeOpenedThisWeek() async {
+    return await getTotalTimeToday('Channel', 'Open', 'Close');
+  }
+
+  Future<int> getChatOpenEventsNumberThisMonth() async {
+    return await getEventsNumberThisMonth('Chat', 'Open');
+  }
+
+  Future<int> getChannelOpenEventsNumberThisMonth() async {
+    return await getEventsNumberThisMonth('Channel', 'Open');
+  }
+
+  Future<Map<int, int>> getTopChatsToday() async {
+    final isar = await db;
+    final now = DateTime.now();
+    final todayStart = DateTime(now.year, now.month, now.day);
+    final todayEnd = DateTime(now.year, now.month, now.day, 23, 59, 59);
+    // get list of chats that were opened today and count how much times they were opened
+    var chats = await isar.appUsages
+        .where(sort: Sort.desc)
+        .filter()
+        .timestampBetween(
+          todayStart,
+          todayEnd,
+        )
+        .and()
+        .actionTypeEqualTo('Open')
+        .and()
+        .actionEntitity((q) => q.entityTypeEqualTo('Chat'))
+        .findAll();
+
+    var chatIdsWithUsages = chats.fold<Map<int, int>>({}, (acc, element) {
+      var chatId = element.actionEntitity.value?.entityId;
+      if (chatId == null) {
+        return acc;
+      }
+
+      if (acc[chatId] != null) {
+        acc[chatId] = acc[chatId]! + 1;
+      } else {
+        return acc..[chatId] = 1;
+      }
+      return {};
+    });
+    return chatIdsWithUsages;
   }
 }

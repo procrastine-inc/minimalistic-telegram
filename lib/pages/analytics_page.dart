@@ -33,13 +33,27 @@ class _AppUsageStatsPageState extends State<AppUsageStatsPage> {
     var chatOpens = await dbservice.getChatOpenEventsNumberToday();
     var chatTotalTime = await dbservice.getChatTotalTimeOpenedToday();
     var channelOpens = await dbservice.getChannelOpenEventsNumberToday();
+    var channelTotalTime = await dbservice.getChannelTotalTimeOpenedToday();
+    var topChats = await dbservice.getTopChatsToday();
+
+    var topChatsToRender = topChats.entries.map((entry) {
+      var chatId = entry.key, chatOpenCount = entry.value;
+      var topChat = TopUsageStats(
+        entityName: chatId.toString(),
+        entityId: chatId,
+        usageTime: const Duration(),
+        usageCount: chatOpenCount,
+      );
+      return topChat;
+    }).toList();
+
     var todayStats = AppUsageStats(
         chatOpens: chatOpens,
         channelOpens: channelOpens,
         contactsOpens: 0,
         totalTimeSpentInChats: chatTotalTime,
-        totalTimeSpentInChannels: Duration(),
-        topChats: [],
+        totalTimeSpentInChannels: channelTotalTime,
+        topChats: topChatsToRender,
         topChannels: []);
     setState(() {
       statsToDisplay = todayStats;

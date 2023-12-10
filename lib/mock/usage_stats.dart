@@ -22,11 +22,13 @@ class TopUsageStats {
   final String entityName;
   final Duration usageTime;
   final int usageCount;
+  final int entityId;
 
   TopUsageStats({
     required this.entityName,
     required this.usageTime,
     required this.usageCount,
+    required this.entityId,
   });
 }
 
@@ -77,22 +79,26 @@ final todayStats = AppUsageStats(
     TopUsageStats(
         entityName: "Chat 1",
         usageTime: const Duration(hours: 1),
-        usageCount: 10),
+        usageCount: 10,
+        entityId: 1),
     TopUsageStats(
         entityName: "Chat 2",
         usageTime: const Duration(minutes: 45),
-        usageCount: 8),
+        usageCount: 8,
+        entityId: 2),
     // Add more top chat usage stats...
   ],
   topChannels: [
     TopUsageStats(
         entityName: "Channel 1",
         usageTime: const Duration(hours: 1, minutes: 15),
-        usageCount: 5),
+        usageCount: 5,
+        entityId: 1),
     TopUsageStats(
         entityName: "Channel 2",
         usageTime: const Duration(minutes: 30),
-        usageCount: 3),
+        usageCount: 3,
+        entityId: 2),
     // Add more top channel usage stats...
   ],
 );
