@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:minimalistic_telegram/components/ChatAvatar/index.dart';
+import 'package:minimalistic_telegram/components/ChatBlock/chat_top_row.dart';
 import 'package:minimalistic_telegram/mock/usage_stats.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:minimalistic_telegram/services/isar_service.dart';
+import 'package:minimalistic_telegram/stores/chat_store.dart';
+import 'package:palestine_console/palestine_console.dart';
+import 'package:provider/provider.dart';
 
 class AppUsageStatsPage extends StatefulWidget {
   const AppUsageStatsPage({super.key});
@@ -257,12 +262,10 @@ class _AppUsageStatsPageState extends State<AppUsageStatsPage> {
         ),
         Column(
           children: statsList.map((stats) {
-            return ListTile(
-              title: Text(stats.entityName),
-              subtitle: Text(
-                  'Usage Time: ${stats.usageTime.toString()} | Usage Count: ${stats.usageCount}'),
-              // Add onTap functionality to navigate to the subpage with detailed stats...
-            );
+            return TopChannelTile(
+                id: stats.entityId,
+                usageTime: stats.usageTime,
+                usageCount: stats.usageCount);
           }).toList(),
         ),
         const SizedBox(height: 10),
@@ -278,6 +281,36 @@ class _AppUsageStatsPageState extends State<AppUsageStatsPage> {
         ),
         const Divider(),
       ],
+    );
+  }
+}
+
+class TopChannelTile extends StatelessWidget {
+  final int id;
+  final Duration usageTime;
+  final int usageCount;
+  const TopChannelTile({
+    super.key,
+    required this.id,
+    required this.usageTime,
+    required this.usageCount,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    var chatStore = context.read<ChatStore>();
+
+    var chat = chatStore.items[id];
+    if (chat == null) {
+      return const SizedBox.shrink();
+    }
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 0),
+      leading: ChatAvatar(photo: chat.photo),
+      title: ChatTitle(title: chat.title),
+      subtitle: Text(
+          'Usage Time: ${usageTime.toString()} | Usage Count: ${usageCount}'),
+      // Add onTap functionality to navigate to the subpage with detailed stats...
     );
   }
 }

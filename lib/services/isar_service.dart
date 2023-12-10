@@ -261,10 +261,10 @@ class IsarService {
 
       if (acc[chatId] != null) {
         acc[chatId] = acc[chatId]! + 1;
+        return acc;
       } else {
         return acc..[chatId] = 1;
       }
-      return {};
     });
     return chatIdsWithUsages;
   }
