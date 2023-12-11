@@ -235,16 +235,15 @@ class IsarService {
     return await getEventsNumberThisMonth('Channel', 'Open');
   }
 
-  Future<Map<int, Map<String, dynamic>>> getTopChatsToday({int? limit}) async {
+  Future<Map<int, Map<String, dynamic>>> getTopChatsPerTimeFrame(
+      DateTime start, DateTime end,
+      {int? limit}) async {
     final isar = await db;
-    final now = DateTime.now();
-    final todayStart = DateTime(now.year, now.month, now.day);
-    final todayEnd = DateTime(now.year, now.month, now.day, 23, 59, 59);
 
     var chatActions = await isar.appUsages
         .where()
         .filter()
-        .timestampBetween(todayStart, todayEnd)
+        .timestampBetween(start, end)
         .and()
         .group(
             (q) => q.actionTypeEqualTo('Open').or().actionTypeEqualTo('Close'))
@@ -291,5 +290,115 @@ class IsarService {
         limit == null ? sortedChatStats : sortedChatStats.take(limit);
 
     return Map.fromEntries(limitedChatStats);
+  }
+
+  Future<Map<int, Map<String, dynamic>>> getTopChannelsPerTimeFrame(
+      DateTime start, DateTime end,
+      {int? limit}) async {
+    final isar = await db;
+
+    var channelActions = await isar.appUsages
+        .where()
+        .filter()
+        .timestampBetween(start, end)
+        .and()
+        .group(
+            (q) => q.actionTypeEqualTo('Open').or().actionTypeEqualTo('Close'))
+        .and()
+        .actionEntitity((q) => q.entityTypeEqualTo('Channel'))
+        .findAll();
+
+    var channelStats = <int, Map<String, dynamic>>{};
+
+    // Group channel actions by channel ID
+    var perChannelMap = groupBy(
+        channelActions, (element) => element.actionEntitity.value!.entityId);
+
+    // Iterate through channel actions and calculate duration
+    perChannelMap.forEach((channelId, actions) {
+      Duration totalDuration = Duration.zero;
+      int usages = 0;
+
+      for (int i = 0; i < actions.length - 1; i++) {
+        var currentAction = actions[i];
+        var nextAction = actions[i + 1];
+
+        if (currentAction.actionType == 'Open' &&
+            nextAction.actionType == 'Close') {
+          totalDuration +=
+              nextAction.timestamp.difference(currentAction.timestamp);
+          usages++;
+          i++; // Skip to the next open-close pair
+        } else {
+          throw Exception('Invalid action types');
+        }
+      }
+
+      channelStats[channelId] = {
+        'duration': totalDuration,
+        'usages': usages,
+      };
+    });
+
+    var sortedChannelStats = channelStats.entries
+        .sorted((a, b) => b.value['duration'].compareTo(a.value['duration']));
+
+    var limitedChannelStats =
+        limit == null ? sortedChannelStats : sortedChannelStats.take(limit);
+
+    return Map.fromEntries(limitedChannelStats);
+  }
+
+  Future<Map<int, Map<String, dynamic>>> getTopChatsToday({int? limit}) async {
+    return await getTopChatsPerTimeFrame(
+      DateTime.now(),
+      DateTime.now().add(const Duration(days: 1)),
+      limit: limit,
+    );
+  }
+
+  Future<Map<int, Map<String, dynamic>>> getTopChatsThisWeek(
+      {int? limit}) async {
+    return await getTopChatsPerTimeFrame(
+      DateTime.now(),
+      DateTime.now().add(const Duration(days: 7)),
+      limit: limit,
+    );
+  }
+
+  Future<Map<int, Map<String, dynamic>>> getTopChatsThisMonth(
+      {int? limit}) async {
+    return await getTopChatsPerTimeFrame(
+      DateTime.now(),
+      DateTime.now().add(const Duration(days: 30)),
+      limit: limit,
+    );
+  }
+
+  Future<Map<int, Map<String, dynamic>>> getTopChannelsToday(
+      {int? limit}) async {
+    return await getTopChannelsPerTimeFrame(
+      DateTime.now(),
+      DateTime.now().add(const Duration(days: 1)),
+      limit: limit,
+    );
+  }
+
+  Future<Map<int, Map<String, dynamic>>> getTopChannelsThisWeek(
+      {int? limit}) async {
+    return await getTopChannelsPerTimeFrame(
+      DateTime.now(),
+      DateTime.now().add(const Duration(days: 7)),
+      limit: limit,
+    );
+  }
+
+  Future<Map<int, Map<String, dynamic>>> getTopChannelsThisMonth(
+      {int? limit}) async {
+    return await getTopChannelsPerTimeFrame(
+      DateTime.now(),
+      DateTime.now().add(const Duration(days: 30)),
+      limit: limit,
+    );
   }
 }
