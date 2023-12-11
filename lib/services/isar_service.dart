@@ -2,6 +2,7 @@ import 'package:isar/isar.dart';
 import 'package:minimalistic_telegram/models/db/app_usage.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:tdlib/td_api.dart' as td_api;
+import "package:collection/collection.dart";
 
 class IsarService {
   late Future<Isar> db;
@@ -234,38 +235,61 @@ class IsarService {
     return await getEventsNumberThisMonth('Channel', 'Open');
   }
 
-  Future<Map<int, int>> getTopChatsToday() async {
+  Future<Map<int, Map<String, dynamic>>> getTopChatsToday({int? limit}) async {
     final isar = await db;
     final now = DateTime.now();
     final todayStart = DateTime(now.year, now.month, now.day);
     final todayEnd = DateTime(now.year, now.month, now.day, 23, 59, 59);
-    // get list of chats that were opened today and count how much times they were opened
-    var chats = await isar.appUsages
-        .where(sort: Sort.desc)
+
+    var chatActions = await isar.appUsages
+        .where()
         .filter()
-        .timestampBetween(
-          todayStart,
-          todayEnd,
-        )
+        .timestampBetween(todayStart, todayEnd)
         .and()
-        .actionTypeEqualTo('Open')
+        .group(
+            (q) => q.actionTypeEqualTo('Open').or().actionTypeEqualTo('Close'))
         .and()
         .actionEntitity((q) => q.entityTypeEqualTo('Chat'))
         .findAll();
 
-    var chatIdsWithUsages = chats.fold<Map<int, int>>({}, (acc, element) {
-      var chatId = element.actionEntitity.value?.entityId;
-      if (chatId == null) {
-        return acc;
+    var chatStats = <int, Map<String, dynamic>>{};
+
+    // Group chat actions by chat ID
+    var perChatMap = groupBy(
+        chatActions, (element) => element.actionEntitity.value!.entityId);
+
+    // Iterate through chat actions and calculate duration
+    perChatMap.forEach((chatId, actions) {
+      Duration totalDuration = Duration.zero;
+      int usages = 0;
+
+      for (int i = 0; i < actions.length - 1; i++) {
+        var currentAction = actions[i];
+        var nextAction = actions[i + 1];
+
+        if (currentAction.actionType == 'Open' &&
+            nextAction.actionType == 'Close') {
+          totalDuration +=
+              nextAction.timestamp.difference(currentAction.timestamp);
+          usages++;
+          i++; // Skip to the next open-close pair
+        } else {
+          throw Exception('Invalid action types');
+        }
       }
 
-      if (acc[chatId] != null) {
-        acc[chatId] = acc[chatId]! + 1;
-        return acc;
-      } else {
-        return acc..[chatId] = 1;
-      }
+      chatStats[chatId] = {
+        'duration': totalDuration,
+        'usages': usages,
+      };
     });
-    return chatIdsWithUsages;
+
+    var sortedChatStats = chatStats.entries
+        .sorted((a, b) => b.value['duration'].compareTo(a.value['duration']));
+
+    var limitedChatStats =
+        limit == null ? sortedChatStats : sortedChatStats.take(limit);
+
+    return Map.fromEntries(limitedChatStats);
   }
 }
