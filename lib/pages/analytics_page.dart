@@ -17,6 +17,7 @@ class AppUsageStatsPage extends StatefulWidget {
 
 class _AppUsageStatsPageState extends State<AppUsageStatsPage> {
   AppUsageStats? statsToDisplay;
+  bool _isLoading = false;
   DateTimeRange _selectedDateRange = DateTimeRange(
     start: DateTime.now(),
     end: DateTime.now(),
@@ -33,13 +34,34 @@ class _AppUsageStatsPageState extends State<AppUsageStatsPage> {
     initStats();
   }
 
-  initStats() async {
+  void _updateStatsForSelectedRange(DateTimeRange selectedDateRange) async {
+    setState(() {
+      _isLoading = true; // Set loading to true before fetching/updating stats
+    });
+
     var dbservice = IsarService();
-    var chatOpens = await dbservice.getChatOpenEventsNumberToday();
-    var chatTotalTime = await dbservice.getChatTotalTimeOpenedToday();
-    var channelOpens = await dbservice.getChannelOpenEventsNumberToday();
-    var channelTotalTime = await dbservice.getChannelTotalTimeOpenedToday();
-    var topChats = await dbservice.getTopChatsToday(limit: 5);
+    // Example: Re-fetch statistics based on the selected date range
+    // Replace these methods with appropriate IsarService methods to fetch stats
+
+    // Simulating an asynchronous delay (replace this with your actual fetch calls)
+    // Example: Re-fetch statistics based on the selected date range
+    // Replace these methods with appropriate IsarService methods to fetch stats
+    var chatOpens = await dbservice.getChatOpenEventsNumberPerTimeframe(
+        selectedDateRange.start, selectedDateRange.end);
+    var chatTotalTime = await dbservice.getChatTotalTimeOpenedPerTimeframe(
+        selectedDateRange.start, selectedDateRange.end);
+    var channelOpens = await dbservice.getChannelOpenEventsNumberPerTimeframe(
+        selectedDateRange.start, selectedDateRange.end);
+    var channelTotalTime =
+        await dbservice.getChannelTotalTimeOpenedPerTimeframe(
+            selectedDateRange.start, selectedDateRange.end);
+    var topChats = await dbservice.getTopChatsPerTimeFrame(
+        selectedDateRange.start, selectedDateRange.end,
+        limit: 5);
+
+    var topChannels = await dbservice.getTopChannelsPerTimeFrame(
+        selectedDateRange.start, selectedDateRange.end,
+        limit: 5);
 
     var topChatsToRender = topChats.entries.map((entry) {
       var chatId = entry.key,
@@ -54,17 +76,39 @@ class _AppUsageStatsPageState extends State<AppUsageStatsPage> {
       return topChat;
     }).toList();
 
-    var todayStats = AppUsageStats(
+    var topChannelsToRender = topChannels.entries.map((entry) {
+      var channelId = entry.key,
+          channelOpenCount = entry.value['usages'],
+          usageTime = entry.value['duration'];
+      var topChannel = TopUsageStats(
+        entityName: channelId.toString(),
+        entityId: channelId,
+        usageTime: usageTime,
+        usageCount: channelOpenCount,
+      );
+      return topChannel;
+    }).toList();
+
+    var statsToDisplay = AppUsageStats(
         chatOpens: chatOpens,
         channelOpens: channelOpens,
         contactsOpens: 0,
         totalTimeSpentInChats: chatTotalTime,
         totalTimeSpentInChannels: channelTotalTime,
         topChats: topChatsToRender,
-        topChannels: []);
+        topChannels: topChannelsToRender);
+
+    // Set the state with the fetched stats or updated data
     setState(() {
-      statsToDisplay = todayStats;
+      // Update your statsToDisplay or any other variables here
+      // For example:
+      this.statsToDisplay = statsToDisplay;
+      _isLoading = false; // Set loading to false after stats are updated
     });
+  }
+
+  initStats() async {
+    _updateStatsForSelectedRange(_selectedDateRange);
   }
 
   @override
@@ -82,7 +126,7 @@ class _AppUsageStatsPageState extends State<AppUsageStatsPage> {
             _buildTimeRangeSelectionWidget(),
             const SizedBox(height: 16),
 
-            statsToDisplay == null
+            _isLoading
                 ? const CircularProgressIndicator(
                     semanticsLabel: 'Linear progress indicator',
                   )
@@ -118,43 +162,42 @@ class _AppUsageStatsPageState extends State<AppUsageStatsPage> {
               2: Text('This Month'),
               3: Text('Custom'),
             },
-            onValueChanged: (int? newValue) {
+            onValueChanged: (int? newValue) async {
               if (newValue != null) {
                 setState(() {
                   _selectedOptionIndex = newValue;
-                  switch (newValue) {
-                    case 0:
-                      _selectedDateRange =
-                          DateTimeRange(start: today, end: now);
-                      break;
-                    case 1:
-                      _selectedDateRange =
-                          DateTimeRange(start: startOfWeek, end: now);
-                      break;
-                    case 2:
-                      _selectedDateRange =
-                          DateTimeRange(start: startOfMonth, end: now);
-                      break;
-                    case 3:
-                      showDateRangePicker(
-                        context: context,
-                        firstDate:
-                            DateTime(2022), // Set your preferred first date
-                        lastDate: DateTime.now(),
-                      ).then((pickedDateRange) {
-                        if (pickedDateRange != null &&
-                            pickedDateRange.start != null &&
-                            pickedDateRange.end != null) {
-                          setState(() {
-                            _selectedDateRange = pickedDateRange;
-                          });
-                        }
-                      });
-                      break;
-                    default:
-                      break;
-                  }
                 });
+                var dateRange;
+                switch (newValue) {
+                  case 0:
+                    dateRange = DateTimeRange(start: today, end: now);
+                    break;
+                  case 1:
+                    dateRange = DateTimeRange(start: startOfWeek, end: now);
+                    break;
+                  case 2:
+                    dateRange = DateTimeRange(start: startOfMonth, end: now);
+                    break;
+                  case 3:
+                    var pickedDateRange = await showDateRangePicker(
+                      context: context,
+                      firstDate:
+                          DateTime(2022), // Set your preferred first date
+                      lastDate: DateTime.now(),
+                    );
+                    if (pickedDateRange != null &&
+                        pickedDateRange.start != null &&
+                        pickedDateRange.end != null) {
+                      dateRange = pickedDateRange;
+                    }
+                    break;
+                  default:
+                    break;
+                }
+                setState(() {
+                  _selectedDateRange = dateRange;
+                });
+                _updateStatsForSelectedRange(dateRange);
               }
             },
             groupValue: _getSelectedOptionIndex(),

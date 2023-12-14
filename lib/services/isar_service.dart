@@ -191,48 +191,47 @@ class IsarService {
     await addEventForEntity('Channel', chat.id, 'Close');
   }
 
-  Future<int> getChatOpenEventsNumberToday() async {
-    return await getEventsNumberToday('Chat', 'Open');
+  Future<int> getChatOpenEventsNumberPerTimeframe(
+    DateTime start,
+    DateTime end,
+  ) async {
+    return await getEventsNumberPerTimeframe('Chat', 'Open', start, end);
   }
 
-  Future<int> getChannelOpenEventsNumberToday() async {
-    return await getEventsNumberToday('Channel', 'Open');
+  Future<int> getChannelOpenEventsNumberPerTimeframe(
+    DateTime start,
+    DateTime end,
+  ) async {
+    return await getEventsNumberPerTimeframe('Channel', 'Open', start, end);
   }
 
-  Future<int> getChatCloseEventsNumberToday() async {
-    return await getEventsNumberToday('Chat', 'Close');
+  Future<int> getChatCloseEventsNumberPerTimeframe(
+    DateTime start,
+    DateTime end,
+  ) async {
+    return await getEventsNumberPerTimeframe('Chat', 'Close', start, end);
   }
 
-  Future<Duration> getChatTotalTimeOpenedToday() async {
-    return await getTotalTimeToday('Chat', 'Open', 'Close');
+  Future<int> getChannelCloseEventsNumberPerTimeframe(
+    DateTime start,
+    DateTime end,
+  ) async {
+    return await getEventsNumberPerTimeframe('Channel', 'Close', start, end);
   }
 
-  Future<Duration> getChannelTotalTimeOpenedToday() async {
-    return await getTotalTimeToday('Channel', 'Open', 'Close');
+  Future<Duration> getChatTotalTimeOpenedPerTimeframe(
+    DateTime start,
+    DateTime end,
+  ) async {
+    return await getTotalTimePerTimeframe('Chat', 'Open', 'Close', start, end);
   }
 
-  Future<int> getChatOpenEventsNumberThisWeek() async {
-    return await getEventsNumberThisWeek('Chat', 'Open');
-  }
-
-  Future<int> getChannelOpenEventsNumberThisWeek() async {
-    return await getEventsNumberThisWeek('Channel', 'Open');
-  }
-
-  Future<Duration> getChatTotalTimeOpenedThisWeek() async {
-    return await getTotalTimeToday('Chat', 'Open', 'Close');
-  }
-
-  Future<Duration> getChannelTotalTimeOpenedThisWeek() async {
-    return await getTotalTimeToday('Channel', 'Open', 'Close');
-  }
-
-  Future<int> getChatOpenEventsNumberThisMonth() async {
-    return await getEventsNumberThisMonth('Chat', 'Open');
-  }
-
-  Future<int> getChannelOpenEventsNumberThisMonth() async {
-    return await getEventsNumberThisMonth('Channel', 'Open');
+  Future<Duration> getChannelTotalTimeOpenedPerTimeframe(
+    DateTime start,
+    DateTime end,
+  ) async {
+    return await getTotalTimePerTimeframe(
+        'Channel', 'Open', 'Close', start, end);
   }
 
   Future<Map<int, Map<String, dynamic>>> getTopChatsPerTimeFrame(
