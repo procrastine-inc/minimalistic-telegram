@@ -134,13 +134,12 @@ class MessageStore extends EventEmitter {
 
   //TODO: THIS IS HOW ALL UPDATES SHOULD BE HANDLED IN OTHER STORES
 
-  onUpdate(td_api.TdObject event) {
+  onUpdate(td_api.TdObject event) async {
     final eventType = event.runtimeType;
     final handler = eventHandlers[eventType];
     if (handler != null) {
-      handler(event);
-      emit(eventType.toString().toCamelCase(),
-          event); // TODO: camelCasing here is a hack, fix it
+      await handler(event);
+      emit(eventType.toString().toCamelCase(), event);
     } else {
       // Handle unknown event type
     }
@@ -155,6 +154,22 @@ class MessageStore extends EventEmitter {
       default:
     }
   }
+
+  // _handleUpdateMessageInteractionInfo(
+  //     td_api.UpdateMessageInteractionInfo event) {
+  //   Print.yellow('_handleUpdateMessageInteractionInfo');
+  //   final chatId = event.chatId;
+  //   var chat = items[chatId];
+  //   chat ??= SplayTreeMap();
+  //   if (chat.containsKey(event.messageId) &&
+  //       chat[event.messageId] is td_api.Message) {
+  //     var json = _makeCorrectMessageJson(chat[event.messageId]!, event);
+
+  //     var newMessage = td_api.Message.fromJson(json);
+  //     _handleUpdateNewMessage(
+  //         td_api.UpdateNewMessage(message: newMessage, extra: event.extra));
+  //   }
+  // }
 
   Future searchAllMessages({
     required String searchQuery,

@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:minimalistic_telegram/pages/ChatBasePage.dart';
+import 'package:minimalistic_telegram/utils/const.dart';
 import 'package:tdlib/td_api.dart' as td_api;
+import 'package:minimalistic_telegram/services/locator.dart';
 
 import '../ChatAvatar/index.dart';
 import 'chat_bottom_row.dart';
@@ -33,9 +35,12 @@ class ChatBlock extends StatelessWidget {
       subtitle: ChatBottomRow(chat: chat),
       // tileColor: theme.colorScheme.background,
       onTap: () {
-        Navigator.push(context, CupertinoPageRoute(builder: (context) {
-          return ChatBasePage(chat: chat);
-        }));
+        locator<NavigationService>()
+            .navigator
+            .pushNamed(chatRoute, arguments: chat);
+        // Navigator.push(context, CupertinoPageRoute(builder: (context) {
+        //   return ChatBasePage(chat: chat);
+        // }));
       },
       onLongPress: () {},
     );

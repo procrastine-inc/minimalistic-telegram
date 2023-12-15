@@ -288,4 +288,36 @@ class ChatStore extends EventBus {
         unreadCount: event.unreadCount);
     items[event.chatId] = updatedChat;
   }
+
+  Future searchAllChats({
+    required String searchQuery,
+    required int limit,
+  }) async {
+    var searchChatsRequestBody = td_api.SearchChatsOnServer(
+      query: searchQuery,
+      // offsetDate: offsetDate,
+      limit: limit,
+    );
+    var chatsListResponse = await TdLibController()
+        .send<td_api.TdObject<dynamic>>(searchChatsRequestBody);
+    if (chatsListResponse is td_api.TdError) {
+      Print.red(chatsListResponse.message);
+    }
+    return chatsListResponse;
+  }
+
+  Future searchGlobalChats({
+    required String searchQuery,
+  }) async {
+    var searchChatsRequestBody = td_api.SearchPublicChats(
+      query: searchQuery,
+      // offsetDate: offsetDate,
+    );
+    var chatsListResponse = await TdLibController()
+        .send<td_api.TdObject<dynamic>>(searchChatsRequestBody);
+    if (chatsListResponse is td_api.TdError) {
+      Print.red(chatsListResponse.message);
+    }
+    return chatsListResponse;
+  }
 }
