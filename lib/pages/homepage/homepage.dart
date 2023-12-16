@@ -120,7 +120,7 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
     var userStore = context.read<UserStore>();
     var myId = await userStore.getMyId();
 
-    var myInfo = userStore.get(myId ?? 0);
+    var myInfo = await userStore.get(myId ?? 0);
     var firstName = myInfo?.firstName;
     if (firstName != null) {
       setState(() {
@@ -221,7 +221,11 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
           ListTile(
             leading: const Icon(Icons.bookmark_outline),
             title: const Text("Saved Messages"),
-            onTap: () {},
+            onTap: () {
+              // locator<NavigationService>()
+              //     .navigator
+              //     .pushNamed(chatRoute, arguments: chat);
+            },
           ),
           ListTile(
             leading: const Icon(Icons.settings),

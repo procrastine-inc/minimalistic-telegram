@@ -57,7 +57,7 @@ class UserStore extends EventEmitter {
   }
 
   _handleUpdateUserStatus(td_api.UpdateUserStatus updateUserStatus) async {
-    final user = get(updateUserStatus.userId);
+    final user = await get(updateUserStatus.userId);
     if (user != null) {
       var userCopyWithNewStatus = user.copyWith(
         status: updateUserStatus.status,
@@ -89,7 +89,12 @@ class UserStore extends EventEmitter {
     }
   }
 
-  td_api.User? get(int userId) {
+  Future<td_api.User?> get(int userId) async {
+    if (items[userId] == null) {
+      var user = await TdLibController()
+          .send<td_api.User>(td_api.GetUser(userId: userId));
+      set(user);
+    }
     return items[userId];
   }
 

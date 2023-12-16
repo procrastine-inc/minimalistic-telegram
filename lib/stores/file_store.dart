@@ -71,14 +71,14 @@ class FileStore extends EventBus {
     items[fileId] = file;
   }
 
-  downloadFile(td_api.File file) async {
+  downloadFile(td_api.File file, {td_api.User? user}) async {
     Print.green(
         'Request to downloadFile'); // firing, because we don't have files in store at this point. it's okay to have it here
     final fileId = file.id;
     var response = await TdLibController().send(td_api.DownloadFile(
-        fileId: fileId, limit: 0, priority: 1, offset: 0, synchronous: false));
+        fileId: fileId, limit: 0, priority: 1, offset: 0, synchronous: true));
     if (response is td_api.File) {
-      Print.green('File already downloaded');
+      Print.green('File downloaded');
       items[fileId] = response;
       fire(td_api.UpdateFile(file: response));
     }

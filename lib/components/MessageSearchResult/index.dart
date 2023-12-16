@@ -24,7 +24,10 @@ class MessageSearchResult extends StatelessWidget {
     }
 
     return ListTile(
-      leading: ChatAvatar(photo: chat.photo),
+      leading: ChatAvatar(
+        smallPhoto: chat.photo?.small,
+        minithumbnail: chat.photo?.minithumbnail,
+      ),
       title: Text(chat.title),
       subtitle: ChatMessagePreview(
         message: message,

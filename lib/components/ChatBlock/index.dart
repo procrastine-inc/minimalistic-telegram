@@ -30,7 +30,10 @@ class ChatBlock extends StatelessWidget {
   Widget build(BuildContext context) {
     // debugger();
     return ListTile(
-      leading: ChatAvatar(photo: chat.photo),
+      leading: ChatAvatar(
+        smallPhoto: chat.photo?.small,
+        minithumbnail: chat.photo?.minithumbnail,
+      ),
       title: ChatTopRow(chat: chat),
       subtitle: ChatBottomRow(chat: chat),
       // tileColor: theme.colorScheme.background,

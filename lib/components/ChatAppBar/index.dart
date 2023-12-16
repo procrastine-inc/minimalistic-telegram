@@ -33,7 +33,10 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
               const SizedBox(
                 width: 2,
               ),
-              ChatAvatar(photo: chat.photo),
+              ChatAvatar(
+                smallPhoto: chat.photo?.small,
+                minithumbnail: chat.photo?.minithumbnail,
+              ),
               const SizedBox(
                 width: 12,
               ),

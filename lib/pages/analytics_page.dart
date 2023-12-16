@@ -351,7 +351,10 @@ class TopChannelTile extends StatelessWidget {
     }
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 0),
-      leading: ChatAvatar(photo: chat.photo),
+      leading: ChatAvatar(
+        smallPhoto: chat.photo?.small,
+        minithumbnail: chat.photo?.minithumbnail,
+      ),
       title: ChatTitle(title: chat.title),
       subtitle: Text(
           'Usage Time: ${usageTime.toString()} | Usage Count: ${usageCount}'),
