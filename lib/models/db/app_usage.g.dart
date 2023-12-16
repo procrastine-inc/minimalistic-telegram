@@ -13,17 +13,17 @@ extension GetAppUsageCollection on Isar {
   IsarCollection<AppUsage> get appUsages => this.collection();
 }
 
-const AppUsageSchema = CollectionSchema(
+final AppUsageSchema = CollectionSchema(
   name: r'AppUsage',
-  id: 3726360622219358497,
+  id: BigInt.parse("3726360622219358497").toInt(),
   properties: {
     r'actionType': PropertySchema(
-      id: 0,
+      id: BigInt.parse("0").toInt(),
       name: r'actionType',
       type: IsarType.string,
     ),
     r'timestamp': PropertySchema(
-      id: 1,
+      id: BigInt.parse("1").toInt(),
       name: r'timestamp',
       type: IsarType.dateTime,
     )
@@ -36,7 +36,7 @@ const AppUsageSchema = CollectionSchema(
   indexes: {},
   links: {
     r'actionEntitity': LinkSchema(
-      id: 6396312034690123562,
+      id: BigInt.parse("6396312034690123562").toInt(),
       name: r'actionEntitity',
       target: r'ActionEntity',
       single: true,
@@ -46,7 +46,7 @@ const AppUsageSchema = CollectionSchema(
   getId: _appUsageGetId,
   getLinks: _appUsageGetLinks,
   attach: _appUsageAttach,
-  version: '3.1.0+1',
+  version: '3.1.0',
 );
 
 int _appUsageEstimateSize(
@@ -555,17 +555,17 @@ extension GetActionEntityCollection on Isar {
   IsarCollection<ActionEntity> get actionEntitys => this.collection();
 }
 
-const ActionEntitySchema = CollectionSchema(
+final ActionEntitySchema = CollectionSchema(
   name: r'ActionEntity',
-  id: -4772155349636889959,
+  id: BigInt.parse("-4772155349636889959").toInt(),
   properties: {
     r'entityId': PropertySchema(
-      id: 0,
+      id: BigInt.parse("0").toInt(),
       name: r'entityId',
       type: IsarType.long,
     ),
     r'entityType': PropertySchema(
-      id: 1,
+      id: BigInt.parse("1").toInt(),
       name: r'entityType',
       type: IsarType.string,
     )
@@ -581,7 +581,7 @@ const ActionEntitySchema = CollectionSchema(
   getId: _actionEntityGetId,
   getLinks: _actionEntityGetLinks,
   attach: _actionEntityAttach,
-  version: '3.1.0+1',
+  version: '3.1.0',
 );
 
 int _actionEntityEstimateSize(

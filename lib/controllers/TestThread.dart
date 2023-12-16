@@ -8,5 +8,6 @@ import 'custom_thread.dart';
 external DedicatedWorkerGlobalScope get self;
 
 void main() async {
+  self.importScripts('tdlib.js');
   await TestThread().main(self);
 }

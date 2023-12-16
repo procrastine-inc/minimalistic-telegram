@@ -3,12 +3,17 @@ import 'package:minimalistic_telegram/models/db/app_usage.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:tdlib/td_api.dart' as td_api;
 import "package:collection/collection.dart";
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class IsarService {
   late Future<Isar> db;
 
   IsarService() {
-    db = openDB();
+    if (kIsWeb) {
+      return;
+    } else {
+      db = openDB();
+    }
   }
 
   Future<Isar> openDB() async {

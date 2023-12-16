@@ -20,6 +20,7 @@ import 'package:provider/provider.dart';
 import 'package:tdlib/td_client.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:tdlib/td_api.dart' as td_api;
+import 'package:tdlib/src/tdclient/platform_interfaces/td_web_plugin_real.dart';
 
 void main() async {
   await dotenv.load();
@@ -34,7 +35,7 @@ void main() async {
 
   print(tdlibPath);
   print('Hi!');
-  await TdPlugin.initialize(tdlibPath);
+  await TdWebPlugin.initialize(tdlibPath);
   final dbservice = IsarService();
   setupLocator();
   runApp(
