@@ -195,7 +195,6 @@ class _ContactBlockState extends State<ContactBlock> {
     if (widget.user == null) return const SizedBox.shrink();
     return ListTile(
       leading: ChatAvatar(
-          user: widget.user,
           smallPhoto: widget.user?.profilePhoto?.small,
           minithumbnail: widget.user?.profilePhoto?.minithumbnail),
 
