@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:minimalistic_telegram/services/locator.dart';
 import 'package:minimalistic_telegram/stores/application_store.dart';
+import 'package:minimalistic_telegram/stores/user_store.dart';
 import 'package:minimalistic_telegram/utils/const.dart';
 import 'package:palestine_console/palestine_console.dart';
 import 'package:provider/provider.dart';
@@ -98,63 +99,93 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-class NavigationDrawer extends StatelessWidget {
+class NavigationDrawer extends StatefulWidget {
   const NavigationDrawer({super.key});
 
   @override
-  Widget build(BuildContext context) => Drawer(
-          child: SingleChildScrollView(
-              child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          buildHeader(context),
-          buildMenuItems(context),
-        ],
-      )));
+  State<NavigationDrawer> createState() => _NavigationDrawerState();
+}
 
-  Widget buildHeader(BuildContext context) {
+class _NavigationDrawerState extends State<NavigationDrawer> {
+  String? firstName;
+
+  @override
+  void initState() {
+    loadUsername();
+    super.initState();
+  }
+
+  void loadUsername() async {
+    var userStore = context.read<UserStore>();
+    var myId = await userStore.getMyId();
+
+    var myInfo = userStore.get(myId ?? 0);
+    var firstName = myInfo?.firstName;
+    if (firstName != null) {
+      setState(() {
+        this.firstName = firstName;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Drawer(
+        child: SingleChildScrollView(
+            child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        buildHeader(context, firstName ?? 'Username'),
+        buildMenuItems(context),
+      ],
+    )));
+  }
+
+  Widget buildHeader(BuildContext context, String username) {
     var theme = Theme.of(context);
 
     return SafeArea(
-      child: Container(
-          color: theme.primaryColor,
-          child: Column(
-            children: [
-              Text(
-                "username",
-                style: TextStyle(color: theme.colorScheme.onPrimary),
-              ),
-              ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.all(0.0),
-                  shape: const CircleBorder(),
-                  backgroundColor: theme.primaryColorDark,
-                  elevation: 0,
-                ),
-                child: Icon(
-                  Icons.bookmark_outline,
-                  color: theme.colorScheme.onPrimary,
-                ),
-              ),
-            ],
-          )),
-    );
+        child: Container(
+      color: theme.primaryColor,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+        child: Text(
+          username,
+          style: TextStyle(color: theme.colorScheme.onPrimary),
+        ),
+        // ElevatedButton(
+        //   onPressed: () {},
+        //   style: ElevatedButton.styleFrom(
+        //     padding: const EdgeInsets.all(0.0),
+        //     shape: const CircleBorder(),
+        //     backgroundColor: theme.primaryColorDark,
+        //     elevation: 0,
+        //   ),
+        //   child: Icon(
+        //     Icons.bookmark_outline,
+        //     color: theme.colorScheme.onPrimary,
+        //   ),
+        // ),
+      ),
+    ));
   }
 
   Widget buildMenuItems(BuildContext context) => Column(
         children: [
           ListTile(
+            enabled: false,
             leading: const Icon(Icons.group_outlined),
             title: const Text("New group"),
             onTap: () {},
           ),
           ListTile(
+            enabled: false,
             leading: const Icon(Icons.lock_outline),
             title: const Text("New secret chat"),
             onTap: () {},
           ),
           ListTile(
+            enabled: false,
             leading: const Icon(Icons.cancel_presentation_sharp),
             title: const Text("New channel"),
             onTap: () {},
@@ -166,23 +197,26 @@ class NavigationDrawer extends StatelessWidget {
             onTap: () {},
           ),
           ListTile(
+            enabled: false,
             leading: const Icon(Icons.download_outlined),
             title: const Text("Downloads"),
             onTap: () {},
           ),
           ListTile(
+            enabled: false,
             leading: const Icon(Icons.location_on_outlined),
             title: const Text("People around"),
             onTap: () {},
           ),
           ListTile(
+            enabled: false,
             leading: const Icon(Icons.phone_outlined),
             title: const Text("Calls"),
             onTap: () {},
           ),
           ListTile(
             leading: const Icon(Icons.bookmark_outline),
-            title: const Text("Featured"),
+            title: const Text("Saved Messages"),
             onTap: () {},
           ),
           ListTile(

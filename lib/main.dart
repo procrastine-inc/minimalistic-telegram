@@ -4,6 +4,8 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:minimalistic_telegram/services/isar_service.dart';
+import 'package:minimalistic_telegram/stores/options_store.dart';
+import 'package:minimalistic_telegram/stores/user_store.dart';
 import 'package:tdlib/tdlib.dart';
 import 'package:flutter/material.dart';
 import 'package:minimalistic_telegram/controllers/tdlib_controller.dart';
@@ -59,6 +61,14 @@ void main() async {
         ),
         Provider<FileStore>(
           create: (_) => FileStore(),
+          lazy: false,
+        ),
+        Provider<OptionStore>(
+          create: (_) => OptionStore(),
+          lazy: false,
+        ),
+        Provider<UserStore>(
+          create: (_) => UserStore(),
           lazy: false,
         ),
       ],
