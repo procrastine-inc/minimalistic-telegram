@@ -15,8 +15,10 @@ class ArchiveBlock extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
+      enabled: false,
       leading: const CircleAvatar(
-        child: Icon(Icons.archive),
+        backgroundColor: Colors.grey,
+        child: Icon(Icons.archive, color: Colors.white),
       ),
       title: const Text('Archive'),
       subtitle: const Text('Archived chats'),

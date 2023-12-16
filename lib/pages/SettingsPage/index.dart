@@ -89,48 +89,56 @@ class SettingsPage extends StatelessWidget {
               title: "Settings",
               children: [
                 ListTile(
+                  enabled: false,
                   visualDensity: VisualDensity.compact,
                   leading: const Icon(Icons.notifications_outlined),
                   title: const Text("Notifications and Sounds"),
                   onTap: () {},
                 ),
                 ListTile(
+                  enabled: false,
                   visualDensity: VisualDensity.compact,
                   leading: const Icon(Icons.lock_outline),
                   title: const Text("Privacy and Security"),
                   onTap: () {},
                 ),
                 ListTile(
+                  enabled: false,
                   visualDensity: VisualDensity.compact,
                   leading: const Icon(Icons.pie_chart_outline),
                   title: const Text("Data and Storage"),
                   onTap: () {},
                 ),
                 ListTile(
+                  enabled: false,
                   visualDensity: VisualDensity.compact,
                   leading: const Icon(Icons.chat_bubble_outline),
                   title: const Text("Chat Settings"),
                   onTap: () {},
                 ),
                 ListTile(
+                  enabled: false,
                   visualDensity: VisualDensity.compact,
                   leading: const Icon(Icons.sticky_note_2),
                   title: const Text("Stickers and Emoji"),
                   onTap: () {},
                 ),
                 ListTile(
+                  enabled: false,
                   visualDensity: VisualDensity.compact,
                   leading: const Icon(Icons.folder_outlined),
                   title: const Text("Chat Folders"),
                   onTap: () {},
                 ),
                 ListTile(
+                  enabled: false,
                   visualDensity: VisualDensity.compact,
                   leading: const Icon(Icons.devices),
                   title: const Text("Devices"),
                   onTap: () {},
                 ),
                 ListTile(
+                  enabled: false,
                   visualDensity: VisualDensity.compact,
                   leading: const Icon(Icons.language_outlined),
                   title: const Text("Language"),
@@ -173,12 +181,14 @@ class SettingsPage extends StatelessWidget {
               title: "Help",
               children: [
                 ListTile(
+                  enabled: false,
                   visualDensity: VisualDensity.compact,
                   leading: const Icon(Icons.help_outline_outlined),
                   title: const Text("Telegram FAQ"),
                   onTap: () {},
                 ),
                 ListTile(
+                  enabled: false,
                   visualDensity: VisualDensity.compact,
                   leading: const Icon(Icons.verified_user_outlined),
                   title: const Text("Privacy Policy"),

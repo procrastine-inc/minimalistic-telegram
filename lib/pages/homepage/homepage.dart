@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:minimalistic_telegram/pages/contacts_page.dart';
 import 'package:minimalistic_telegram/services/locator.dart';
 import 'package:minimalistic_telegram/stores/application_store.dart';
 import 'package:minimalistic_telegram/stores/user_store.dart';
@@ -194,7 +195,10 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
           ListTile(
             leading: const Icon(Icons.person_outline),
             title: const Text("Contacts"),
-            onTap: () {},
+            onTap: () {
+              locator<NavigationService>().navigator.pop(context);
+              locator<NavigationService>().navigator.pushNamed(contactsRoute);
+            },
           ),
           ListTile(
             enabled: false,
@@ -223,10 +227,8 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
             leading: const Icon(Icons.settings),
             title: const Text("Settings"),
             onTap: () {
-              Navigator.pop(context);
-              Navigator.of(context).push(CupertinoPageRoute(
-                builder: (context) => const SettingsPage(),
-              ));
+              locator<NavigationService>().navigator.pop(context);
+              locator<NavigationService>().navigator.pushNamed(settingsRoute);
             },
           ),
         ],

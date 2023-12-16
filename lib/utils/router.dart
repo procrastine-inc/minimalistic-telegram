@@ -1,8 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:minimalistic_telegram/pages/ChatBasePage.dart';
+import 'package:minimalistic_telegram/pages/SettingsPage/index.dart';
 import 'package:minimalistic_telegram/pages/analytics_page.dart';
 import 'package:minimalistic_telegram/pages/channel_search_page.dart';
+import 'package:minimalistic_telegram/pages/contacts_page.dart';
 import 'package:minimalistic_telegram/pages/global_search_page.dart';
 import 'package:minimalistic_telegram/pages/homepage/homepage.dart';
 import 'package:minimalistic_telegram/pages/login/code_entry.dart';
@@ -43,9 +45,17 @@ class Router {
         return CupertinoPageRoute(builder: (context) {
           return ChatBasePage(chat: chat);
         });
+      case settingsRoute:
+        return CupertinoPageRoute(
+          builder: (_) => const SettingsPage(),
+        );
       case statsRoute:
         return CupertinoPageRoute(
           builder: (_) => const AppUsageStatsPage(),
+        );
+      case contactsRoute:
+        return CupertinoPageRoute(
+          builder: (_) => const ContactsPage(),
         );
       default:
         return MaterialPageRoute(
