@@ -4,18 +4,27 @@ Minimalistic and multiplatform Telegram client.
 
 ## Getting Started
 
-1. Create a `.env` file in root.
-2. Fill in following:
+1. Install dart and flutter on your machine.
+   ```yaml
+   environment:
+      sdk: ">=2.18.0 <4.0.0"
+      flutter: ">=3.3.0"
+   ```
+
+3. Install Android SDK.
+4. Create a `.env` file in root.
+5. Fill in following:
 
     ```md
     API_ID=
     API_HASH=
     ```
 
-3. Request keys from whoever has them and put them in.
-4. Install dependencies.
-5. Create android emulator(or connect your phone)
-6. Build app as usual for development.
+6. Request keys from whoever has them and put them in.
+7. Install dependencies.
+8. Create android emulator(or connect your phone)
+9. Build app as usual for development.
+10. Check helpful resources if stuck on any stage.
 
 ## Core features
 
