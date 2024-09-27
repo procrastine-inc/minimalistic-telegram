@@ -4,7 +4,7 @@ import { useNavigation } from "expo-router";
 import { Colors } from "../constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 
-function HomePage() {
+export default function HomePage() {
   const navigation = useNavigation();
 
   const chats = [
@@ -34,20 +34,21 @@ function HomePage() {
   );
 }
 
-export default function HomePageWrapper() {
-  const colorScheme = useColorScheme();
+// export default function HomePageWrapper() {
+//   const colorScheme = useColorScheme();
 
-  return (
-    <Drawer.Screen
-      options={{
-        headerStyle: {
-          backgroundColor: Colors[colorScheme ?? "light"].tabIconSelected,
-        },
-        headerTintColor: "#fff",
-        drawerStyle: {
-          backgroundColor: "#f0f0f0",
-        },
-      }}
-    />
-  );
-}
+//   return (
+//     <Drawer.Screen
+//       name="Home"
+//       options={{
+//         headerStyle: {
+//           backgroundColor: Colors[colorScheme ?? "light"].tabIconSelected,
+//         },
+//         headerTintColor: "#fff",
+//         drawerStyle: {
+//           backgroundColor: "#f0f0f0",
+//         },
+//       }}
+//     />
+//   );
+// }
