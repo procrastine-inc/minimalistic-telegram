@@ -33,22 +33,3 @@ export default function HomePage() {
     </View>
   );
 }
-
-// export default function HomePageWrapper() {
-//   const colorScheme = useColorScheme();
-
-//   return (
-//     <Drawer.Screen
-//       name="Home"
-//       options={{
-//         headerStyle: {
-//           backgroundColor: Colors[colorScheme ?? "light"].tabIconSelected,
-//         },
-//         headerTintColor: "#fff",
-//         drawerStyle: {
-//           backgroundColor: "#f0f0f0",
-//         },
-//       }}
-//     />
-//   );
-// }
