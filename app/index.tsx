@@ -3,7 +3,9 @@ import { Drawer } from "expo-router/drawer";
 import { useNavigation } from "expo-router";
 import { Colors } from "../constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
-
+import { createClientId } from "@/modules/tdlib-rn";
+// import { hello } from "@/modules/tdlib-rn";
+import { useEffect } from "react";
 export default function HomePage() {
   const navigation = useNavigation();
 
@@ -12,6 +14,20 @@ export default function HomePage() {
     { id: 2, title: "Chat 2" },
     // Add more chat items
   ];
+
+  useEffect(() => {
+    try {
+      const clientId = createClientId();
+      console.log(clientId);
+      // console.log(hello());
+    } catch (error) {
+      console.error(error);
+    }
+
+    // // const clientId = createClientId();
+    // // console.log(clientId);
+    // console.log("Hello from HomePage");
+  }, []);
 
   return (
     <View style={{ flex: 1 }}>
