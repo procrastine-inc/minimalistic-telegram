@@ -3,8 +3,9 @@ import { Drawer } from "expo-router/drawer";
 import { useNavigation } from "expo-router";
 import { Colors } from "../constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
-import { createClientId } from "@/modules/tdlib-rn";
+import { TdClient } from "@/modules/tdlib-rn";
 // import { hello } from "@/modules/tdlib-rn";
+
 import { useEffect } from "react";
 export default function HomePage() {
   const navigation = useNavigation();
@@ -17,9 +18,14 @@ export default function HomePage() {
 
   useEffect(() => {
     try {
-      const clientId = createClientId();
-      console.log(clientId);
-      // console.log(hello());
+      const client = new TdClient({
+        onUpdate: (update) => {
+          console.log(update);
+        },
+      });
+      client.send({
+        "@type": "getChats",
+      });
     } catch (error) {
       console.error(error);
     }
